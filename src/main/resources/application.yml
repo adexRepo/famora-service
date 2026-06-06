@@ -55,7 +55,7 @@ management:
       enabled: false
 app:
   vault:
-    encryption-key: ONSGCZDLONQWUZDPMFVG62LEONQW62LEN5UWI4DTMFVXAZDLONQXAZDLOBZQ====
+    encryption-key: Zo7rYK1Yei9YrmpD5UoS3V1ZpWFlICL7cHqL6H8kgxE=
   security:
     jwt:
       issuer: ${TOKEN_ISSUER:famoraApp}

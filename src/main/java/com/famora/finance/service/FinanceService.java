@@ -2,6 +2,7 @@ package com.famora.finance.service;
 
 import com.famora.audit.entity.AuditAction;
 import com.famora.audit.service.AuditLogService;
+import com.famora.common.exception.ResourceNotFoundException;
 import com.famora.family.entity.Family;
 import com.famora.finance.dto.CreateFinanceTransactionRequest;
 import com.famora.finance.dto.FinanceSummaryResponse;
@@ -74,13 +75,43 @@ public class FinanceService {
     LocalDate startDate = yearMonth.atDay(1);
     LocalDate endDate = yearMonth.atEndOfMonth();
     
-    List<FinanceTransaction> transactions = financeTransactionRepository.search(
-        family.getId(),
-        startDate,
-        endDate,
-        type,
-        clean(category)
-    );
+    String cleanCategory = clean(category);
+    
+    List<FinanceTransaction> transactions;
+    
+    if (type == null && cleanCategory == null) {
+      transactions = financeTransactionRepository
+          .findByFamilyIdAndDeletedAtIsNullAndTransactionDateBetweenOrderByTransactionDateDescCreatedAtDesc(
+              family.getId(),
+              startDate,
+              endDate
+          );
+    } else if (type != null && cleanCategory == null) {
+      transactions = financeTransactionRepository
+          .findByFamilyIdAndDeletedAtIsNullAndTransactionDateBetweenAndTypeOrderByTransactionDateDescCreatedAtDesc(
+              family.getId(),
+              startDate,
+              endDate,
+              type
+          );
+    } else if (type == null) {
+      transactions = financeTransactionRepository
+          .findByFamilyIdAndDeletedAtIsNullAndTransactionDateBetweenAndCategoryIgnoreCaseOrderByTransactionDateDescCreatedAtDesc(
+              family.getId(),
+              startDate,
+              endDate,
+              cleanCategory
+          );
+    } else {
+      transactions = financeTransactionRepository
+          .findByFamilyIdAndDeletedAtIsNullAndTransactionDateBetweenAndTypeAndCategoryIgnoreCaseOrderByTransactionDateDescCreatedAtDesc(
+              family.getId(),
+              startDate,
+              endDate,
+              type,
+              cleanCategory
+          );
+    }
     
     return transactions.stream()
         .map(this::toResponse)
@@ -93,7 +124,7 @@ public class FinanceService {
     
     FinanceTransaction transaction = financeTransactionRepository
         .findByIdAndFamilyIdAndDeletedAtIsNull(id, family.getId())
-        .orElseThrow(() -> new IllegalArgumentException("Finance transaction not found"));
+        .orElseThrow(() -> new ResourceNotFoundException("Finance transaction not found"));
     
     return toResponse(transaction);
   }
@@ -105,7 +136,7 @@ public class FinanceService {
     
     FinanceTransaction transaction = financeTransactionRepository
         .findByIdAndFamilyIdAndDeletedAtIsNull(id, family.getId())
-        .orElseThrow(() -> new IllegalArgumentException("Finance transaction not found"));
+        .orElseThrow(() -> new ResourceNotFoundException("Finance transaction not found"));
     
     transaction.setType(request.type());
     transaction.setAmount(request.amount());
@@ -136,7 +167,7 @@ public class FinanceService {
     
     FinanceTransaction transaction = financeTransactionRepository
         .findByIdAndFamilyIdAndDeletedAtIsNull(id, family.getId())
-        .orElseThrow(() -> new IllegalArgumentException("Finance transaction not found"));
+        .orElseThrow(() -> new ResourceNotFoundException("Finance transaction not found"));
     
     transaction.setDeletedAt(OffsetDateTime.now());
     transaction.setUpdatedBy(user);

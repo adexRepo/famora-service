@@ -27,6 +27,13 @@ public class VaultCryptoService {
   @PostConstruct
   void init() {
     byte[] keyBytes = Base64.getDecoder().decode(encryptionKeyBase64);
+    if (keyBytes.length != 16 && keyBytes.length != 24 && keyBytes.length != 32) {
+      throw new IllegalStateException(
+          "Invalid vault encryption key length: "
+              + keyBytes.length + " bytes. AES key must be 16, 24, or 32 bytes. "
+              + "Generate a valid key using: openssl rand -base64 32"
+      );
+    }
     this.secretKey = new SecretKeySpec(keyBytes, ALGORITHM);
   }
   

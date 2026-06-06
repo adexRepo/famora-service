@@ -2,6 +2,7 @@ package com.famora.note.service;
 
 import com.famora.audit.entity.AuditAction;
 import com.famora.audit.service.AuditLogService;
+import com.famora.common.exception.ResourceNotFoundException;
 import com.famora.family.entity.Family;
 import com.famora.note.dto.CreateNoteRequest;
 import com.famora.note.dto.NoteListResponse;
@@ -59,11 +60,32 @@ public class NoteService {
   public List<NoteListResponse> list(String keyword, String category) {
     Family family = familyContextService.getCurrentFamily();
     
-    List<Note> notes = noteRepository.search(
-        family.getId(),
-        clean(keyword),
-        clean(category)
-    );
+    String cleanKeyword = clean(keyword);
+    String cleanCategory = clean(category);
+    
+    List<Note> notes;
+    
+    if (cleanKeyword == null && cleanCategory == null) {
+      notes = noteRepository.findByFamilyIdAndDeletedAtIsNullOrderByCreatedAtDesc(
+          family.getId()
+      );
+    } else if (cleanKeyword == null) {
+      notes = noteRepository.findByFamilyIdAndCategoryIgnoreCaseAndDeletedAtIsNullOrderByCreatedAtDesc(
+          family.getId(),
+          cleanCategory
+      );
+    } else if (cleanCategory == null) {
+      notes = noteRepository.searchByKeyword(
+          family.getId(),
+          cleanKeyword
+      );
+    } else {
+      notes = noteRepository.searchByKeywordAndCategory(
+          family.getId(),
+          cleanKeyword,
+          cleanCategory
+      );
+    }
     
     return notes.stream()
         .map(this::toListResponse)
@@ -76,7 +98,7 @@ public class NoteService {
     
     Note note = noteRepository
         .findByIdAndFamilyIdAndDeletedAtIsNull(id, family.getId())
-        .orElseThrow(() -> new IllegalArgumentException("Note not found"));
+        .orElseThrow(() -> new ResourceNotFoundException("Note not found"));
     
     return toResponse(note);
   }
@@ -88,7 +110,7 @@ public class NoteService {
     
     Note note = noteRepository
         .findByIdAndFamilyIdAndDeletedAtIsNull(id, family.getId())
-        .orElseThrow(() -> new IllegalArgumentException("Note not found"));
+        .orElseThrow(() -> new ResourceNotFoundException("Note not found"));
     
     note.setTitle(request.title().trim());
     note.setContent(request.content().trim());
@@ -116,7 +138,7 @@ public class NoteService {
     
     Note note = noteRepository
         .findByIdAndFamilyIdAndDeletedAtIsNull(id, family.getId())
-        .orElseThrow(() -> new IllegalArgumentException("Note not found"));
+        .orElseThrow(() -> new ResourceNotFoundException("Note not found"));
     
     note.setDeletedAt(OffsetDateTime.now());
     note.setUpdatedBy(user);

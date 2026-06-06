@@ -50,7 +50,7 @@ public class AuditLog {
   private String ipAddress;
   @Column(name = "user_agent", columnDefinition = "text")
   private String userAgent;
-  @Column(name = "metadata", columnDefinition = "jsonb")
+  @Column(name = "metadata", columnDefinition = "text")
   private String metadata;
   @Column(name = "created_at", nullable = false, updatable = false)
   private OffsetDateTime createdAt = OffsetDateTime.now();

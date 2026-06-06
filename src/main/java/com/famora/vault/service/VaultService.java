@@ -2,6 +2,7 @@ package com.famora.vault.service;
 
 import com.famora.audit.entity.AuditAction;
 import com.famora.audit.service.AuditLogService;
+import com.famora.common.exception.ResourceNotFoundException;
 import com.famora.family.entity.Family;
 import com.famora.security.CurrentUserService;
 import com.famora.security.FamilyContextService;
@@ -84,7 +85,7 @@ public class VaultService {
     
     VaultItem item = vaultItemRepository
         .findByIdAndFamilyIdAndDeletedAtIsNull(id, family.getId())
-        .orElseThrow(() -> new IllegalArgumentException("Vault item not found"));
+        .orElseThrow(() -> new ResourceNotFoundException("Vault item not found"));
     
     auditLogService.log(
         family,
@@ -105,7 +106,7 @@ public class VaultService {
     
     VaultItem item = vaultItemRepository
         .findByIdAndFamilyIdAndDeletedAtIsNull(id, family.getId())
-        .orElseThrow(() -> new IllegalArgumentException("Vault item not found"));
+        .orElseThrow(() -> new ResourceNotFoundException("Vault item not found"));
     
     item.setTitle(request.title().trim());
     item.setUsername(clean(request.username()));
@@ -138,7 +139,7 @@ public class VaultService {
     
     VaultItem item = vaultItemRepository
         .findByIdAndFamilyIdAndDeletedAtIsNull(id, family.getId())
-        .orElseThrow(() -> new IllegalArgumentException("Vault item not found"));
+        .orElseThrow(() -> new ResourceNotFoundException("Vault item not found"));
     
     item.setDeletedAt(OffsetDateTime.now());
     item.setUpdatedBy(user);
