@@ -1,0 +1,1278 @@
+{
+	"info": {
+		"_postman_id": "f975465c-c9c7-4ca8-935b-d7acd1fa76fe",
+		"name": "Famora",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "registerUser",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"fullName\": \"Adek Kristiyanto\",\r\n  \"email\": \"adek@example.com\",\r\n  \"password\": \"StrongPassword123\"\r\n}\r\n\r\n"
+						},
+						"url": {
+							"raw": "http://localhost:8061/famora/api/v1/auth/register",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8061",
+							"path": [
+								"famora",
+								"api",
+								"v1",
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "login",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"email\" : \"adek@example.com\",\n\t\"password\" :\"StrongPassword123\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8061/famora/api/v1/auth/login",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8061",
+							"path": [
+								"famora",
+								"api",
+								"v1",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "refresh",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIzODFkNWZiNC0wMWZjLTQwZDItYmE3NC1lNzBkYzYyODQ2ZGMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODA3Mzk2NDIsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MDc0MTQ0Mn0.hwixczXcRMpiDBJUpxo5Mp8vcIjRig1hZCVKOmiedQTmPZwpeW_wuxL5u4zApoID",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"refreshToken\" : \"hbiOj4zS0vhCCOsq1527_PIAIKUmPRJCXN9iFEHKQKNZtfqxgAeP4DhiVkLzC65LAEQuTQamjDi7AI-PTkdsjg\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8061/famora/api/v1/auth/refresh",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8061",
+							"path": [
+								"famora",
+								"api",
+								"v1",
+								"auth",
+								"refresh"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "logout",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIzODFkNWZiNC0wMWZjLTQwZDItYmE3NC1lNzBkYzYyODQ2ZGMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODA3Mzk3NDEsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MDc0MTU0MX0.IpMNbEd40AcjaUIHK9BTMcF0y9-FHn3g-1RpnHi36aTdZ79MyyMYc5HjMmhVLFJt",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"refreshToken\" : \"YNvVQyMKJfSobUjCoym9MTMqtk7_2FyyFt5Y_4oBbevMJ4JnJbupF6LzYNsHgF36Z-wrX3fvkrHL1IPyrvAc5A\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8061/famora/api/v1/auth/logout",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8061",
+							"path": [
+								"famora",
+								"api",
+								"v1",
+								"auth",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "me",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIzODFkNWZiNC0wMWZjLTQwZDItYmE3NC1lNzBkYzYyODQ2ZGMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODA3Mzk4NjgsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MDc0MTY2OH0.4KcicrhHrMHnhy5EDqaUZrh0QXHSy2z8MWewAIrx6Q1PrwQdIDAoLSILZjhXyNpi",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8061/famora/api/v1/me",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8061",
+							"path": [
+								"famora",
+								"api",
+								"v1",
+								"me"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "updateMe",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIzODFkNWZiNC0wMWZjLTQwZDItYmE3NC1lNzBkYzYyODQ2ZGMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODA3Mzk4NjgsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MDc0MTY2OH0.4KcicrhHrMHnhy5EDqaUZrh0QXHSy2z8MWewAIrx6Q1PrwQdIDAoLSILZjhXyNpi",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"fullName\" :\"Adex Crystianto\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8061/famora/api/v1/me",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8061",
+							"path": [
+								"famora",
+								"api",
+								"v1",
+								"me"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "families",
+			"item": [
+				{
+					"name": "families",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODA3NDM5NTAsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MDc0NTc1MH0.YAryq95zhTbkhxBKejHGtPQ2WPDyK0xShqXYe6ICYKjw32Lfl9baQnYHFyJlS-9t",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8061/famora/api/v1/families",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8061",
+							"path": [
+								"famora",
+								"api",
+								"v1",
+								"families"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "families",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODA3NDM2OTMsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MDc0NTQ5M30.dGRO_EytcqMnWzkr17JYDgvE8_fFikH0iF8W4nFbiwPcfO7uqnoJ4rY4uIGZuAF4",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"name\" :\"Kristiyanto Family\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8061/famora/api/v1/families",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8061",
+							"path": [
+								"famora",
+								"api",
+								"v1",
+								"families"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "inviteFamilyMember",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODA3NDM3OTAsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MDc0NTU5MH0.P5AlkgdVGdEo8cajHy1nkr0FNvwMdx0THlbGrVLvMgvNKNLXk8FNHE7NwXnjPMPG",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"role\" :\"ADMIN\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8061/famora/api/v1/families/024066c0-5220-4d0c-acd9-8925f502d1db/invitations",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8061",
+							"path": [
+								"famora",
+								"api",
+								"v1",
+								"families",
+								"024066c0-5220-4d0c-acd9-8925f502d1db",
+								"invitations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "joinFamilyMember",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiI1ZDI0YzMxNy03YzcyLTRhNGMtYTg2Ni01ZTU3MGYyMjQzYTEiLCJlbWFpbCI6InJpYW5hQGV4YW1wbGUuY29tIiwiaWF0IjoxNzgwNzQzODczLCJpc3MiOiJmYW1vcmFBcHAiLCJleHAiOjE3ODA3NDU2NzN9.MrFWLpn-edi2kks2ec2sKervUUDgRSF1fLsew88ZlmmSKppbGFCfIFCwXMGGCTrM",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"inviteCode\" :\"FAM-KDHU3S\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8061/famora/api/v1/families/join",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8061",
+							"path": [
+								"famora",
+								"api",
+								"v1",
+								"families",
+								"join"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "finance",
+			"item": [
+				{
+					"name": "/api/v1/finance",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODA3NjQ5NDUsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MDc2Njc0NX0.fJmTAXi5jZXnrPvMHXgOtt4V5DRY8T1zO_pzf7X1uIvnzr0pfKNcosRuRx8qaewt",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "X-Family-Id",
+								"value": "024066c0-5220-4d0c-acd9-8925f502d1db",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"type\": \"EXPENSE\",\r\n  \"amount\": 25.50,\r\n  \"currency\": \"MYR\",\r\n  \"category\": \"FOOD\",\r\n  \"description\": \"Dinner\",\r\n  \"transactionDate\": \"2026-06-06\"\r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8061/famora/api/v1/finance/transactions",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8061",
+							"path": [
+								"famora",
+								"api",
+								"v1",
+								"finance",
+								"transactions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/api/v1/finance",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODA3NjQ5NDUsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MDc2Njc0NX0.fJmTAXi5jZXnrPvMHXgOtt4V5DRY8T1zO_pzf7X1uIvnzr0pfKNcosRuRx8qaewt",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Family-Id",
+								"type": "text",
+								"value": "024066c0-5220-4d0c-acd9-8925f502d1db"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8061/famora/api/v1/finance/transactions?month=2026-06&type=EXPENSE&category=GROCERY",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8061",
+							"path": [
+								"famora",
+								"api",
+								"v1",
+								"finance",
+								"transactions"
+							],
+							"query": [
+								{
+									"key": "month",
+									"value": "2026-06"
+								},
+								{
+									"key": "type",
+									"value": "EXPENSE"
+								},
+								{
+									"key": "category",
+									"value": "GROCERY"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/api/v1/finance/{id}",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODA3NjQ5NDUsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MDc2Njc0NX0.fJmTAXi5jZXnrPvMHXgOtt4V5DRY8T1zO_pzf7X1uIvnzr0pfKNcosRuRx8qaewt",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Family-Id",
+								"type": "text",
+								"value": "024066c0-5220-4d0c-acd9-8925f502d1db"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8061/famora/api/v1/finance/transactions/9f2d765c-c23c-46a8-900f-940f02ff9459",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8061",
+							"path": [
+								"famora",
+								"api",
+								"v1",
+								"finance",
+								"transactions",
+								"9f2d765c-c23c-46a8-900f-940f02ff9459"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/api/v1/finance/summary",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODA3NjQ5NDUsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MDc2Njc0NX0.fJmTAXi5jZXnrPvMHXgOtt4V5DRY8T1zO_pzf7X1uIvnzr0pfKNcosRuRx8qaewt",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Family-Id",
+								"type": "text",
+								"value": "024066c0-5220-4d0c-acd9-8925f502d1db"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8061/famora/api/v1/finance/summary?month=2026-06",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8061",
+							"path": [
+								"famora",
+								"api",
+								"v1",
+								"finance",
+								"summary"
+							],
+							"query": [
+								{
+									"key": "month",
+									"value": "2026-06"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/api/v1/finance/{id}",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODA3NjQ5NDUsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MDc2Njc0NX0.fJmTAXi5jZXnrPvMHXgOtt4V5DRY8T1zO_pzf7X1uIvnzr0pfKNcosRuRx8qaewt",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Family-Id",
+								"type": "text",
+								"value": "024066c0-5220-4d0c-acd9-8925f502d1db"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"type\": \"EXPENSE\",\r\n  \"amount\": 25.50,\r\n  \"currency\": \"MYR\",\r\n  \"category\": \"GROCERY\",\r\n  \"description\": \"Dinner\",\r\n  \"transactionDate\": \"2026-06-09\"\r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8061/famora/api/v1/finance/transactions/9f2d765c-c23c-46a8-900f-940f02ff9459",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8061",
+							"path": [
+								"famora",
+								"api",
+								"v1",
+								"finance",
+								"transactions",
+								"9f2d765c-c23c-46a8-900f-940f02ff9459"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/api/v1/finance/{id}",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODA3NjQ5NDUsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MDc2Njc0NX0.fJmTAXi5jZXnrPvMHXgOtt4V5DRY8T1zO_pzf7X1uIvnzr0pfKNcosRuRx8qaewt",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Family-Id",
+								"type": "text",
+								"value": "024066c0-5220-4d0c-acd9-8925f502d1db"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8061/famora/api/v1/finance/transactions/9f2d765c-c23c-46a8-900f-940f02ff9459",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8061",
+							"path": [
+								"famora",
+								"api",
+								"v1",
+								"finance",
+								"transactions",
+								"9f2d765c-c23c-46a8-900f-940f02ff9459"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "vault",
+			"item": [
+				{
+					"name": "/api/v1/vault/items",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODA3NTg4NzgsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MDc2MDY3OH0.MTtyS-u40P44e1bBTTWTlNRniDPgandl52qlP7zhyXpmVNukLgMqe8qnxmy9Pn-s",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "X-Family-Id",
+								"value": "024066c0-5220-4d0c-acd9-8925f502d1db",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"title\": \"Netflix\",\r\n  \"username\": \"family@example.com\",\r\n  \"secret\": \"my-secret-password\",\r\n  \"url\": \"https://netflix.com\",\r\n  \"notes\": \"Shared family account\"\r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8061/famora/api/v1/vault/items",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8061",
+							"path": [
+								"famora",
+								"api",
+								"v1",
+								"vault",
+								"items"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/api/v1/vault/items",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODA3NjE0MjgsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MDc2MzIyOH0.8lv15LBhUOhXsKdu5EBC3Lmh9Qdp4ik4KUfe-OeX-tRscaBv3rlnVHMRqkhj7LW9",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Family-Id",
+								"type": "text",
+								"value": "024066c0-5220-4d0c-acd9-8925f502d1db"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8061/famora/api/v1/vault/items",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8061",
+							"path": [
+								"famora",
+								"api",
+								"v1",
+								"vault",
+								"items"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/api/v1/vault/items by id",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODA3NjE0MjgsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MDc2MzIyOH0.8lv15LBhUOhXsKdu5EBC3Lmh9Qdp4ik4KUfe-OeX-tRscaBv3rlnVHMRqkhj7LW9",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Family-Id",
+								"type": "text",
+								"value": "024066c0-5220-4d0c-acd9-8925f502d1db"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8061/famora/api/v1/vault/items/37a30e5d-e409-4b88-a97a-82b08f84284d",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8061",
+							"path": [
+								"famora",
+								"api",
+								"v1",
+								"vault",
+								"items",
+								"37a30e5d-e409-4b88-a97a-82b08f84284d"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/api/v1/vault/items update",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODA3NjE0MjgsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MDc2MzIyOH0.8lv15LBhUOhXsKdu5EBC3Lmh9Qdp4ik4KUfe-OeX-tRscaBv3rlnVHMRqkhj7LW9",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "X-Family-Id",
+								"type": "text",
+								"value": "024066c0-5220-4d0c-acd9-8925f502d1db"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"title\": \"Netflix\",\r\n  \"username\": \"family@example.com\",\r\n  \"secret\": \"my-secret-password\",\r\n  \"url\": \"https://netflix.com\",\r\n  \"notes\": \"Shared family account\"\r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8061/famora/api/v1/vault/items/37a30e5d-e409-4b88-a97a-82b08f84284d",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8061",
+							"path": [
+								"famora",
+								"api",
+								"v1",
+								"vault",
+								"items",
+								"37a30e5d-e409-4b88-a97a-82b08f84284d"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/api/v1/vault/items update Copy",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODA3NjE0MjgsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MDc2MzIyOH0.8lv15LBhUOhXsKdu5EBC3Lmh9Qdp4ik4KUfe-OeX-tRscaBv3rlnVHMRqkhj7LW9",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "X-Family-Id",
+								"type": "text",
+								"value": "024066c0-5220-4d0c-acd9-8925f502d1db"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8061/famora/api/v1/vault/items/37a30e5d-e409-4b88-a97a-82b08f84284d",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8061",
+							"path": [
+								"famora",
+								"api",
+								"v1",
+								"vault",
+								"items",
+								"37a30e5d-e409-4b88-a97a-82b08f84284d"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "notes",
+			"item": [
+				{
+					"name": "/api/v1/notes",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODA3NjE3OTUsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MDc2MzU5NX0.K7MpRg7xGQn99-QIjfuIIM21M8eyKtHJBsN2wX9pWW2hcsu0H24eG2IXDJLEc5eP",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Family-Id",
+								"type": "text",
+								"value": "024066c0-5220-4d0c-acd9-8925f502d1db"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"title\": \"WiFi Rumah\",\r\n  \"content\": \"Password WiFi ada di router belakang TV\",\r\n  \"category\": \"HOME\"\r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8061/famora/api/v1/notes",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8061",
+							"path": [
+								"famora",
+								"api",
+								"v1",
+								"notes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/api/v1/notes",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODA3NjQ5NDUsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MDc2Njc0NX0.fJmTAXi5jZXnrPvMHXgOtt4V5DRY8T1zO_pzf7X1uIvnzr0pfKNcosRuRx8qaewt",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Family-Id",
+								"type": "text",
+								"value": "024066c0-5220-4d0c-acd9-8925f502d1db"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8061/famora/api/v1/notes",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8061",
+							"path": [
+								"famora",
+								"api",
+								"v1",
+								"notes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/api/v1/notes/{id}",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODA3NjIyMTksImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MDc2NDAxOX0.SnwEQM2_NroZDrQLlaGYDj_xBrv--15bcZN5vjJ4l4OWYbuqngpJoEGETOfOiA9d",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Family-Id",
+								"type": "text",
+								"value": "024066c0-5220-4d0c-acd9-8925f502d1db"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8061/famora/api/v1/notes/a7b88ad5-f416-4768-aa9d-cae06eb35b94",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8061",
+							"path": [
+								"famora",
+								"api",
+								"v1",
+								"notes",
+								"a7b88ad5-f416-4768-aa9d-cae06eb35b94"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/api/v1/notes/{id}",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODA3NjE3OTUsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MDc2MzU5NX0.K7MpRg7xGQn99-QIjfuIIM21M8eyKtHJBsN2wX9pWW2hcsu0H24eG2IXDJLEc5eP",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Family-Id",
+								"type": "text",
+								"value": "024066c0-5220-4d0c-acd9-8925f502d1db"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"title\": \"WiFi Rumah\",\r\n  \"content\": \"Password WiFi ada di router belakang TX\",\r\n  \"category\": \"KANTOR\"\r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8061/famora/api/v1/notes/a7b88ad5-f416-4768-aa9d-cae06eb35b94",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8061",
+							"path": [
+								"famora",
+								"api",
+								"v1",
+								"notes",
+								"a7b88ad5-f416-4768-aa9d-cae06eb35b94"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/api/v1/notes/{id}",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODA3NjQ5NDUsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MDc2Njc0NX0.fJmTAXi5jZXnrPvMHXgOtt4V5DRY8T1zO_pzf7X1uIvnzr0pfKNcosRuRx8qaewt",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Family-Id",
+								"type": "text",
+								"value": "024066c0-5220-4d0c-acd9-8925f502d1db"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8061/famora/api/v1/notes/a7b88ad5-f416-4768-aa9d-cae06eb35b94",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8061",
+							"path": [
+								"famora",
+								"api",
+								"v1",
+								"notes",
+								"a7b88ad5-f416-4768-aa9d-cae06eb35b94"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "actuator",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://localhost:8061/famora/actuator/health",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8061",
+					"path": [
+						"famora",
+						"actuator",
+						"health"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

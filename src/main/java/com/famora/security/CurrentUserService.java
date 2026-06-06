@@ -1,9 +1,11 @@
 package com.famora.security;
 
+import com.famora.common.exception.ResourceNotFoundException;
 import com.famora.user.entity.User;
 import com.famora.user.repository.UserRepository;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -18,13 +20,13 @@ public class CurrentUserService {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     if (authentication == null
         || !(authentication.getPrincipal() instanceof UserPrincipal principal)) {
-      throw new IllegalStateException("Unauthenticated user");
+      throw new AuthorizationDeniedException("Unauthenticated user");
     }
     return principal.getId();
   }
   
   public User getCurrentUser() {
     return userRepository.findByIdAndDeletedAtIsNull(getCurrentUserId())
-        .orElseThrow(() -> new IllegalStateException("Current user not found"));
+        .orElseThrow(() -> new ResourceNotFoundException("Current user not found"));
   }
 }

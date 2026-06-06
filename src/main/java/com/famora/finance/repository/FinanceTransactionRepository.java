@@ -12,19 +12,33 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface FinanceTransactionRepository extends JpaRepository<FinanceTransaction, UUID> {
   
-  Optional<FinanceTransaction> findByIdAndFamilyIdAndDeletedAtIsNull(UUID id, UUID familyId);
+  Optional<FinanceTransaction> findByIdAndFamilyIdAndDeletedAtIsNull(
+      UUID id,
+      UUID familyId
+  );
   
-  @Query("""
-          select ft
-          from FinanceTransaction ft
-          where ft.family.id = :familyId
-            and ft.deletedAt is null
-            and ft.transactionDate between :startDate and :endDate
-            and (:type is null or ft.type = :type)
-            and (:category is null or lower(ft.category) = lower(:category))
-          order by ft.transactionDate desc, ft.createdAt desc
-      """)
-  List<FinanceTransaction> search(
+  List<FinanceTransaction> findByFamilyIdAndDeletedAtIsNullAndTransactionDateBetweenOrderByTransactionDateDescCreatedAtDesc(
+      UUID familyId,
+      LocalDate startDate,
+      LocalDate endDate
+  );
+  
+  List<FinanceTransaction> findByFamilyIdAndDeletedAtIsNullAndTransactionDateBetweenAndTypeOrderByTransactionDateDescCreatedAtDesc(
+      UUID familyId,
+      LocalDate startDate,
+      LocalDate endDate,
+      FinanceTransactionType type
+  );
+  
+  List<FinanceTransaction> findByFamilyIdAndDeletedAtIsNullAndTransactionDateBetweenAndCategoryIgnoreCaseOrderByTransactionDateDescCreatedAtDesc(
+      UUID familyId,
+      LocalDate startDate,
+      LocalDate endDate,
+      String category
+  );
+  
+  List<FinanceTransaction>
+      findByFamilyIdAndDeletedAtIsNullAndTransactionDateBetweenAndTypeAndCategoryIgnoreCaseOrderByTransactionDateDescCreatedAtDesc(
       UUID familyId,
       LocalDate startDate,
       LocalDate endDate,
