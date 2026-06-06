@@ -1,0 +1,58 @@
+package com.famora.security;
+
+import com.famora.family.entity.Family;
+import com.famora.family.entity.FamilyMember;
+import com.famora.family.entity.FamilyMemberStatus;
+import com.famora.family.repository.FamilyMemberRepository;
+import jakarta.servlet.http.HttpServletRequest;
+import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+@RequiredArgsConstructor
+public class FamilyContextService {
+  
+  public static final String FAMILY_ID_HEADER = "X-Family-Id";
+  private final HttpServletRequest request;
+  private final CurrentUserService currentUserService;
+  private final FamilyMemberRepository familyMemberRepository;
+  
+  @Transactional(readOnly = true)
+  public Family getCurrentFamily() {
+    UUID familyId = getCurrentFamilyId();
+    UUID userId = currentUserService.getCurrentUserId();
+    FamilyMember member = familyMemberRepository.findByFamilyIdAndUserIdAndStatus(familyId, userId,
+            FamilyMemberStatus.ACTIVE)
+        .orElseThrow(() -> new SecurityException("You are not member of this family"));
+    return member.getFamily();
+  }
+  
+  @Transactional(readOnly = true)
+  public UUID getCurrentFamilyId() {
+    String rawFamilyId = request.getHeader(FAMILY_ID_HEADER);
+    if (rawFamilyId == null || rawFamilyId.isBlank()) {
+      throw new IllegalArgumentException("Missing X-Family-Id header");
+    }
+    try {
+      return UUID.fromString(rawFamilyId);
+    } catch (IllegalArgumentException ex) {
+      throw new IllegalArgumentException("Invalid X-Family-Id header");
+    }
+  }
+  
+  @Transactional(readOnly = true)
+  public boolean isCurrentUserFamilyMember(UUID familyId) {
+    UUID userId = currentUserService.getCurrentUserId();
+    return familyMemberRepository.existsByFamilyIdAndUserIdAndStatus(familyId, userId,
+        FamilyMemberStatus.ACTIVE);
+  }
+  
+  @Transactional(readOnly = true)
+  public void validateCurrentUserCanAccessFamily(UUID familyId) {
+    if (!isCurrentUserFamilyMember(familyId)) {
+      throw new SecurityException("Access denied to family");
+    }
+  }
+}

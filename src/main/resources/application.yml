@@ -1,0 +1,149 @@
+server:
+  port: ${SERVER_PORT:8061}
+  servlet:
+    context-path: /famora
+
+spring:
+  threads:
+    virtual:
+      enabled: true
+  datasource:
+    driverClassName: org.postgresql.Driver
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/postgres?currentSchema=famora}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+    hikari:
+      minimum-idle: ${DB_HIKARI_MINIMUM_IDLE:1}
+      maximum-pool-size: ${DB_HIKARI_MAXIMUM_POOL_SIZE:5}
+      idleTimeout: ${DB_HIKARI_IDLE_TIMEOUT:30000}
+  jpa:
+    open-in-view: false
+    generate-ddl: false
+    hibernate:
+      ddl-auto: none # or update, create, trxValidation as needed
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        default_schema: famora
+        format_sql: true
+        show-sql: true
+  moduli:
+    events:
+      jdbc-schema-initialization:
+        enabled: true
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    out-of-order: true
+
+logging:
+  level:
+    root: ${LOG_LEVEL_ROOT:ERROR}
+    org.springframework.web: ${LOG_LEVEL_WEB:DEBUG}
+    com.famora: ${LOG_LEVEL_SVC:DEBUG}
+    org.flywaydb.core: ERROR
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  health:
+    redis:
+      enabled: false
+app:
+  vault:
+    encryption-key: ONSGCZDLONQWUZDPMFVG62LEONQW62LEN5UWI4DTMFVXAZDLONQXAZDLOBZQ====
+  security:
+    jwt:
+      issuer: ${TOKEN_ISSUER:famoraApp}
+      secret: ${TOKEN_SECRET:9a2f8c4e6b0d71f3e8b925a45747f894a3d6bc70fa8d5e21a15a6d8c3b9a0e7c}
+      access-token-expiration-minutes: ${TOKEN_ACCESS_VALIDITY:30}
+      refresh-token-expiration-days: ${TOKEN_REFRESH_VALIDITY:30}
+
+  async:
+    thread:
+      core-pool-size: ${ASYNC_THREAD_CORE_POOL_SIZE:5}
+      max-pool-size: ${ASYNC_THREAD_MAX_POOL_SIZE:10}
+      queue-capacity: ${ASYNC_THREAD_QUEUE_CAPACITY:20}
+
+#server:
+#  port: ${SERVER_PORT:9091}
+#  address: 0.0.0.0
+#  servlet:
+#    context-path: /stubs-rukun-svc
+#
+#spring:
+#  threads:
+#    virtual:
+#      enabled: true
+#  cache:
+#    type: caffeine
+#    cache-names: regionCache, parameterCache, userProfileCache, userDashboardCache, userCredentialCache, sessionCache
+#    caffeine:
+#      spec: maximumSize=1000,expireAfterWrite=10m
+#  jackson:
+#    time-zone: Asia/Jakarta
+#    deserialization:
+#      fail-on-unknown-properties: false
+#  output:
+#    ansi:
+#      enabled: always
+#  aop:
+#    auto: true
+#  data:
+#    redis:
+#      host: ${REDIS_HOST:localhost}
+#      port: ${REDIS_PORT:6379}
+#      password: ${REDIS_PASSWORD:password}
+#      timeout: ${REDIS_TIMEOUT:2000ms}
+#      ssl:
+#        enabled: ${REDIS_SSL_ENABLE:false}
+#  redis:
+#    serializer:
+#      key: ${REDIS_SERIALIZER_KEY:string}
+#      value: ${REDIS_SERIALIZER_VALUE:json}
+#    lettuce:
+#      pool:
+#        max-active: ${REDIS_MAX_ACTIVE:20}
+#        max-idle: ${REDIS_MAX_IDLE:10}
+#        min-idle: ${REDIS_MIN_IDLE:2}
+#        time-between-eviction-runs: ${REDIS_TIME_BETWEEN_EVICTION_RUN:1000ms}
+#
+#  datasource:
+#    driverClassName: org.postgresql.Driver
+#    url: ${DB_URL:jdbc:postgresql://localhost:5432/postgres}
+#    username: ${DB_USERNAME:postgres}
+#    password: ${DB_PASSWORD:postgres}
+#    hikari:
+#      minimum-idle: ${DB_HIKARI_MINIMUM_IDLE:1}
+#      maximum-pool-size: ${DB_HIKARI_MAXIMUM_POOL_SIZE:5}
+#      idleTimeout: ${DB_HIKARI_IDLE_TIMEOUT:30000}
+#  jpa:
+#    open-in-view: false
+#    generate-ddl: false
+#    hibernate:
+#      ddl-auto: none # or update, create, trxValidation as needed
+#    database-platform: org.hibernate.dialect.PostgreSQLDialect
+#    properties:
+#      hibernate:
+#        dialect: org.hibernate.dialect.PostgreSQLDialect
+#        default_schema: md_common
+#        format_sql: true
+#        show-sql: true
+#  modulith:
+#    events:
+#      jdbc-schema-initialization:
+#        enabled: true
+#  flyway:
+#    enabled: true
+#    baseline-on-migrate: true
+#    out-of-order: true
+#
+#stubs-rukun:
+
+#  election:
+#    min-member: 10
+#

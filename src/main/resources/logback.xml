@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration>
+  <contextName>
+    ${spring-application-name}
+  </contextName>
+
+  <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+
+
+  <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
+    <layout class="ch.qos.logback.classic.PatternLayout">
+      <Pattern>
+        %d{yyyy-mm-dd HH:mm:ss.SSS, Asia/Jakarta} [%yellow(%t)] [x-correlation-id:%X{x-correlation-id}] %highlight(%p) %C{20}.%green(%M)[%blue(%L)]: %m%n%ex
+      </Pattern>
+    </layout>
+  </appender>
+
+  <root level="info">
+    <appender-ref ref="Console"/>
+  </root>
+
+  <logger name="org" level="error" additivity="false">
+    <appender-ref ref="Console"/>
+  </logger>
+
+
+
+</configuration>
