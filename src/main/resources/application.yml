@@ -55,13 +55,13 @@ management:
       enabled: false
 app:
   vault:
-    encryption-key: Zo7rYK1Yei9YrmpD5UoS3V1ZpWFlICL7cHqL6H8kgxE=
+    encryption-key: ${VAULT_ENCRYPTION_KEY:Zo7rYK1Yei9YrmpD5UoS3V1ZpWFlICL7cHqL6H8kgxE=}
   security:
     jwt:
-      issuer: ${TOKEN_ISSUER:famoraApp}
-      secret: ${TOKEN_SECRET:9a2f8c4e6b0d71f3e8b925a45747f894a3d6bc70fa8d5e21a15a6d8c3b9a0e7c}
-      access-token-expiration-minutes: ${TOKEN_ACCESS_VALIDITY:30}
-      refresh-token-expiration-days: ${TOKEN_REFRESH_VALIDITY:30}
+      issuer: ${JWT_ISSUER:famoraApp}
+      secret: ${JWT_SECRET:9a2f8c4e6b0d71f3e8b925a45747f894a3d6bc70fa8d5e21a15a6d8c3b9a0e7c}
+      access-token-expiration-minutes: ${JWT_ACCESS_TOKEN_EXPIRATION_MINS:30}
+      refresh-token-expiration-days: ${JWT_REFRESH_TOKEN_EXPIRATION_DAYS:30}
 
   async:
     thread:
