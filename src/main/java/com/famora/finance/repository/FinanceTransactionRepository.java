@@ -1,5 +1,6 @@
 package com.famora.finance.repository;
 
+import com.famora.finance.dto.CurrencyAmountProjection;
 import com.famora.finance.entity.FinanceTransaction;
 import com.famora.finance.entity.FinanceTransactionType;
 import java.math.BigDecimal;
@@ -61,5 +62,23 @@ public interface FinanceTransactionRepository extends JpaRepository<FinanceTrans
       LocalDate endDate,
       FinanceTransactionType type,
       String currency
+  );
+  
+  @Query("""
+          select
+            ft.currency as currency,
+            coalesce(sum(ft.amount), 0) as totalAmount
+          from FinanceTransaction ft
+          where ft.family.id = :familyId
+            and ft.deletedAt is null
+            and ft.transactionDate between :startDate and :endDate
+            and ft.type = :type
+          group by ft.currency
+        """)
+  List<CurrencyAmountProjection> sumAmountByTypeGroupByCurrency(
+      UUID familyId,
+      LocalDate startDate,
+      LocalDate endDate,
+      FinanceTransactionType type
   );
 }

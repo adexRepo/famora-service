@@ -3,8 +3,10 @@ package com.famora.finance.service;
 import com.famora.audit.entity.AuditAction;
 import com.famora.audit.service.AuditLogService;
 import com.famora.common.exception.ResourceNotFoundException;
+import com.famora.currency.service.CurrencyConversionService;
 import com.famora.family.entity.Family;
 import com.famora.finance.dto.CreateFinanceTransactionRequest;
+import com.famora.finance.dto.CurrencyAmountProjection;
 import com.famora.finance.dto.FinanceSummaryResponse;
 import com.famora.finance.dto.FinanceTransactionResponse;
 import com.famora.finance.dto.UpdateFinanceTransactionRequest;
@@ -15,15 +17,19 @@ import com.famora.security.CurrentUserService;
 import com.famora.security.FamilyContextService;
 import com.famora.user.entity.User;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.YearMonth;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class FinanceService {
@@ -32,6 +38,7 @@ public class FinanceService {
   private final CurrentUserService currentUserService;
   private final FamilyContextService familyContextService;
   private final AuditLogService auditLogService;
+  private final CurrencyConversionService currencyConversionService;
   
   @Transactional
   public FinanceTransactionResponse create(CreateFinanceTransactionRequest request) {
@@ -192,40 +199,34 @@ public class FinanceService {
     LocalDate startDate = yearMonth.atDay(1);
     LocalDate endDate = yearMonth.atEndOfMonth();
     
-    String selectedCurrency = currency == null || currency.isBlank()
-        ? "MYR"
-        : currency.trim().toUpperCase();
+    String targetCurrency = normalizeCurrency(currency);
     
-    BigDecimal totalIncome = financeTransactionRepository.sumAmountByType(
+    BigDecimal totalIncome = calculateTotalByTargetCurrency(
         family.getId(),
         startDate,
         endDate,
         FinanceTransactionType.INCOME,
-        selectedCurrency
+        targetCurrency
     );
     
-    BigDecimal totalExpense = financeTransactionRepository.sumAmountByType(
+    BigDecimal totalExpense = calculateTotalByTargetCurrency(
         family.getId(),
         startDate,
         endDate,
         FinanceTransactionType.EXPENSE,
-        selectedCurrency
+        targetCurrency
     );
     
-    if (totalIncome == null) {
-      totalIncome = BigDecimal.ZERO;
-    }
     
-    if (totalExpense == null) {
-      totalExpense = BigDecimal.ZERO;
-    }
+    BigDecimal balance = totalIncome.subtract(totalExpense)
+        .setScale(2, RoundingMode.HALF_UP);
     
     return new FinanceSummaryResponse(
         yearMonth,
-        selectedCurrency,
+        targetCurrency,
         totalIncome,
         totalExpense,
-        totalIncome.subtract(totalExpense)
+        balance
     );
   }
   
@@ -253,5 +254,59 @@ public class FinanceService {
   
   private String clean(String value) {
     return value == null || value.isBlank() ? null : value.trim();
+  }
+  
+  private String normalizeCurrency(String currency) {
+    if (currency == null || currency.isBlank()) {
+      return "MYR";
+    }
+    
+    return currency.trim().toUpperCase(Locale.ROOT);
+  }
+  
+  private BigDecimal calculateTotalByTargetCurrency(
+      UUID familyId,
+      LocalDate startDate,
+      LocalDate endDate,
+      FinanceTransactionType type,
+      String targetCurrency
+  ) {
+    List<CurrencyAmountProjection> summaries =
+        financeTransactionRepository.sumAmountByTypeGroupByCurrency(
+            familyId,
+            startDate,
+            endDate,
+            type
+        );
+    
+    BigDecimal total = BigDecimal.ZERO;
+    
+    for (CurrencyAmountProjection summary : summaries) {
+      String sourceCurrency = normalizeCurrency(summary.getCurrency());
+      
+      BigDecimal amount = summary.getTotalAmount() == null
+          ? BigDecimal.ZERO
+          : summary.getTotalAmount();
+      
+      BigDecimal amountInTargetCurrency;
+      
+      if (sourceCurrency.equals(targetCurrency)) {
+        amountInTargetCurrency = amount;
+      } else {
+        amountInTargetCurrency = currencyConversionService.convert(
+            sourceCurrency,
+            targetCurrency,
+            amount
+        );
+      }
+      
+      total = total.add(amountInTargetCurrency);
+    }
+    
+    BigDecimal oriAmt = summaries.isEmpty() ? null : summaries.getFirst().getTotalAmount();
+    
+    log.debug("[Calculate] type: [{}], originalAmt: [{}], convertedAmt:[{}]", type.name(), oriAmt, total);
+    
+    return total.setScale(2, RoundingMode.UP);
   }
 }

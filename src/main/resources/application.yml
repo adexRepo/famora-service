@@ -62,7 +62,15 @@ app:
       secret: ${JWT_SECRET:9a2f8c4e6b0d71f3e8b925a45747f894a3d6bc70fa8d5e21a15a6d8c3b9a0e7c}
       access-token-expiration-minutes: ${JWT_ACCESS_TOKEN_EXPIRATION_MINS:30}
       refresh-token-expiration-days: ${JWT_REFRESH_TOKEN_EXPIRATION_DAYS:30}
-
+  currency:
+    base-currency: USD
+    supported-currencies:
+      - USD
+      - MYR
+      - IDR
+      - JPY
+    frankfurter-url: https://api.frankfurter.dev/v1/latest
+    refresh-hours: 5
   async:
     thread:
       core-pool-size: ${ASYNC_THREAD_CORE_POOL_SIZE:5}
