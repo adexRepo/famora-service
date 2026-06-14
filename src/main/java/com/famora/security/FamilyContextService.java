@@ -1,14 +1,20 @@
 package com.famora.security;
 
+import com.famora.common.exception.AppException;
+import com.famora.family.dto.FamilyContext;
 import com.famora.family.entity.Family;
 import com.famora.family.entity.FamilyMember;
+import com.famora.family.entity.FamilyMemberRole;
 import com.famora.family.entity.FamilyMemberStatus;
 import com.famora.family.repository.FamilyMemberRepository;
+import com.famora.user.entity.User;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 @Service
 @RequiredArgsConstructor
@@ -19,7 +25,6 @@ public class FamilyContextService {
   private final CurrentUserService currentUserService;
   private final FamilyMemberRepository familyMemberRepository;
   
-  @Transactional(readOnly = true)
   public Family getCurrentFamily() {
     UUID familyId = getCurrentFamilyId();
     UUID userId = currentUserService.getCurrentUserId();
@@ -29,7 +34,6 @@ public class FamilyContextService {
     return member.getFamily();
   }
   
-  @Transactional(readOnly = true)
   public UUID getCurrentFamilyId() {
     String rawFamilyId = request.getHeader(FAMILY_ID_HEADER);
     if (rawFamilyId == null || rawFamilyId.isBlank()) {
@@ -42,7 +46,6 @@ public class FamilyContextService {
     }
   }
   
-  @Transactional(readOnly = true)
   public boolean isCurrentUserFamilyMember(UUID familyId) {
     UUID userId = currentUserService.getCurrentUserId();
     return familyMemberRepository.existsByFamilyIdAndUserIdAndStatus(familyId, userId,
@@ -54,5 +57,27 @@ public class FamilyContextService {
     if (!isCurrentUserFamilyMember(familyId)) {
       throw new SecurityException("Access denied to family");
     }
+  }
+  
+  public FamilyContext require(String familyIdHeader) {
+    if (!StringUtils.hasText(familyIdHeader)) {
+      throw new AppException(HttpStatus.BAD_REQUEST, "X-Family-Id header is required");
+    }
+    UUID familyId;
+    try {
+      familyId = UUID.fromString(familyIdHeader);
+      
+      validateCurrentUserCanAccessFamily(familyId);
+      
+    } catch (Exception e) {
+      throw new AppException(HttpStatus.BAD_REQUEST, "Invalid X-Family-Id");
+    }
+    User user = currentUserService.getCurrentUser();
+    Family family = getCurrentFamily();
+    FamilyMember m = familyMemberRepository.findByFamilyIdAndUserIdAndStatus(familyId, user.getId(),
+            FamilyMemberStatus.ACTIVE)
+        .orElseThrow(() -> new AppException(HttpStatus.FORBIDDEN,
+            "User is not active member of selected family"));
+    return new FamilyContext(family, user, m.getRole(), m.getRole() == FamilyMemberRole.OWNER);
   }
 }

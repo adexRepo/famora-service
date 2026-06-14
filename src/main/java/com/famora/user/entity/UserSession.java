@@ -1,6 +1,6 @@
 package com.famora.user.entity;
 
-import com.famora.common.entity.BaseTimeEntity;
+import com.famora.common.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -27,7 +27,7 @@ import lombok.Setter;
 @Table(name = "user_sessions",
     uniqueConstraints = @UniqueConstraint(name = "uk_user_sessions_refresh_token_hash",
         columnNames = "refresh_token_hash"))
-public class UserSession extends BaseTimeEntity {
+public class UserSession extends BaseEntity {
   
   @Id
   @GeneratedValue

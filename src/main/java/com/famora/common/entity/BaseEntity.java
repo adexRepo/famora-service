@@ -10,7 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @MappedSuperclass
-public abstract class BaseTimeEntity {
+public abstract class BaseEntity {
   
   @Column(name = "created_at", nullable = false, updatable = false)
   private OffsetDateTime createdAt = OffsetDateTime.now();
@@ -22,4 +22,5 @@ public abstract class BaseTimeEntity {
   protected void onUpdate() {
     this.updatedAt = OffsetDateTime.now();
   }
+  
 }

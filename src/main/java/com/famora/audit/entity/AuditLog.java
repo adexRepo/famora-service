@@ -1,5 +1,6 @@
 package com.famora.audit.entity;
 
+import com.famora.common.entity.BaseEntity;
 import com.famora.family.entity.Family;
 import com.famora.user.entity.User;
 import jakarta.persistence.Column;
@@ -12,7 +13,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import java.time.OffsetDateTime;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -27,7 +27,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Entity
 @Table(name = "audit_logs")
-public class AuditLog {
+public class AuditLog extends BaseEntity {
   
   @Id
   @GeneratedValue
@@ -52,6 +52,4 @@ public class AuditLog {
   private String userAgent;
   @Column(name = "metadata", columnDefinition = "text")
   private String metadata;
-  @Column(name = "created_at", nullable = false, updatable = false)
-  private OffsetDateTime createdAt = OffsetDateTime.now();
 }

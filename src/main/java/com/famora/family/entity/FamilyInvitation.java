@@ -1,6 +1,6 @@
 package com.famora.family.entity;
 
-import com.famora.common.entity.BaseTimeEntity;
+import com.famora.common.entity.BaseEntity;
 import com.famora.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -11,6 +11,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import java.time.OffsetDateTime;
@@ -28,7 +29,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Entity
 @Table(name = "family_invitations", uniqueConstraints = @UniqueConstraint(name = "uk_family_invitations_invite_code", columnNames = "invite_code"))
-public class FamilyInvitation extends BaseTimeEntity {
+public class FamilyInvitation extends BaseEntity {
   
   @Id
   @GeneratedValue
@@ -41,10 +42,10 @@ public class FamilyInvitation extends BaseTimeEntity {
   private String inviteCode;
   @Enumerated(EnumType.STRING)
   @Column(name = "role", nullable = false)
-  private FamilyMemberRole role = FamilyMemberRole.MEMBER;
+  private FamilyMemberRole role;
   @Enumerated(EnumType.STRING)
   @Column(name = "status", nullable = false)
-  private InvitationStatus status = InvitationStatus.ACTIVE;
+  private InvitationStatus status;
   @Column(name = "expires_at", nullable = false)
   private OffsetDateTime expiresAt;
   @ManyToOne(fetch = FetchType.LAZY)
@@ -55,4 +56,14 @@ public class FamilyInvitation extends BaseTimeEntity {
   @ManyToOne(fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name = "created_by", nullable = false)
   private User createdBy;
+  
+  @PrePersist
+  public void prePersist() {
+    if (status == null) {
+      status = InvitationStatus.ACTIVE;
+    }
+    if (role == null) {
+      role = FamilyMemberRole.MEMBER;
+    }
+  }
 }

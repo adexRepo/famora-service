@@ -1,6 +1,8 @@
 package com.famora.family.entity;
 
-import com.famora.common.entity.BaseTimeEntity;
+import com.famora.common.entity.BaseEntity;
+import com.famora.common.exception.Visibility;
+import com.famora.common.helper.Status;
 import com.famora.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -11,6 +13,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import java.time.OffsetDateTime;
@@ -29,7 +32,7 @@ import lombok.Setter;
 @Entity
 @Table(name = "family_members", uniqueConstraints = @UniqueConstraint(name = "uk_family_members_family_user", columnNames = {
     "family_id", "user_id"}))
-public class FamilyMember extends BaseTimeEntity {
+public class FamilyMember extends BaseEntity {
   
   @Id
   @GeneratedValue
@@ -43,12 +46,22 @@ public class FamilyMember extends BaseTimeEntity {
   private User user;
   @Enumerated(EnumType.STRING)
   @Column(name = "role", nullable = false)
-  private FamilyMemberRole role = FamilyMemberRole.MEMBER;
+  private FamilyMemberRole role;
   @Enumerated(EnumType.STRING)
   @Column(name = "status", nullable = false)
-  private FamilyMemberStatus status = FamilyMemberStatus.ACTIVE;
+  private FamilyMemberStatus status;
   @Column(name = "joined_at")
   private OffsetDateTime joinedAt;
   @Column(name = "removed_at")
   private OffsetDateTime removedAt;
+  
+  @PrePersist
+  public void prePersist() {
+    if (status == null) {
+      status = FamilyMemberStatus.ACTIVE;
+    }
+    if (role == null) {
+      role = FamilyMemberRole.MEMBER;
+    }
+  }
 }

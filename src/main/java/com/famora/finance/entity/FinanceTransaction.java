@@ -1,6 +1,6 @@
 package com.famora.finance.entity;
 
-import com.famora.common.entity.BaseTimeEntity;
+import com.famora.common.entity.BaseEntity;
 import com.famora.family.entity.Family;
 import com.famora.user.entity.User;
 import jakarta.persistence.Column;
@@ -30,7 +30,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Entity
 @Table(name = "finance_transactions")
-public class FinanceTransaction extends BaseTimeEntity {
+public class FinanceTransaction extends BaseEntity {
   
   @Id
   @GeneratedValue
@@ -45,7 +45,7 @@ public class FinanceTransaction extends BaseTimeEntity {
   @Column(name = "amount", nullable = false, precision = 19, scale = 2)
   private BigDecimal amount;
   @Column(name = "currency", nullable = false, length = 3)
-  private String currency = "MYR";
+  private String currency;
   @Column(name = "category", nullable = false, length = 100)
   private String category;
   @Column(name = "description", columnDefinition = "text")

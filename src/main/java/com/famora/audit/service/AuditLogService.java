@@ -6,10 +6,9 @@ import com.famora.audit.repository.AuditLogRepository;
 import com.famora.family.entity.Family;
 import com.famora.user.entity.User;
 import jakarta.servlet.http.HttpServletRequest;
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -19,12 +18,18 @@ public class AuditLogService {
   private final AuditLogRepository auditLogRepository;
   private final HttpServletRequest request;
   
+  @Async
   public void log(Family family, User user, AuditAction action, String entityType, UUID entityId,
       String metadataJson) {
     AuditLog auditLog = AuditLog.builder()
-        .family(family).user(user).action(action).entityType(entityType).entityId(entityId)
-        .ipAddress(getClientIp()).userAgent(request.getHeader("User-Agent")).metadata(metadataJson)
-        .createdAt(OffsetDateTime.now())
+        .family(family)
+        .user(user)
+        .action(action)
+        .entityType(entityType)
+        .entityId(entityId)
+        .ipAddress(getClientIp())
+        .userAgent(request.getHeader("User-Agent"))
+        .metadata(metadataJson)
         .build();
     auditLogRepository.save(auditLog);
   }

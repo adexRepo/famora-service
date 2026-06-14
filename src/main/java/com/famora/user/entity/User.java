@@ -1,12 +1,13 @@
 package com.famora.user.entity;
 
-import com.famora.common.entity.BaseTimeEntity;
+import com.famora.common.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import java.time.OffsetDateTime;
@@ -24,7 +25,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Entity
 @Table(name = "users", uniqueConstraints = @UniqueConstraint(name = "uk_users_email", columnNames = "email"))
-public class User extends BaseTimeEntity {
+public class User extends BaseEntity {
   
   @Id
   @GeneratedValue
@@ -34,7 +35,7 @@ public class User extends BaseTimeEntity {
   @Column(name = "full_name", nullable = false, length = 150)
   private String fullName;
   
-  @Column(name = "email", nullable = false, length = 180)
+  @Column(name = "email", nullable = false, unique = true, length = 180)
   private String email;
   
   @Column(name = "password_hash", nullable = false, columnDefinition = "text")
@@ -42,11 +43,18 @@ public class User extends BaseTimeEntity {
   
   @Enumerated(EnumType.STRING)
   @Column(name = "status", nullable = false)
-  private UserStatus status = UserStatus.ACTIVE;
+  private UserStatus status;
   
   @Column(name = "last_login_at")
   private OffsetDateTime lastLoginAt;
   
   @Column(name = "deleted_at")
   private OffsetDateTime deletedAt;
+  
+  @PrePersist
+  public void prePersist() {
+    if (status == null) {
+      status = UserStatus.ACTIVE;
+    }
+  }
 }

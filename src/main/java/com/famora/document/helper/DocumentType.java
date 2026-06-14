@@ -1,0 +1,6 @@
+package com.famora.document.helper;
+
+public enum DocumentType {
+  ID_CARD, PASSPORT, BIRTH_CERTIFICATE, MARRIAGE_CERTIFICATE, INSURANCE, MEDICAL, SCHOOL, TAX,
+  VEHICLE, PROPERTY, BUSINESS, VISA, OTHER
+}

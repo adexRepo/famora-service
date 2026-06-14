@@ -1,6 +1,6 @@
 package com.famora.note.entity;
 
-import com.famora.common.entity.BaseTimeEntity;
+import com.famora.common.entity.BaseEntity;
 import com.famora.family.entity.Family;
 import com.famora.user.entity.User;
 import jakarta.persistence.Column;
@@ -26,7 +26,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Entity
 @Table(name = "notes")
-public class Note extends BaseTimeEntity {
+public class Note extends BaseEntity {
   
   @Id
   @GeneratedValue

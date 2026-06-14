@@ -1,5 +1,8 @@
 package com.famora.family.service;
 
+import com.famora.audit.entity.AuditAction;
+import com.famora.audit.service.AuditLogService;
+import com.famora.common.helper.Status;
 import com.famora.family.dto.CreateFamilyRequest;
 import com.famora.family.dto.CreateInvitationRequest;
 import com.famora.family.dto.FamilyResponse;
@@ -10,7 +13,6 @@ import com.famora.family.entity.FamilyInvitation;
 import com.famora.family.entity.FamilyMember;
 import com.famora.family.entity.FamilyMemberRole;
 import com.famora.family.entity.FamilyMemberStatus;
-import com.famora.family.entity.FamilyStatus;
 import com.famora.family.entity.InvitationStatus;
 import com.famora.family.repository.FamilyInvitationRepository;
 import com.famora.family.repository.FamilyMemberRepository;
@@ -31,6 +33,7 @@ public class FamilyService {
   
   private final CurrentUserService currentUserService;
   private final FamilyRepository familyRepository;
+  private final AuditLogService auditLogService;
   private final FamilyMemberRepository familyMemberRepository;
   private final FamilyInvitationRepository familyInvitationRepository;
   private final SecureRandom random = new SecureRandom();
@@ -51,7 +54,7 @@ public class FamilyService {
     Family family = Family.builder()
         .name(request.name().trim())
         .ownerUser(user)
-        .status(FamilyStatus.ACTIVE)
+        .status(Status.ACTIVE)
         .build();
     
     familyRepository.save(family);
@@ -65,6 +68,10 @@ public class FamilyService {
         .build();
     
     familyMemberRepository.save(member);
+    
+    auditLogService.log(family, user, AuditAction.FAMILY_CREATED,
+        "families", family.getId(),
+        "{\"familyId\":\"" + family.getId() + "\",\"familyMemberId\":\"" + member.getId() + "\"}");
     
     return new FamilyResponse(
         family.getId(),
@@ -85,10 +92,24 @@ public class FamilyService {
     }
     String inviteCode = generateInviteCode();
     FamilyInvitation invitation = FamilyInvitation.builder()
-        .family(requester.getFamily()).inviteCode(inviteCode).role(request.role())
+        .family(requester.getFamily())
+        .inviteCode(inviteCode)
+        .role(request.role())
         .status(InvitationStatus.ACTIVE)
-        .expiresAt(OffsetDateTime.now().plusDays(2)).createdBy(user).build();
+        .expiresAt(OffsetDateTime.now()
+            .plusDays(2)).createdBy(user).build();
     familyInvitationRepository.save(invitation);
+    
+    auditLogService.log(requester.getFamily(), user, AuditAction.FAMILY_MEMBER_INVITED,
+        "family_invitations", invitation.getId(),
+        """
+            {
+              "familyId" : "%s",
+              "userId" : "%s",
+              "invitationCode" : "%s",
+            }
+            """.formatted(requester.getFamily().getId(), user.getId(), invitation.getInviteCode()));
+    
     return new InvitationResponse(inviteCode, invitation.getExpiresAt(),
         invitation.getRole().name());
   }
@@ -117,6 +138,17 @@ public class FamilyService {
     invitation.setUsedByUser(user);
     invitation.setUsedAt(OffsetDateTime.now());
     familyInvitationRepository.save(invitation);
+    
+    auditLogService.log(member.getFamily(), user, AuditAction.FAMILY_MEMBER_JOINED,
+        "family_members", invitation.getId(),
+        """
+            {
+              "familyId" : "%s",
+              "userId" : "%s",
+              "invitationCode" : "%s",
+            }
+            """.formatted(member.getFamily().getId(), user.getId(), invitation.getInviteCode()));
+    
     return new FamilyResponse(invitation.getFamily().getId(), invitation.getFamily().getName(),
         member.getRole().name());
   }
