@@ -78,9 +78,14 @@ app:
     frankfurter-url: https://api.frankfurter.dev/v1/latest
     refresh-hours: 5
   storage:
-    root: ${FAMORA_STORAGE_ROOT:/app/storage}
-    max-upload-bytes: ${FAMORA_MAX_UPLOAD_BYTES:104857600}
-
+    type: MINIO #MFT
+    root: /app/storage
+    max-upload-bytes: 104857600
+  minio:
+    endpoint: ${MINIO_ENDPOINT:http://localhost:9000}
+    access-key: ${MINIO_ACCESS_KEY:minioadmin}
+    secret-key: ${MINIO_SECRET_KEY:minioadmin}
+    bucket: ${MINIO_BUCKET:famora-files}
 #server:
 #  port: ${SERVER_PORT:9091}
 #  address: 0.0.0.0

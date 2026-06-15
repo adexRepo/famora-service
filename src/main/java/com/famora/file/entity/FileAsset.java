@@ -4,6 +4,7 @@ import com.famora.common.entity.BaseEntity;
 import com.famora.common.exception.Visibility;
 import com.famora.common.helper.Status;
 import com.famora.file.helper.FileType;
+import com.famora.file.helper.StorageType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -59,6 +60,16 @@ public class FileAsset extends BaseEntity {
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
   private Status status;
+  
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private StorageType storageType;
+  
+  @Column(length = 100)
+  private String bucketName;
+  
+  @Column(columnDefinition = "TEXT")
+  private String objectKey;
   
   @PrePersist
   public void prePersist() {
