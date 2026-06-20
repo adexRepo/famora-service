@@ -1,22 +1,27 @@
 package com.famora.finance.controller;
 
+import com.famora.common.dto.ApiResponse;
+import com.famora.common.dto.PageResponse;
+import com.famora.common.helper.PagingHelper;
+import com.famora.family.dto.FamilyContext;
 import com.famora.finance.dto.CreateFinanceTransactionRequest;
 import com.famora.finance.dto.FinanceSummaryResponse;
 import com.famora.finance.dto.FinanceTransactionResponse;
 import com.famora.finance.dto.UpdateFinanceTransactionRequest;
 import com.famora.finance.entity.FinanceTransactionType;
 import com.famora.finance.service.FinanceService;
+import com.famora.security.FamilyContextService;
 import jakarta.validation.Valid;
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,47 +32,57 @@ import org.springframework.web.bind.annotation.RestController;
 public class FinanceController {
   
   private final FinanceService financeService;
+  private final FamilyContextService families;
   
   @PostMapping("/transactions")
-  public FinanceTransactionResponse create(
+  public ApiResponse<FinanceTransactionResponse> create(
       @Valid @RequestBody CreateFinanceTransactionRequest request
   ) {
-    return financeService.create(request);
+    return ApiResponse.ok(financeService.create(request));
   }
   
   @GetMapping("/transactions")
-  public List<FinanceTransactionResponse> list(
+  public ApiResponse<PageResponse<FinanceTransactionResponse>> list(
+      @RequestHeader("X-Family-Id") String familyId,
       @RequestParam(required = false) String month,
       @RequestParam(required = false) FinanceTransactionType type,
-      @RequestParam(required = false) String category
+      @RequestParam(required = false) String category,
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "20") int size
   ) {
-    return financeService.list(month, type, category);
+    
+    FamilyContext ctx = families.require(familyId);
+    
+    PageRequest pageRequest = PagingHelper.buildPageRequest(page, size, "createdAt", category);
+    
+    return ApiResponse.ok(PageResponse.from(
+        financeService.list(ctx, month, type, category, pageRequest)));
   }
   
   @GetMapping("/transactions/{id}")
-  public FinanceTransactionResponse getDetail(@PathVariable UUID id) {
-    return financeService.getDetail(id);
+  public ApiResponse<FinanceTransactionResponse> getDetail(@PathVariable UUID id) {
+    return ApiResponse.ok(financeService.getDetail(id));
   }
   
   @PutMapping("/transactions/{id}")
-  public FinanceTransactionResponse update(
+  public ApiResponse<FinanceTransactionResponse> update(
       @PathVariable UUID id,
       @Valid @RequestBody UpdateFinanceTransactionRequest request
   ) {
-    return financeService.update(id, request);
+    return ApiResponse.ok(financeService.update(id, request));
   }
   
   @DeleteMapping("/transactions/{id}")
-  public Map<String, Object> delete(@PathVariable UUID id) {
+  public ApiResponse<Boolean> delete(@PathVariable UUID id) {
     financeService.delete(id);
-    return Map.of("success", true);
+    return ApiResponse.ok("Success", true);
   }
   
   @GetMapping("/summary")
-  public FinanceSummaryResponse getSummary(
+  public ApiResponse<FinanceSummaryResponse> getSummary(
       @RequestParam(required = false) String month,
       @RequestParam(required = false) String currency
   ) {
-    return financeService.getSummary(month, currency);
+    return ApiResponse.ok(financeService.getSummary(month, currency));
   }
 }

@@ -1,5 +1,6 @@
 package com.famora.family.controller;
 
+import com.famora.common.dto.ApiResponse;
 import com.famora.family.dto.CreateFamilyRequest;
 import com.famora.family.dto.CreateInvitationRequest;
 import com.famora.family.dto.FamilyResponse;
@@ -25,23 +26,23 @@ public class FamilyController {
   private final FamilyService familyService;
   
   @GetMapping
-  public List<FamilyResponse> getMyFamilies() {
-    return familyService.getMyFamilies();
+  public ApiResponse<List<FamilyResponse>> getMyFamilies() {
+    return ApiResponse.ok(familyService.getMyFamilies());
   }
   
   @PostMapping
-  public FamilyResponse createFamily(@Valid @RequestBody CreateFamilyRequest request) {
-    return familyService.createFamily(request);
+  public ApiResponse<FamilyResponse> createFamily(@Valid @RequestBody CreateFamilyRequest request) {
+    return ApiResponse.ok(familyService.createFamily(request));
   }
   
-  @PostMapping("/{familyId}/invitations")
-  public InvitationResponse createInvitation(@PathVariable UUID familyId,
+  @PostMapping("/{family}/invitations")
+  public ApiResponse<InvitationResponse> createInvitation(@PathVariable UUID familyId,
       @Valid @RequestBody CreateInvitationRequest request) {
-    return familyService.createInvitation(familyId, request);
+    return ApiResponse.ok(familyService.createInvitation(familyId, request));
   }
   
   @PostMapping("/join")
-  public FamilyResponse joinFamily(@Valid @RequestBody JoinFamilyRequest request) {
-    return familyService.joinFamily(request);
+  public ApiResponse<FamilyResponse> joinFamily(@Valid @RequestBody JoinFamilyRequest request) {
+    return ApiResponse.ok(familyService.joinFamily(request));
   }
 }

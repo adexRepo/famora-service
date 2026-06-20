@@ -1,8 +1,9 @@
 package com.famora.family.entity;
 
+import com.famora.common.entity.AuditableEntity;
 import com.famora.common.entity.BaseEntity;
-import com.famora.common.exception.Visibility;
-import com.famora.common.helper.Status;
+import com.famora.family.helper.FamilyMemberRole;
+import com.famora.family.helper.FamilyMemberStatus;
 import com.famora.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -57,9 +58,6 @@ public class FamilyMember extends BaseEntity {
   
   @PrePersist
   public void prePersist() {
-    if (status == null) {
-      status = FamilyMemberStatus.ACTIVE;
-    }
     if (role == null) {
       role = FamilyMemberRole.MEMBER;
     }

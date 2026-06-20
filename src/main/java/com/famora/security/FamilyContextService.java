@@ -4,8 +4,8 @@ import com.famora.common.exception.AppException;
 import com.famora.family.dto.FamilyContext;
 import com.famora.family.entity.Family;
 import com.famora.family.entity.FamilyMember;
-import com.famora.family.entity.FamilyMemberRole;
-import com.famora.family.entity.FamilyMemberStatus;
+import com.famora.family.helper.FamilyMemberRole;
+import com.famora.family.helper.FamilyMemberStatus;
 import com.famora.family.repository.FamilyMemberRepository;
 import com.famora.user.entity.User;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,7 +13,6 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 @Service
@@ -52,7 +51,6 @@ public class FamilyContextService {
         FamilyMemberStatus.ACTIVE);
   }
   
-  @Transactional(readOnly = true)
   public void validateCurrentUserCanAccessFamily(UUID familyId) {
     if (!isCurrentUserFamilyMember(familyId)) {
       throw new SecurityException("Access denied to family");

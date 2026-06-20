@@ -1,6 +1,9 @@
 package com.famora.family.entity;
 
+import com.famora.common.entity.AuditableEntity;
 import com.famora.common.entity.BaseEntity;
+import com.famora.family.helper.FamilyMemberRole;
+import com.famora.family.helper.InvitationStatus;
 import com.famora.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

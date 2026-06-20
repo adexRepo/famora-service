@@ -1,0 +1,2 @@
+ALTER TABLE famora.audit_logs
+ADD COLUMN updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW();

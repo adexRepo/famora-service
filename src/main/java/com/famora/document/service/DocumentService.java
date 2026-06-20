@@ -3,8 +3,9 @@ package com.famora.document.service;
 import com.famora.audit.entity.AuditAction;
 import com.famora.audit.service.AuditLogService;
 import com.famora.common.exception.AppException;
-import com.famora.common.exception.Visibility;
+import com.famora.common.helper.PermissionHelper;
 import com.famora.common.helper.Status;
+import com.famora.common.helper.Visibility;
 import com.famora.document.dto.DocumentDtos;
 import com.famora.document.entity.Document;
 import com.famora.document.helper.DocumentType;
@@ -34,7 +35,6 @@ public class DocumentService {
   private final DocumentRepository docs;
   private final FileService files;
   private final FileRepository fileRepo;
-  private final DocumentPermissionService permission;
   private final AuditLogService audit;
   private final CurrentUserService currentUserService;
   private final FamilyContextService familyContextService;
@@ -56,9 +56,9 @@ public class DocumentService {
     FileAsset fa = files.upload(file, "DOCUMENT", notes,
         visibility == null ? Visibility.OWNER_ONLY : visibility, ctx, "documents");
     Document d = new Document();
-    d.setFamilyId(ctx.familyId().getId());
+    d.setFamily(ctx.family());
     d.setFileId(fa.getId());
-    d.setOwnerUserId(ownerUserId == null ? ctx.userId().getId() : ownerUserId);
+    d.setOwnerUserId(ownerUserId == null ? ctx.user().getId() : ownerUserId);
     d.setTitle(title);
     d.setDocumentType(documentType);
     d.setDocumentNumber(documentNumber);
@@ -76,19 +76,20 @@ public class DocumentService {
       Pageable pageable) {
     Page<Document> page;
     if (Boolean.TRUE.equals(expiringSoon)) {
-      page = docs.findAllByFamilyIdAndStatusAndExpiryDateBetween(ctx.familyId().getId(),
+      page = docs.findAllByFamilyIdAndStatusAndExpiryDateBetween(ctx.family().getId(),
           Status.ACTIVE,
           LocalDate.now(), LocalDate.now().plusDays(90), pageable);
     } else if (type != null) {
-      page = docs.findAllByFamilyIdAndStatusAndDocumentType(ctx.familyId().getId(), Status.ACTIVE,
+      page = docs.findAllByFamilyIdAndStatusAndDocumentType(ctx.family().getId(), Status.ACTIVE,
           type,
           pageable);
     } else {
-      page = docs.findAllByFamilyIdAndStatus(ctx.familyId().getId(), Status.ACTIVE, pageable);
+      page = docs.findAllByFamilyIdAndStatus(ctx.family().getId(), Status.ACTIVE, pageable);
     }
     var visible = page.getContent().stream().filter(d -> {
       try {
-        permission.assertCanAccess(d, ctx);
+        PermissionHelper.assertCanAccess(d.getVisibility(), d.getStatus(), d.getCreatedBy().getId(),
+            ctx);
         return true;
       } catch (AppException ex) {
         return false;
@@ -102,9 +103,9 @@ public class DocumentService {
     User user = currentUserService.getCurrentUser();
     Family family = familyContextService.getCurrentFamily();
     
-    Document d = docs.findByIdAndFamilyIdAndStatus(id, ctx.familyId().getId(), Status.ACTIVE)
+    Document d = docs.findByIdAndFamilyIdAndStatus(id, ctx.family().getId(), Status.ACTIVE)
         .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Document not found"));
-    permission.assertCanAccess(d, ctx);
+    PermissionHelper.assertCanAccess(d.getVisibility(), d.getStatus(), d.getCreatedBy().getId(), ctx);
     
     audit.log(family, user, AuditAction.DOCUMENT_VIEWED, "documents", d.getId(),
         "{\"documentId\":\"" + id + "\"}");
@@ -114,7 +115,7 @@ public class DocumentService {
   public FileService.Download download(UUID id, FamilyContext ctx) {
     Document d = get(id, ctx);
     FileService.Download dl = files.download(d.getFileId(), ctx);
-    audit.log(ctx.familyId(), ctx.userId(), AuditAction.DOCUMENT_DOWNLOADED, "documents", d.getId(),
+    audit.log(ctx.family(), ctx.user(), AuditAction.DOCUMENT_DOWNLOADED, "documents", d.getId(),
         "{\"documentId\":\"" + id + "\"}");
     return dl;
   }
@@ -149,13 +150,13 @@ public class DocumentService {
     Document d = get(id, ctx);
     d.setStatus(Status.DELETED);
     docs.save(d);
-    fileRepo.findByIdAndFamilyIdAndStatus(d.getFileId(), ctx.familyId().getId(), Status.ACTIVE)
+    fileRepo.findByIdAndFamilyIdAndStatus(d.getFileId(), ctx.family().getId(), Status.ACTIVE)
         .ifPresent(f -> {
           f.setStatus(Status.DELETED);
           fileRepo.save(f);
         });
     
-    audit.log(ctx.familyId(), ctx.userId(), AuditAction.DOCUMENT_DELETED, "documents", d.getId(),
+    audit.log(ctx.family(), ctx.user(), AuditAction.DOCUMENT_DELETED, "documents", d.getId(),
         "{\"documentId\":\"" + id + "\"}");
   }
 }

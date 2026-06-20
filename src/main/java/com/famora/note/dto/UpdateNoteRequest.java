@@ -1,6 +1,8 @@
 package com.famora.note.dto;
 
+import com.famora.common.helper.Visibility;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public record UpdateNoteRequest(
@@ -12,6 +14,9 @@ public record UpdateNoteRequest(
     String content,
     
     @Size(max = 80)
-    String category
+    String category,
+    
+    @NotNull
+    Visibility visibility
 ) {
 }

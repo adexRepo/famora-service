@@ -38,12 +38,12 @@ public class StorageService {
   private final String bucketName;
   
   public StorageService(
-      @Value("${famora.minio.endpoint}") String endpoint,
-      @Value("${famora.minio.access-key}") String accessKey,
-      @Value("${famora.minio.secret-key}") String secretKey,
-      @Value("${famora.minio.bucket}") String bucketName,
-      @Value("${famora.storage.max-upload-bytes}") long maxUploadBytes,
-      @Value("${famora.storage.root}") String root
+      @Value("${app.minio.endpoint}") String endpoint,
+      @Value("${app.minio.access-key}") String accessKey,
+      @Value("${app.minio.secret-key}") String secretKey,
+      @Value("${app.minio.bucket}") String bucketName,
+      @Value("${app.storage.max-upload-bytes}") long maxUploadBytes,
+      @Value("${app.storage.root}") String root
   ) {
     this.minioClient = MinioClient.builder()
         .endpoint(endpoint)

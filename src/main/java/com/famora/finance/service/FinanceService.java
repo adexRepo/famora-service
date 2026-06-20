@@ -4,6 +4,7 @@ import com.famora.audit.entity.AuditAction;
 import com.famora.audit.service.AuditLogService;
 import com.famora.common.exception.ResourceNotFoundException;
 import com.famora.currency.service.CurrencyConversionService;
+import com.famora.family.dto.FamilyContext;
 import com.famora.family.entity.Family;
 import com.famora.finance.dto.CreateFinanceTransactionRequest;
 import com.famora.finance.dto.CurrencyAmountProjection;
@@ -26,6 +27,8 @@ import java.util.Locale;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -71,12 +74,14 @@ public class FinanceService {
   }
   
   @Transactional(readOnly = true)
-  public List<FinanceTransactionResponse> list(
+  public Page<FinanceTransactionResponse> list(
+      FamilyContext familyContext,
       String month,
       FinanceTransactionType type,
-      String category
+      String category,
+      Pageable pageable
   ) {
-    Family family = familyContextService.getCurrentFamily();
+    UUID familyId = familyContext.family().getId();
     
     YearMonth yearMonth = parseMonthOrCurrent(month);
     LocalDate startDate = yearMonth.atDay(1);
@@ -84,45 +89,47 @@ public class FinanceService {
     
     String cleanCategory = clean(category);
     
-    List<FinanceTransaction> transactions;
+    Page<FinanceTransaction> page;
     
     if (type == null && cleanCategory == null) {
-      transactions = financeTransactionRepository
-          .findByFamilyIdAndDeletedAtIsNullAndTransactionDateBetweenOrderByTransactionDateDescCreatedAtDesc(
-              family.getId(),
+      page = financeTransactionRepository
+          .findByFamily_IdAndDeletedAtIsNullAndTransactionDateBetweenOrderByTransactionDateDescCreatedAtDesc(
+              familyId,
               startDate,
-              endDate
+              endDate,
+              pageable
           );
     } else if (type != null && cleanCategory == null) {
-      transactions = financeTransactionRepository
-          .findByFamilyIdAndDeletedAtIsNullAndTransactionDateBetweenAndTypeOrderByTransactionDateDescCreatedAtDesc(
-              family.getId(),
-              startDate,
-              endDate,
-              type
-          );
-    } else if (type == null) {
-      transactions = financeTransactionRepository
-          .findByFamilyIdAndDeletedAtIsNullAndTransactionDateBetweenAndCategoryIgnoreCaseOrderByTransactionDateDescCreatedAtDesc(
-              family.getId(),
-              startDate,
-              endDate,
-              cleanCategory
-          );
-    } else {
-      transactions = financeTransactionRepository
-          .findByFamilyIdAndDeletedAtIsNullAndTransactionDateBetweenAndTypeAndCategoryIgnoreCaseOrderByTransactionDateDescCreatedAtDesc(
-              family.getId(),
+      page = financeTransactionRepository
+          .findByFamily_IdAndDeletedAtIsNullAndTransactionDateBetweenAndTypeOrderByTransactionDateDescCreatedAtDesc(
+              familyId,
               startDate,
               endDate,
               type,
-              cleanCategory
+              pageable
+          );
+    } else if (type == null) {
+      page = financeTransactionRepository
+          .findByFamily_IdAndDeletedAtIsNullAndTransactionDateBetweenAndCategoryIgnoreCaseOrderByTransactionDateDescCreatedAtDesc(
+              familyId,
+              startDate,
+              endDate,
+              cleanCategory,
+              pageable
+          );
+    } else {
+      page = financeTransactionRepository
+          .findByFamily_IdAndDeletedAtIsNullAndTransactionDateBetweenAndTypeAndCategoryIgnoreCaseOrderByTransactionDateDescCreatedAtDesc(
+              familyId,
+              startDate,
+              endDate,
+              type,
+              cleanCategory,
+              pageable
           );
     }
     
-    return transactions.stream()
-        .map(this::toResponse)
-        .toList();
+    return page.map(this::toResponse);
   }
   
   @Transactional(readOnly = true)
@@ -217,7 +224,6 @@ public class FinanceService {
         targetCurrency
     );
     
-    
     BigDecimal balance = totalIncome.subtract(totalExpense)
         .setScale(2, RoundingMode.HALF_UP);
     
@@ -305,7 +311,8 @@ public class FinanceService {
     
     BigDecimal oriAmt = summaries.isEmpty() ? null : summaries.getFirst().getTotalAmount();
     
-    log.debug("[Calculate] type: [{}], originalAmt: [{}], convertedAmt:[{}]", type.name(), oriAmt, total);
+    log.debug("[Calculate] type: [{}], originalAmt: [{}], convertedAmt:[{}]", type.name(), oriAmt,
+        total);
     
     return total.setScale(2, RoundingMode.UP);
   }

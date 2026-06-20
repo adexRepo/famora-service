@@ -3,6 +3,8 @@ package com.famora.vault.service;
 import com.famora.audit.entity.AuditAction;
 import com.famora.audit.service.AuditLogService;
 import com.famora.common.exception.ResourceNotFoundException;
+import com.famora.common.helper.Visibility;
+import com.famora.family.dto.FamilyContext;
 import com.famora.family.entity.Family;
 import com.famora.security.CurrentUserService;
 import com.famora.security.FamilyContextService;
@@ -10,13 +12,14 @@ import com.famora.user.entity.User;
 import com.famora.vault.dto.CreateVaultItemRequest;
 import com.famora.vault.dto.UpdateVaultItemRequest;
 import com.famora.vault.dto.VaultItemDetailResponse;
-import com.famora.vault.dto.VaultItemListResponse;
+import com.famora.vault.dto.VaultItemResponse;
 import com.famora.vault.entity.VaultItem;
 import com.famora.vault.repository.VaultItemRepository;
 import java.time.OffsetDateTime;
-import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,6 +45,7 @@ public class VaultService {
         .encryptedSecret(vaultCryptoService.encrypt(request.secret()))
         .url(clean(request.url()))
         .notes(clean(request.notes()))
+        .visibility(request.visibility())
         .createdBy(user)
         .build();
     
@@ -60,22 +64,44 @@ public class VaultService {
   }
   
   @Transactional(readOnly = true)
-  public List<VaultItemListResponse> list(String keyword) {
-    Family family = familyContextService.getCurrentFamily();
+  public Page<VaultItemResponse> list(
+      FamilyContext ctx,
+      String keyword,
+      Visibility visibility,
+      Pageable pageable
+  ) {
+    UUID familyId = ctx.family().getId();
+    UUID userId = ctx.user().getId();
+    boolean isOwner = ctx.owner();
     
-    List<VaultItem> items;
+    Visibility selectedVisibility = visibility == null
+        ? Visibility.PRIVATE
+        : visibility;
     
-    if (keyword == null || keyword.isBlank()) {
-      items = vaultItemRepository.findByFamilyIdAndDeletedAtIsNullOrderByCreatedAtDesc(
-          family.getId());
+    String cleanKeyword = clean(keyword);
+    
+    Page<VaultItem> page;
+    
+    if (cleanKeyword == null) {
+      page = vaultItemRepository.findVisibleByFamilyAndVisibility(
+          familyId,
+          userId,
+          isOwner,
+          selectedVisibility,
+          pageable
+      );
     } else {
-      items = vaultItemRepository.searchByFamilyAndKeyword(family.getId(),
-          keyword.trim().toLowerCase());
+      page = vaultItemRepository.searchVisibleByFamilyAndKeywordAndVisibility(
+          familyId,
+          userId,
+          isOwner,
+          cleanKeyword,
+          selectedVisibility,
+          pageable
+      );
     }
     
-    return items.stream()
-        .map(this::toListResponse)
-        .toList();
+    return page.map(this::toVaultItemResponse);
   }
   
   @Transactional(readOnly = true)
@@ -113,6 +139,7 @@ public class VaultService {
     item.setUrl(clean(request.url()));
     item.setNotes(clean(request.notes()));
     item.setUpdatedBy(user);
+    item.setVisibility(request.visibility());
     
     if (request.secret() != null && !request.secret().isBlank()) {
       item.setEncryptedSecret(vaultCryptoService.encrypt(request.secret()));
@@ -156,8 +183,8 @@ public class VaultService {
     );
   }
   
-  private VaultItemListResponse toListResponse(VaultItem item) {
-    return new VaultItemListResponse(
+  private VaultItemResponse toVaultItemResponse(VaultItem item) {
+    return new VaultItemResponse(
         item.getId(),
         item.getTitle(),
         item.getUsername(),

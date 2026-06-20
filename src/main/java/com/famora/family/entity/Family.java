@@ -1,7 +1,6 @@
 package com.famora.family.entity;
 
 import com.famora.common.entity.BaseEntity;
-import com.famora.common.exception.Visibility;
 import com.famora.common.helper.Status;
 import com.famora.user.entity.User;
 import jakarta.persistence.Column;

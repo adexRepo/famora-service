@@ -1,6 +1,6 @@
 package com.famora.document.dto;
 
-import com.famora.common.exception.Visibility;
+import com.famora.common.helper.Visibility;
 import com.famora.document.entity.Document;
 import com.famora.document.helper.DocumentType;
 import java.time.LocalDate;

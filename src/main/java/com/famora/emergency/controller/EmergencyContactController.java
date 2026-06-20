@@ -1,6 +1,7 @@
 package com.famora.emergency.controller;
 
-import com.famora.common.exception.ApiResponse;
+import com.famora.common.dto.ApiResponse;
+import com.famora.common.dto.PageResponse;
 import com.famora.emergency.dto.EmergencyDtos;
 import com.famora.emergency.dto.EmergencyDtos.Request;
 import com.famora.emergency.dto.EmergencyDtos.Response;
@@ -39,14 +40,14 @@ public class EmergencyContactController {
   }
   
   @GetMapping
-  public ApiResponse<Page<EmergencyDtos.Response>> list(
+  public ApiResponse<PageResponse<EmergencyDtos.Response>> list(
       @RequestHeader("X-Family-Id") String familyId, @RequestParam(required = false) String keyword,
       @RequestParam(required = false) EmergencyCategory category,
       @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
     var ctx = families.require(familyId);
-    return ApiResponse.ok(service.list(ctx, keyword, category,
+    return ApiResponse.ok(PageResponse.from(service.list(ctx, keyword, category,
             PageRequest.of(page, size, Sort.by("createdAt").descending()))
-        .map(EmergencyDtos.Response::from));
+        .map(EmergencyDtos.Response::from)));
   }
   
   @GetMapping("/{id}")

@@ -1,7 +1,8 @@
 package com.famora.document.controller;
 
-import com.famora.common.exception.ApiResponse;
-import com.famora.common.exception.Visibility;
+import com.famora.common.dto.ApiResponse;
+import com.famora.common.dto.PageResponse;
+import com.famora.common.helper.Visibility;
 import com.famora.document.dto.DocumentDtos;
 import com.famora.document.dto.DocumentDtos.DocumentResponse;
 import com.famora.document.helper.DocumentType;
@@ -10,6 +11,7 @@ import com.famora.security.FamilyContextService;
 import java.time.LocalDate;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -55,15 +57,15 @@ public class DocumentController {
   }
   
   @GetMapping
-  public ApiResponse<Page<DocumentDtos.DocumentResponse>> list(
+  public ApiResponse<PageResponse<DocumentDtos.DocumentResponse>> list(
       @RequestHeader("X-Family-Id") String familyId,
       @RequestParam(required = false) DocumentType documentType,
       @RequestParam(required = false) Boolean expiringSoon,
       @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
     var ctx = families.require(familyId);
-    return ApiResponse.ok(service.list(ctx, documentType, expiringSoon,
+    return ApiResponse.ok(PageResponse.from(service.list(ctx, documentType, expiringSoon,
             PageRequest.of(page, size, Sort.by("createdAt").descending()))
-        .map(DocumentDtos.DocumentResponse::from));
+        .map(DocumentDtos.DocumentResponse::from)));
   }
   
   @GetMapping("/{id}")
@@ -74,7 +76,7 @@ public class DocumentController {
   }
   
   @GetMapping("/{id}/download")
-  public ResponseEntity<?> download(@RequestHeader("X-Family-Id") String familyId,
+  public ResponseEntity<Resource> download(@RequestHeader("X-Family-Id") String familyId,
       @PathVariable UUID id) {
     var ctx = families.require(familyId);
     var d = service.download(id, ctx);

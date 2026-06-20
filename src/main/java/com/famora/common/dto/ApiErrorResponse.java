@@ -1,4 +1,4 @@
-package com.famora.common.exception;
+package com.famora.common.dto;
 
 import java.time.OffsetDateTime;
 import java.util.Map;

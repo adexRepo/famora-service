@@ -1,7 +1,8 @@
 package com.famora.file.controller;
 
-import com.famora.common.exception.ApiResponse;
-import com.famora.common.exception.Visibility;
+import com.famora.common.dto.ApiResponse;
+import com.famora.common.dto.PageResponse;
+import com.famora.common.helper.Visibility;
 import com.famora.file.dto.FileDtos;
 import com.famora.file.dto.FileDtos.FileResponse;
 import com.famora.file.helper.FileType;
@@ -9,6 +10,7 @@ import com.famora.file.service.FileService;
 import com.famora.security.FamilyContextService;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -37,8 +39,10 @@ public class FileController {
   private final FileService service;
   
   @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  public ApiResponse<FileResponse> upload(@RequestHeader("X-Family-Id") String familyId,
-      @RequestParam("file") MultipartFile file, @RequestParam(required = false) String category,
+  public ApiResponse<FileResponse> upload(
+      @RequestHeader("X-Family-Id") String familyId,
+      @RequestParam("file") MultipartFile file,
+      @RequestParam(required = false) String category,
       @RequestParam(required = false) String notes,
       @RequestParam(defaultValue = "PRIVATE") Visibility visibility) {
     var ctx = families.require(familyId);
@@ -47,15 +51,16 @@ public class FileController {
   }
   
   @GetMapping
-  public ApiResponse<Page<FileDtos.FileResponse>> list(
-      @RequestHeader("X-Family-Id") String familyId, @RequestParam(required = false) String keyword,
+  public ApiResponse<PageResponse<FileResponse>> list(@RequestHeader("X-Family-Id") String familyId,
+      @RequestParam(required = false) String keyword,
       @RequestParam(required = false) FileType fileType,
       @RequestParam(required = false) Visibility visibility,
       @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
     var ctx = families.require(familyId);
-    return ApiResponse.ok(service.list(ctx, keyword, fileType, visibility,
+    
+    return ApiResponse.ok(PageResponse.from(service.list(ctx, keyword, fileType, visibility,
             PageRequest.of(page, size, Sort.by("createdAt").descending()))
-        .map(FileDtos.FileResponse::from));
+        .map(FileDtos.FileResponse::from)));
   }
   
   @GetMapping("/{id}")
@@ -66,7 +71,7 @@ public class FileController {
   }
   
   @GetMapping("/{id}/download")
-  public ResponseEntity<?> download(@RequestHeader("X-Family-Id") String familyId,
+  public ResponseEntity<Resource> download(@RequestHeader("X-Family-Id") String familyId,
       @PathVariable UUID id) {
     var ctx = families.require(familyId);
     var d = service.download(id, ctx);

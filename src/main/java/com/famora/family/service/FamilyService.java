@@ -11,9 +11,9 @@ import com.famora.family.dto.JoinFamilyRequest;
 import com.famora.family.entity.Family;
 import com.famora.family.entity.FamilyInvitation;
 import com.famora.family.entity.FamilyMember;
-import com.famora.family.entity.FamilyMemberRole;
-import com.famora.family.entity.FamilyMemberStatus;
-import com.famora.family.entity.InvitationStatus;
+import com.famora.family.helper.FamilyMemberRole;
+import com.famora.family.helper.FamilyMemberStatus;
+import com.famora.family.helper.InvitationStatus;
 import com.famora.family.repository.FamilyInvitationRepository;
 import com.famora.family.repository.FamilyMemberRepository;
 import com.famora.family.repository.FamilyRepository;
@@ -71,7 +71,7 @@ public class FamilyService {
     
     auditLogService.log(family, user, AuditAction.FAMILY_CREATED,
         "families", family.getId(),
-        "{\"familyId\":\"" + family.getId() + "\",\"familyMemberId\":\"" + member.getId() + "\"}");
+        "{\"family\":\"" + family.getId() + "\",\"familyMemberId\":\"" + member.getId() + "\"}");
     
     return new FamilyResponse(
         family.getId(),
@@ -104,7 +104,7 @@ public class FamilyService {
         "family_invitations", invitation.getId(),
         """
             {
-              "familyId" : "%s",
+              "family" : "%s",
               "userId" : "%s",
               "invitationCode" : "%s",
             }
@@ -143,7 +143,7 @@ public class FamilyService {
         "family_members", invitation.getId(),
         """
             {
-              "familyId" : "%s",
+              "family" : "%s",
               "userId" : "%s",
               "invitationCode" : "%s",
             }

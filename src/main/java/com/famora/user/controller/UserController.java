@@ -1,5 +1,6 @@
 package com.famora.user.controller;
 
+import com.famora.common.dto.ApiResponse;
 import com.famora.user.dto.UpdateUserProfileRequest;
 import com.famora.user.dto.UserProfileResponse;
 import com.famora.user.service.UserService;
@@ -19,12 +20,13 @@ public class UserController {
   private final UserService userService;
   
   @GetMapping
-  public UserProfileResponse getMe() {
-    return userService.getMe();
+  public ApiResponse<UserProfileResponse> getMe() {
+    return ApiResponse.ok(userService.getMe());
   }
   
   @PutMapping
-  public UserProfileResponse updateMe(@Valid @RequestBody UpdateUserProfileRequest request) {
-    return userService.updateMe(request);
+  public ApiResponse<UserProfileResponse> updateMe(
+      @Valid @RequestBody UpdateUserProfileRequest request) {
+    return ApiResponse.ok(userService.updateMe(request));
   }
 }

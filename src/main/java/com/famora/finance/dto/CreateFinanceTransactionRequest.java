@@ -1,5 +1,6 @@
 package com.famora.finance.dto;
 
+import com.famora.common.helper.Visibility;
 import com.famora.finance.entity.FinanceTransactionType;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;

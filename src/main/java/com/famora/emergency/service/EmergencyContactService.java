@@ -27,12 +27,12 @@ public class EmergencyContactService {
   public EmergencyContact create(Request req, FamilyContext ctx) {
     validate(req);
     EmergencyContact e = new EmergencyContact();
-    e.setFamilyId(ctx.familyId().getId());
-    e.setCreatedByUserId(ctx.userId().getId());
+    e.setFamily(ctx.family());
+    e.setCreatedBy(ctx.user());
     apply(e, req);
     repo.save(e);
     
-    audit.log(ctx.familyId(), ctx.userId(), AuditAction.EMERGENCY_CONTACT_CREATED,
+    audit.log(ctx.family(), ctx.user(), AuditAction.EMERGENCY_CONTACT_CREATED,
         "emergency_contacts", e.getId(), "{\"emergencyContactId\":\"" + e.getId() + "\"}");
     return e;
   }
@@ -40,19 +40,19 @@ public class EmergencyContactService {
   public Page<EmergencyContact> list(FamilyContext ctx, String keyword, EmergencyCategory category,
       Pageable pageable) {
     if (StringUtils.hasText(keyword)) {
-      return repo.findAllByFamilyIdAndStatusAndNameContainingIgnoreCase(ctx.familyId().getId(),
+      return repo.findAllByFamilyIdAndStatusAndNameContainingIgnoreCase(ctx.family().getId(),
           Status.ACTIVE, keyword, pageable);
     }
     if (category != null) {
-      return repo.findAllByFamilyIdAndStatusAndCategory(ctx.familyId().getId(), Status.ACTIVE,
+      return repo.findAllByFamilyIdAndStatusAndCategory(ctx.family().getId(), Status.ACTIVE,
           category,
           pageable);
     }
-    return repo.findAllByFamilyIdAndStatus(ctx.familyId().getId(), Status.ACTIVE, pageable);
+    return repo.findAllByFamilyIdAndStatus(ctx.family().getId(), Status.ACTIVE, pageable);
   }
   
   public EmergencyContact get(UUID id, FamilyContext ctx) {
-    return repo.findByIdAndFamilyIdAndStatus(id, ctx.familyId().getId(), Status.ACTIVE)
+    return repo.findByIdAndFamilyIdAndStatus(id, ctx.family().getId(), Status.ACTIVE)
         .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Emergency contact not found"));
   }
   
@@ -62,7 +62,7 @@ public class EmergencyContactService {
     apply(e, req);
     repo.save(e);
     
-    audit.log(ctx.familyId(), ctx.userId(), AuditAction.EMERGENCY_CONTACT_UPDATED,
+    audit.log(ctx.family(), ctx.user(), AuditAction.EMERGENCY_CONTACT_UPDATED,
         "emergency_contacts", e.getId(),
         "{\"emergencyContactId\":\"" + id + "\"}");
     return e;
@@ -73,7 +73,7 @@ public class EmergencyContactService {
     e.setStatus(Status.DELETED);
     repo.save(e);
     
-    audit.log(ctx.familyId(), ctx.userId(), AuditAction.EMERGENCY_CONTACT_DELETED,
+    audit.log(ctx.family(), ctx.user(), AuditAction.EMERGENCY_CONTACT_DELETED,
         "emergency_contacts", e.getId(), "{\"emergencyContactId\":\"" + id + "\"}");
   }
   

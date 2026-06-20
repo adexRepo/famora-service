@@ -1,21 +1,27 @@
 package com.famora.note.controller;
 
+import com.famora.common.dto.ApiResponse;
+import com.famora.common.dto.PageResponse;
+import com.famora.common.helper.PagingHelper;
+import com.famora.common.helper.Visibility;
+import com.famora.family.dto.FamilyContext;
 import com.famora.note.dto.CreateNoteRequest;
 import com.famora.note.dto.NoteListResponse;
 import com.famora.note.dto.NoteResponse;
 import com.famora.note.dto.UpdateNoteRequest;
 import com.famora.note.service.NoteService;
+import com.famora.security.FamilyContextService;
 import jakarta.validation.Valid;
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,37 +31,48 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class NoteController {
   
+  private final FamilyContextService familyContextService;
   private final NoteService noteService;
   
   @PostMapping
-  public NoteResponse create(@Valid @RequestBody CreateNoteRequest request) {
-    return noteService.create(request);
+  public ApiResponse<NoteResponse> create(@Valid @RequestBody CreateNoteRequest request) {
+    return ApiResponse.ok(noteService.create(request));
   }
   
   @GetMapping
-  public List<NoteListResponse> list(
+  public ApiResponse<PageResponse<NoteListResponse>> list(
+      @RequestHeader("X-Family-Id") String familyId,
       @RequestParam(required = false) String keyword,
-      @RequestParam(required = false) String category
+      @RequestParam(required = false) String category,
+      @RequestParam(required = false) Visibility visibility,
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "20") int size
   ) {
-    return noteService.list(keyword, category);
+    
+    FamilyContext ctx = familyContextService.require(familyId);
+    
+    PageRequest pageRequest = PagingHelper.buildPageRequest(page, size, "createdAt", keyword, category);
+    
+    return ApiResponse.ok(PageResponse.from(
+        noteService.list(ctx, keyword, category, visibility, pageRequest)));
   }
   
   @GetMapping("/{id}")
-  public NoteResponse getDetail(@PathVariable UUID id) {
-    return noteService.getDetail(id);
+  public ApiResponse<NoteResponse> getDetail(@PathVariable UUID id) {
+    return ApiResponse.ok(noteService.getDetail(id));
   }
   
   @PutMapping("/{id}")
-  public NoteResponse update(
+  public ApiResponse<NoteResponse> update(
       @PathVariable UUID id,
       @Valid @RequestBody UpdateNoteRequest request
   ) {
-    return noteService.update(id, request);
+    return ApiResponse.ok(noteService.update(id, request));
   }
   
   @DeleteMapping("/{id}")
-  public Map<String, Object> delete(@PathVariable UUID id) {
+  public ApiResponse<Boolean> delete(@PathVariable UUID id) {
     noteService.delete(id);
-    return Map.of("success", true);
+    return ApiResponse.ok("Success", true);
   }
 }

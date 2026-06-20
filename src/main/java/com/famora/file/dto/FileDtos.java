@@ -1,6 +1,6 @@
 package com.famora.file.dto;
 
-import com.famora.common.exception.Visibility;
+import com.famora.common.helper.Visibility;
 import com.famora.file.entity.FileAsset;
 import com.famora.file.helper.FileType;
 import java.time.OffsetDateTime;

@@ -1,7 +1,7 @@
 package com.famora.family.repository;
 
 import com.famora.family.entity.FamilyMember;
-import com.famora.family.entity.FamilyMemberStatus;
+import com.famora.family.helper.FamilyMemberStatus;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -16,9 +16,9 @@ public interface FamilyMemberRepository extends JpaRepository<FamilyMember, UUID
           from FamilyMember fm
           join fetch fm.family
           where fm.user.id = :userId
-            and fm.status = com.famora.family.entity.FamilyMemberStatus.ACTIVE
+            and fm.status = com.famora.family.helper.FamilyMemberStatus.ACTIVE
       """)
-  List<FamilyMember> findActiveFamiliesByUserId(@Param("userId") UUID userId);
+  List<FamilyMember> findActiveFamiliesByUserId(@Param("user") UUID userId);
   
   Optional<FamilyMember> findByFamilyIdAndUserIdAndStatus(UUID familyId, UUID userId,
       FamilyMemberStatus status);

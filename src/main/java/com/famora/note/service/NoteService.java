@@ -3,6 +3,9 @@ package com.famora.note.service;
 import com.famora.audit.entity.AuditAction;
 import com.famora.audit.service.AuditLogService;
 import com.famora.common.exception.ResourceNotFoundException;
+import com.famora.common.helper.Status;
+import com.famora.common.helper.Visibility;
+import com.famora.family.dto.FamilyContext;
 import com.famora.family.entity.Family;
 import com.famora.note.dto.CreateNoteRequest;
 import com.famora.note.dto.NoteListResponse;
@@ -14,9 +17,10 @@ import com.famora.security.CurrentUserService;
 import com.famora.security.FamilyContextService;
 import com.famora.user.entity.User;
 import java.time.OffsetDateTime;
-import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,6 +44,7 @@ public class NoteService {
         .content(request.content().trim())
         .category(clean(request.category()))
         .createdBy(user)
+        .visibility(request.visibility())
         .build();
     
     noteRepository.save(note);
@@ -57,39 +62,65 @@ public class NoteService {
   }
   
   @Transactional(readOnly = true)
-  public List<NoteListResponse> list(String keyword, String category) {
-    Family family = familyContextService.getCurrentFamily();
+  public Page<NoteListResponse> list(
+      FamilyContext familyContext,
+      String keyword,
+      String category,
+      Visibility visibility,
+      Pageable pageable
+  ) {
+    UUID familyId = familyContext.family().getId();
+    UUID userId = familyContext.user().getId();
+    boolean isOwner = familyContext.owner();
     
     String cleanKeyword = clean(keyword);
     String cleanCategory = clean(category);
     
-    List<Note> notes;
+    Visibility selectedVisibility = visibility == null
+        ? Visibility.FAMILY
+        : visibility;
+    
+    Page<Note> page;
     
     if (cleanKeyword == null && cleanCategory == null) {
-      notes = noteRepository.findByFamilyIdAndDeletedAtIsNullOrderByCreatedAtDesc(
-          family.getId()
+      page = noteRepository.findVisibleByFamilyAndVisibility(
+          familyId,
+          userId,
+          isOwner,
+          selectedVisibility,
+          pageable
       );
     } else if (cleanKeyword == null) {
-      notes = noteRepository.findByFamilyIdAndCategoryIgnoreCaseAndDeletedAtIsNullOrderByCreatedAtDesc(
-          family.getId(),
-          cleanCategory
+      page = noteRepository.findVisibleByFamilyAndVisibilityAndCategory(
+          familyId,
+          userId,
+          isOwner,
+          selectedVisibility,
+          cleanCategory,
+          pageable
       );
     } else if (cleanCategory == null) {
-      notes = noteRepository.searchByKeyword(
-          family.getId(),
-          cleanKeyword
+      page = noteRepository.searchVisibleByKeyword(
+          familyId,
+          userId,
+          isOwner,
+          selectedVisibility,
+          cleanKeyword,
+          pageable
       );
     } else {
-      notes = noteRepository.searchByKeywordAndCategory(
-          family.getId(),
+      page = noteRepository.searchVisibleByKeywordAndCategory(
+          familyId,
+          userId,
+          isOwner,
+          selectedVisibility,
           cleanKeyword,
-          cleanCategory
+          cleanCategory,
+          pageable
       );
     }
     
-    return notes.stream()
-        .map(this::toListResponse)
-        .toList();
+    return page.map(this::toListResponse);
   }
   
   @Transactional(readOnly = true)
@@ -116,6 +147,7 @@ public class NoteService {
     note.setContent(request.content().trim());
     note.setCategory(clean(request.category()));
     note.setUpdatedBy(user);
+    note.setVisibility(request.visibility());
     
     noteRepository.save(note);
     

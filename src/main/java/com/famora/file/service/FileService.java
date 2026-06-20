@@ -3,7 +3,8 @@ package com.famora.file.service;
 import com.famora.audit.entity.AuditAction;
 import com.famora.audit.service.AuditLogService;
 import com.famora.common.exception.AppException;
-import com.famora.common.exception.Visibility;
+import com.famora.common.helper.PermissionHelper;
+import com.famora.common.helper.Visibility;
 import com.famora.common.helper.Status;
 import com.famora.family.dto.FamilyContext;
 import com.famora.file.dto.FileDtos;
@@ -30,10 +31,9 @@ public class FileService {
   
   private final FileRepository repo;
   private final StorageService storage;
-  private final FilePermissionService permission;
   private final AuditLogService audit;
   
-  @Value("${famora.storage.type:MINIO}")
+  @Value("${app.storage.type:MINIO}")
   private StorageType defaultStorageType;
   
   public FileAsset upload(
@@ -48,14 +48,14 @@ public class FileService {
     StoredFile stored = storage.store(
         defaultStorageType,
         file,
-        ctx.familyId().getId(),
+        ctx.family().getId(),
         bucket
     );
     
     FileAsset fa = new FileAsset();
     
-    fa.setFamilyId(ctx.familyId().getId());
-    fa.setUploadedByUserId(ctx.userId().getId());
+    fa.setFamily(ctx.family());
+    fa.setCreatedBy(ctx.user());
     
     fa.setOriginalName(StringUtils.cleanPath(
         file.getOriginalFilename() == null ? "file" : file.getOriginalFilename()
@@ -85,8 +85,8 @@ public class FileService {
     repo.save(fa);
     
     audit.log(
-        ctx.familyId(),
-        ctx.userId(),
+        ctx.family(),
+        ctx.user(),
         AuditAction.FILE_CREATED,
         "files",
         fa.getId(),
@@ -111,7 +111,7 @@ public class FileService {
     
     if (fileType != null && visibility != null) {
       page = repo.findAllByFamilyIdAndStatusAndFileTypeAndVisibility(
-          ctx.familyId().getId(),
+          ctx.family().getId(),
           Status.ACTIVE,
           fileType,
           visibility,
@@ -119,21 +119,21 @@ public class FileService {
       );
     } else if (fileType != null) {
       page = repo.findAllByFamilyIdAndStatusAndFileType(
-          ctx.familyId().getId(),
+          ctx.family().getId(),
           Status.ACTIVE,
           fileType,
           pageable
       );
     } else if (visibility != null) {
       page = repo.findAllByFamilyIdAndStatusAndVisibility(
-          ctx.familyId().getId(),
+          ctx.family().getId(),
           Status.ACTIVE,
           visibility,
           pageable
       );
     } else {
       page = repo.findAllByFamilyIdAndStatus(
-          ctx.familyId().getId(),
+          ctx.family().getId(),
           Status.ACTIVE,
           pageable
       );
@@ -141,7 +141,7 @@ public class FileService {
     
     var visible = page.getContent().stream().filter(f -> {
       try {
-        permission.assertCanAccess(f, ctx);
+        PermissionHelper.assertCanAccess(f.getVisibility(), f.getStatus(), f.getCreatedBy().getId(), ctx);
         return true;
       } catch (AppException ex) {
         return false;
@@ -154,16 +154,16 @@ public class FileService {
   public FileAsset get(UUID id, FamilyContext ctx) {
     FileAsset f = repo.findByIdAndFamilyIdAndStatus(
             id,
-            ctx.familyId().getId(),
+            ctx.family().getId(),
             Status.ACTIVE
         )
         .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "File not found"));
     
-    permission.assertCanAccess(f, ctx);
+    PermissionHelper.assertCanAccess(f.getVisibility(), f.getStatus(), f.getCreatedBy().getId(), ctx);
     
     audit.log(
-        ctx.familyId(),
-        ctx.userId(),
+        ctx.family(),
+        ctx.user(),
         AuditAction.FILE_VIEWED,
         "files",
         f.getId(),
@@ -179,8 +179,8 @@ public class FileService {
     Resource resource = loadResource(f);
     
     audit.log(
-        ctx.familyId(),
-        ctx.userId(),
+        ctx.family(),
+        ctx.user(),
         AuditAction.FILE_DOWNLOADED,
         "files",
         f.getId(),
@@ -239,8 +239,8 @@ public class FileService {
     repo.save(f);
     
     audit.log(
-        ctx.familyId(),
-        ctx.userId(),
+        ctx.family(),
+        ctx.user(),
         AuditAction.FILE_UPDATED,
         "files",
         f.getId(),
@@ -258,8 +258,8 @@ public class FileService {
     repo.save(f);
     
     audit.log(
-        ctx.familyId(),
-        ctx.userId(),
+        ctx.family(),
+        ctx.user(),
         AuditAction.FILE_DELETED,
         "files",
         f.getId(),

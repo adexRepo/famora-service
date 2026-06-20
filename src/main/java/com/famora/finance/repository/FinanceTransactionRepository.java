@@ -8,6 +8,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -18,33 +20,36 @@ public interface FinanceTransactionRepository extends JpaRepository<FinanceTrans
       UUID familyId
   );
   
-  List<FinanceTransaction> findByFamilyIdAndDeletedAtIsNullAndTransactionDateBetweenOrderByTransactionDateDescCreatedAtDesc(
-      UUID familyId,
-      LocalDate startDate,
-      LocalDate endDate
-  );
-  
-  List<FinanceTransaction> findByFamilyIdAndDeletedAtIsNullAndTransactionDateBetweenAndTypeOrderByTransactionDateDescCreatedAtDesc(
+  Page<FinanceTransaction> findByFamily_IdAndDeletedAtIsNullAndTransactionDateBetweenOrderByTransactionDateDescCreatedAtDesc(
       UUID familyId,
       LocalDate startDate,
       LocalDate endDate,
-      FinanceTransactionType type
+      Pageable pageable
   );
   
-  List<FinanceTransaction> findByFamilyIdAndDeletedAtIsNullAndTransactionDateBetweenAndCategoryIgnoreCaseOrderByTransactionDateDescCreatedAtDesc(
-      UUID familyId,
-      LocalDate startDate,
-      LocalDate endDate,
-      String category
-  );
-  
-  List<FinanceTransaction>
-      findByFamilyIdAndDeletedAtIsNullAndTransactionDateBetweenAndTypeAndCategoryIgnoreCaseOrderByTransactionDateDescCreatedAtDesc(
+  Page<FinanceTransaction> findByFamily_IdAndDeletedAtIsNullAndTransactionDateBetweenAndTypeOrderByTransactionDateDescCreatedAtDesc(
       UUID familyId,
       LocalDate startDate,
       LocalDate endDate,
       FinanceTransactionType type,
-      String category
+      Pageable pageable
+  );
+  
+  Page<FinanceTransaction> findByFamily_IdAndDeletedAtIsNullAndTransactionDateBetweenAndCategoryIgnoreCaseOrderByTransactionDateDescCreatedAtDesc(
+      UUID familyId,
+      LocalDate startDate,
+      LocalDate endDate,
+      String category,
+      Pageable pageable
+  );
+  
+  Page<FinanceTransaction> findByFamily_IdAndDeletedAtIsNullAndTransactionDateBetweenAndTypeAndCategoryIgnoreCaseOrderByTransactionDateDescCreatedAtDesc(
+      UUID familyId,
+      LocalDate startDate,
+      LocalDate endDate,
+      FinanceTransactionType type,
+      String category,
+      Pageable pageable
   );
   
   @Query("""
@@ -65,16 +70,16 @@ public interface FinanceTransactionRepository extends JpaRepository<FinanceTrans
   );
   
   @Query("""
-          select
-            ft.currency as currency,
-            coalesce(sum(ft.amount), 0) as totalAmount
-          from FinanceTransaction ft
-          where ft.family.id = :familyId
-            and ft.deletedAt is null
-            and ft.transactionDate between :startDate and :endDate
-            and ft.type = :type
-          group by ft.currency
-        """)
+        select
+          ft.currency as currency,
+          coalesce(sum(ft.amount), 0) as totalAmount
+        from FinanceTransaction ft
+        where ft.family.id = :familyId
+          and ft.deletedAt is null
+          and ft.transactionDate between :startDate and :endDate
+          and ft.type = :type
+        group by ft.currency
+      """)
   List<CurrencyAmountProjection> sumAmountByTypeGroupByCurrency(
       UUID familyId,
       LocalDate startDate,

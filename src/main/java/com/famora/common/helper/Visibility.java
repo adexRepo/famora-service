@@ -1,4 +1,4 @@
-package com.famora.common.exception;
+package com.famora.common.helper;
 
 public enum Visibility {
   PRIVATE, FAMILY, OWNER_ONLY

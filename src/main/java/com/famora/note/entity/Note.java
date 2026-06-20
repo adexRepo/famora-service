@@ -1,6 +1,6 @@
 package com.famora.note.entity;
 
-import com.famora.common.entity.BaseEntity;
+import com.famora.common.entity.VisibleFamilyScopedEntity;
 import com.famora.family.entity.Family;
 import com.famora.user.entity.User;
 import jakarta.persistence.Column;
@@ -14,39 +14,30 @@ import jakarta.persistence.Table;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 @Getter
 @Setter
-@Builder
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
 @Table(name = "notes")
-public class Note extends BaseEntity {
+public class Note extends VisibleFamilyScopedEntity {
   
   @Id
   @GeneratedValue
   @Column(name = "id", columnDefinition = "uuid")
   private UUID id;
-  @ManyToOne(fetch = FetchType.LAZY, optional = false)
-  @JoinColumn(name = "family_id", nullable = false)
-  private Family family;
   @Column(name = "title", nullable = false, length = 180)
   private String title;
   @Column(name = "content", nullable = false, columnDefinition = "text")
   private String content;
   @Column(name = "category", length = 80)
   private String category;
-  @ManyToOne(fetch = FetchType.LAZY, optional = false)
-  @JoinColumn(name = "created_by", nullable = false)
-  private User createdBy;
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "updated_by")
-  private User updatedBy;
   @Column(name = "deleted_at")
   private OffsetDateTime deletedAt;
 }

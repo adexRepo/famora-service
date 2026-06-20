@@ -1,3 +1,3 @@
-package com.famora.family.entity;
+package com.famora.family.helper;
 
 public enum InvitationStatus { ACTIVE, USED, EXPIRED, REVOKED }

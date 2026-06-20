@@ -1,5 +1,6 @@
 package com.famora.common.exception;
 
+import com.famora.common.dto.ApiErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import java.time.OffsetDateTime;
