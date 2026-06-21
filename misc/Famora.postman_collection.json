@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "f975465c-c9c7-4ca8-935b-d7acd1fa76fe",
+		"_postman_id": "bc3c153e-b414-481e-ae89-4f88eb823f34",
 		"name": "Famora",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -22,7 +22,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"fullName\": \"Adek Kristiyanto\",\r\n  \"email\": \"adek@example.com\",\r\n  \"password\": \"StrongPassword123\"\r\n}\r\n\r\n"
+							"raw": "{\r\n  \"fullName\": \"Linzy Kristiyanto\",\r\n  \"email\": \"Linzy@example.com\",\r\n  \"password\": \"StrongPassword123\"\r\n}\r\n\r\n"
 						},
 						"url": {
 							"raw": "http://localhost:8061/famora/api/v1/auth/register",
@@ -87,7 +87,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIzODFkNWZiNC0wMWZjLTQwZDItYmE3NC1lNzBkYzYyODQ2ZGMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODA3Mzk2NDIsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MDc0MTQ0Mn0.hwixczXcRMpiDBJUpxo5Mp8vcIjRig1hZCVKOmiedQTmPZwpeW_wuxL5u4zApoID",
+									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODIwMTgxNzEsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MjAxOTk3MX0.6mnWVvffRTWZKL9hZG-OeMabvnzPkzCjWpxorh0PST2XEwvewtcu0s2EMf2URBIP",
 									"type": "string"
 								}
 							]
@@ -103,7 +103,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"refreshToken\" : \"hbiOj4zS0vhCCOsq1527_PIAIKUmPRJCXN9iFEHKQKNZtfqxgAeP4DhiVkLzC65LAEQuTQamjDi7AI-PTkdsjg\"\n}"
+							"raw": "{\n\t\"refreshToken\" : \"5Mkn7de6D43HZ5E4f92V3TgO0qdfzX8kAS71WJAzTUiaLz96xgcXqmJ1QLGBo4YDCxU5lP3jaN-RZlFd8LWE5g\"\n}"
 						},
 						"url": {
 							"raw": "http://localhost:8061/famora/api/v1/auth/refresh",
@@ -131,7 +131,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIzODFkNWZiNC0wMWZjLTQwZDItYmE3NC1lNzBkYzYyODQ2ZGMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODA3Mzk3NDEsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MDc0MTU0MX0.IpMNbEd40AcjaUIHK9BTMcF0y9-FHn3g-1RpnHi36aTdZ79MyyMYc5HjMmhVLFJt",
+									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJhNTMxY2E0Ny1hOGJmLTRhMGUtODFiNC1lYTVjOWYzOWUyMWQiLCJlbWFpbCI6Imxpbnp5QGV4YW1wbGUuY29tIiwiaWF0IjoxNzgyMDEzMDI4LCJpc3MiOiJmYW1vcmFBcHAiLCJleHAiOjE3ODIwMTQ4Mjh9.C3WwSxWdfKVICY-ICQwvIhqdBUgt2dF25-EKhRb2Jd_3W-ZQzfYKI7Ivaxs_8cy3",
 									"type": "string"
 								}
 							]
@@ -147,7 +147,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"refreshToken\" : \"YNvVQyMKJfSobUjCoym9MTMqtk7_2FyyFt5Y_4oBbevMJ4JnJbupF6LzYNsHgF36Z-wrX3fvkrHL1IPyrvAc5A\"\n}"
+							"raw": "{\n\t\"refreshToken\" : \"y30Q7eNYYbJvg9zYnMq_A8970vfDShm9qf5i2x8PFpk36EN49JM8vn3cjrc6H2M_w8NnrWDr5QQFU-JHJWqQRQ\"\n}"
 						},
 						"url": {
 							"raw": "http://localhost:8061/famora/api/v1/auth/logout",
@@ -180,13 +180,19 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIzODFkNWZiNC0wMWZjLTQwZDItYmE3NC1lNzBkYzYyODQ2ZGMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODA3Mzk4NjgsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MDc0MTY2OH0.4KcicrhHrMHnhy5EDqaUZrh0QXHSy2z8MWewAIrx6Q1PrwQdIDAoLSILZjhXyNpi",
+									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJhNTMxY2E0Ny1hOGJmLTRhMGUtODFiNC1lYTVjOWYzOWUyMWQiLCJlbWFpbCI6Imxpbnp5QGV4YW1wbGUuY29tIiwiaWF0IjoxNzgyMDEzMTI2LCJpc3MiOiJmYW1vcmFBcHAiLCJleHAiOjE3ODIwMTQ5MjZ9.3R7-oKphQGxgouTUPTOmeIuPZ1WUgL2pdZhaq9cPVaMQxh9Al53m_5M8PHI1_gO_",
 									"type": "string"
 								}
 							]
 						},
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
 							"raw": ""
@@ -216,7 +222,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIzODFkNWZiNC0wMWZjLTQwZDItYmE3NC1lNzBkYzYyODQ2ZGMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODA3Mzk4NjgsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MDc0MTY2OH0.4KcicrhHrMHnhy5EDqaUZrh0QXHSy2z8MWewAIrx6Q1PrwQdIDAoLSILZjhXyNpi",
+									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJhNTMxY2E0Ny1hOGJmLTRhMGUtODFiNC1lYTVjOWYzOWUyMWQiLCJlbWFpbCI6Imxpbnp5QGV4YW1wbGUuY29tIiwiaWF0IjoxNzgyMDEzMTI2LCJpc3MiOiJmYW1vcmFBcHAiLCJleHAiOjE3ODIwMTQ5MjZ9.3R7-oKphQGxgouTUPTOmeIuPZ1WUgL2pdZhaq9cPVaMQxh9Al53m_5M8PHI1_gO_",
 									"type": "string"
 								}
 							]
@@ -224,15 +230,14 @@
 						"method": "PUT",
 						"header": [
 							{
-								"key": "Content-Type",
-								"name": "Content-Type",
-								"value": "application/json",
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
 								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"fullName\" :\"Adex Crystianto\"\n}"
+							"raw": "{\n\t\"fullName\" :\"Lindsey Crystianto\"\n}"
 						},
 						"url": {
 							"raw": "http://localhost:8061/famora/api/v1/me",
@@ -257,31 +262,50 @@
 			"name": "families",
 			"item": [
 				{
-					"name": "families",
+					"name": "List Families",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "d1e1976e-90c2-4ddc-ad31-bac8661a912c",
+								"exec": [
+									"pm.test('List families success', function(){ pm.response.to.have.status(200); });",
+									"const json = pm.response.json();",
+									"if (json.data && Array.isArray(json.data) && json.data.length > 0) pm.collectionVariables.set('familyId', json.data[0].id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
 						"auth": {
 							"type": "bearer",
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODA3NDM5NTAsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MDc0NTc1MH0.YAryq95zhTbkhxBKejHGtPQ2WPDyK0xShqXYe6ICYKjw32Lfl9baQnYHFyJlS-9t",
+									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODIwMTY2MzAsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MjAxODQzMH0.XbiAbi8ET9Asu4eAnQ4EeUJQuA-7WEFdEx5y6vawZFGaZ0U_0TrPtUmpa4Rx92Fi",
 									"type": "string"
 								}
 							]
 						},
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"warning": "This is a duplicate header and will be overridden by the Authorization header generated by Postman.",
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
 							"raw": ""
 						},
 						"url": {
-							"raw": "http://localhost:8061/famora/api/v1/families",
-							"protocol": "http",
+							"raw": "{{baseUrl}}/famora/api/v1/families",
 							"host": [
-								"localhost"
+								"{{baseUrl}}"
 							],
-							"port": "8061",
 							"path": [
 								"famora",
 								"api",
@@ -293,38 +317,44 @@
 					"response": []
 				},
 				{
-					"name": "families",
+					"name": "Create Family",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "22d8d928-29c2-4356-9fd9-08e907ab6cfb",
+								"exec": [
+									"pm.test('Create family success', function(){ pm.response.to.have.status(200); });",
+									"const json = pm.response.json();",
+									"if (json.data && json.data.id) pm.collectionVariables.set('familyId', json.data.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODA3NDM2OTMsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MDc0NTQ5M30.dGRO_EytcqMnWzkr17JYDgvE8_fFikH0iF8W4nFbiwPcfO7uqnoJ4rY4uIGZuAF4",
-									"type": "string"
-								}
-							]
-						},
 						"method": "POST",
 						"header": [
 							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							},
+							{
 								"key": "Content-Type",
-								"name": "Content-Type",
-								"type": "text",
-								"value": "application/json"
+								"value": "application/json",
+								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"name\" :\"Kristiyanto Family\"\n}"
+							"raw": "{\n  \"name\": \"Famora Test Family\"\n}"
 						},
 						"url": {
-							"raw": "http://localhost:8061/famora/api/v1/families",
-							"protocol": "http",
+							"raw": "{{baseUrl}}/famora/api/v1/families",
 							"host": [
-								"localhost"
+								"{{baseUrl}}"
 							],
-							"port": "8061",
 							"path": [
 								"famora",
 								"api",
@@ -336,59 +366,59 @@
 					"response": []
 				},
 				{
-					"name": "inviteFamilyMember",
+					"name": "Create Family Invitation",
 					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODA3NDM3OTAsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MDc0NTU5MH0.P5AlkgdVGdEo8cajHy1nkr0FNvwMdx0THlbGrVLvMgvNKNLXk8FNHE7NwXnjPMPG",
-									"type": "string"
-								}
-							]
-						},
 						"method": "POST",
 						"header": [
 							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							},
+							{
 								"key": "Content-Type",
 								"name": "Content-Type",
-								"type": "text",
-								"value": "application/json"
+								"value": "application/json",
+								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"role\" :\"ADMIN\"\n}"
+							"raw": "{\n\t\"role\": \"MEMBER\"\n}FAM-PWNHZT"
 						},
 						"url": {
-							"raw": "http://localhost:8061/famora/api/v1/families/024066c0-5220-4d0c-acd9-8925f502d1db/invitations",
-							"protocol": "http",
+							"raw": "{{baseUrl}}/famora/api/v1/families/{{familyId}}/invitations",
 							"host": [
-								"localhost"
+								"{{baseUrl}}"
 							],
-							"port": "8061",
 							"path": [
 								"famora",
 								"api",
 								"v1",
 								"families",
-								"024066c0-5220-4d0c-acd9-8925f502d1db",
+								"{{familyId}}",
 								"invitations"
+							],
+							"query": [
+								{
+									"key": "",
+									"value": "",
+									"disabled": true
+								}
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "joinFamilyMember",
+					"name": "Join Family",
 					"request": {
 						"auth": {
 							"type": "bearer",
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiI1ZDI0YzMxNy03YzcyLTRhNGMtYTg2Ni01ZTU3MGYyMjQzYTEiLCJlbWFpbCI6InJpYW5hQGV4YW1wbGUuY29tIiwiaWF0IjoxNzgwNzQzODczLCJpc3MiOiJmYW1vcmFBcHAiLCJleHAiOjE3ODA3NDU2NzN9.MrFWLpn-edi2kks2ec2sKervUUDgRSF1fLsew88ZlmmSKppbGFCfIFCwXMGGCTrM",
+									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODIwMTY2MzAsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MjAxODQzMH0.XbiAbi8ET9Asu4eAnQ4EeUJQuA-7WEFdEx5y6vawZFGaZ0U_0TrPtUmpa4Rx92Fi",
 									"type": "string"
 								}
 							]
@@ -396,23 +426,26 @@
 						"method": "POST",
 						"header": [
 							{
-								"key": "Content-Type",
-								"name": "Content-Type",
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODIwMTY2MzAsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MjAxODQzMH0.XbiAbi8ET9Asu4eAnQ4EeUJQuA-7WEFdEx5y6vawZFGaZ0U_0TrPtUmpa4Rx92Fi",
 								"type": "text",
-								"value": "application/json"
+								"disabled": true
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"inviteCode\" :\"FAM-KDHU3S\"\n}"
+							"raw": "{\n  \"inviteCode\": \"FAM-PWNHZT\"\n}"
 						},
 						"url": {
-							"raw": "http://localhost:8061/famora/api/v1/families/join",
-							"protocol": "http",
+							"raw": "{{baseUrl}}/famora/api/v1/families/join",
 							"host": [
-								"localhost"
+								"{{baseUrl}}"
 							],
-							"port": "8061",
 							"path": [
 								"famora",
 								"api",
@@ -437,7 +470,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODA3NjQ5NDUsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MDc2Njc0NX0.fJmTAXi5jZXnrPvMHXgOtt4V5DRY8T1zO_pzf7X1uIvnzr0pfKNcosRuRx8qaewt",
+									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODIwMTY2MzAsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MjAxODQzMH0.XbiAbi8ET9Asu4eAnQ4EeUJQuA-7WEFdEx5y6vawZFGaZ0U_0TrPtUmpa4Rx92Fi",
 									"type": "string"
 								}
 							]
@@ -446,19 +479,23 @@
 						"header": [
 							{
 								"key": "Content-Type",
-								"name": "Content-Type",
 								"value": "application/json",
 								"type": "text"
 							},
 							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							},
+							{
 								"key": "X-Family-Id",
-								"value": "024066c0-5220-4d0c-acd9-8925f502d1db",
+								"value": "{{familyId}}",
 								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"type\": \"EXPENSE\",\r\n  \"amount\": 25.50,\r\n  \"currency\": \"MYR\",\r\n  \"category\": \"FOOD\",\r\n  \"description\": \"Dinner\",\r\n  \"transactionDate\": \"2026-06-06\"\r\n}"
+							"raw": "{\r\n  \"type\": \"EXPENSE\",\r\n  \"amount\": 13,\r\n  \"currency\": \"MYR\",\r\n  \"category\": \"FOOD\",\r\n  \"description\": \"Dinner\",\r\n  \"transactionDate\": \"2026-06-06\"\r\n}"
 						},
 						"url": {
 							"raw": "http://localhost:8061/famora/api/v1/finance/transactions",
@@ -486,7 +523,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODA3NjQ5NDUsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MDc2Njc0NX0.fJmTAXi5jZXnrPvMHXgOtt4V5DRY8T1zO_pzf7X1uIvnzr0pfKNcosRuRx8qaewt",
+									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODIwMTY2MzAsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MjAxODQzMH0.XbiAbi8ET9Asu4eAnQ4EeUJQuA-7WEFdEx5y6vawZFGaZ0U_0TrPtUmpa4Rx92Fi",
 									"type": "string"
 								}
 							]
@@ -495,14 +532,18 @@
 						"header": [
 							{
 								"key": "Content-Type",
-								"name": "Content-Type",
-								"type": "text",
-								"value": "application/json"
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
 							},
 							{
 								"key": "X-Family-Id",
-								"type": "text",
-								"value": "024066c0-5220-4d0c-acd9-8925f502d1db"
+								"value": "{{familyId}}",
+								"type": "text"
 							}
 						],
 						"body": {
@@ -510,7 +551,7 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "http://localhost:8061/famora/api/v1/finance/transactions?month=2026-06&type=EXPENSE&category=GROCERY",
+							"raw": "http://localhost:8061/famora/api/v1/finance/transactions?month=2026-06&type=EXPENSE&category=FOOD",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -534,7 +575,7 @@
 								},
 								{
 									"key": "category",
-									"value": "GROCERY"
+									"value": "FOOD"
 								}
 							]
 						}
@@ -549,7 +590,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODA3NjQ5NDUsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MDc2Njc0NX0.fJmTAXi5jZXnrPvMHXgOtt4V5DRY8T1zO_pzf7X1uIvnzr0pfKNcosRuRx8qaewt",
+									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODIwMTgxNzEsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MjAxOTk3MX0.6mnWVvffRTWZKL9hZG-OeMabvnzPkzCjWpxorh0PST2XEwvewtcu0s2EMf2URBIP",
 									"type": "string"
 								}
 							]
@@ -558,14 +599,18 @@
 						"header": [
 							{
 								"key": "Content-Type",
-								"name": "Content-Type",
-								"type": "text",
-								"value": "application/json"
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
 							},
 							{
 								"key": "X-Family-Id",
-								"type": "text",
-								"value": "024066c0-5220-4d0c-acd9-8925f502d1db"
+								"value": "{{familyId}}",
+								"type": "text"
 							}
 						],
 						"body": {
@@ -573,7 +618,7 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "http://localhost:8061/famora/api/v1/finance/transactions/9f2d765c-c23c-46a8-900f-940f02ff9459",
+							"raw": "http://localhost:8061/famora/api/v1/finance/transactions/4231744a-6732-4890-918f-06078cea544b",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -585,7 +630,7 @@
 								"v1",
 								"finance",
 								"transactions",
-								"9f2d765c-c23c-46a8-900f-940f02ff9459"
+								"4231744a-6732-4890-918f-06078cea544b"
 							]
 						}
 					},
@@ -599,7 +644,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODA3NjQ5NDUsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MDc2Njc0NX0.fJmTAXi5jZXnrPvMHXgOtt4V5DRY8T1zO_pzf7X1uIvnzr0pfKNcosRuRx8qaewt",
+									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODIwMTgxNzEsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MjAxOTk3MX0.6mnWVvffRTWZKL9hZG-OeMabvnzPkzCjWpxorh0PST2XEwvewtcu0s2EMf2URBIP",
 									"type": "string"
 								}
 							]
@@ -608,14 +653,18 @@
 						"header": [
 							{
 								"key": "Content-Type",
-								"name": "Content-Type",
-								"type": "text",
-								"value": "application/json"
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
 							},
 							{
 								"key": "X-Family-Id",
-								"type": "text",
-								"value": "024066c0-5220-4d0c-acd9-8925f502d1db"
+								"value": "{{familyId}}",
+								"type": "text"
 							}
 						],
 						"body": {
@@ -623,7 +672,7 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "http://localhost:8061/famora/api/v1/finance/summary?month=2026-06",
+							"raw": "http://localhost:8061/famora/api/v1/finance/summary?month=2026-06&currency=MYR",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -640,6 +689,10 @@
 								{
 									"key": "month",
 									"value": "2026-06"
+								},
+								{
+									"key": "currency",
+									"value": "MYR"
 								}
 							]
 						}
@@ -654,7 +707,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODA3NjQ5NDUsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MDc2Njc0NX0.fJmTAXi5jZXnrPvMHXgOtt4V5DRY8T1zO_pzf7X1uIvnzr0pfKNcosRuRx8qaewt",
+									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODIwMTgxNzEsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MjAxOTk3MX0.6mnWVvffRTWZKL9hZG-OeMabvnzPkzCjWpxorh0PST2XEwvewtcu0s2EMf2URBIP",
 									"type": "string"
 								}
 							]
@@ -663,22 +716,26 @@
 						"header": [
 							{
 								"key": "Content-Type",
-								"name": "Content-Type",
-								"type": "text",
-								"value": "application/json"
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
 							},
 							{
 								"key": "X-Family-Id",
-								"type": "text",
-								"value": "024066c0-5220-4d0c-acd9-8925f502d1db"
+								"value": "{{familyId}}",
+								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"type\": \"EXPENSE\",\r\n  \"amount\": 25.50,\r\n  \"currency\": \"MYR\",\r\n  \"category\": \"GROCERY\",\r\n  \"description\": \"Dinner\",\r\n  \"transactionDate\": \"2026-06-09\"\r\n}"
+							"raw": "{\r\n  \"type\": \"EXPENSE\",\r\n  \"amount\": 25.50,\r\n  \"currency\": \"MYR\",\r\n  \"category\": \"GROCERY\",\r\n  \"description\": \"Dinner\",\r\n  \"transactionDate\": \"2026-06-08\"\r\n}"
 						},
 						"url": {
-							"raw": "http://localhost:8061/famora/api/v1/finance/transactions/9f2d765c-c23c-46a8-900f-940f02ff9459",
+							"raw": "http://localhost:8061/famora/api/v1/finance/transactions/4231744a-6732-4890-918f-06078cea544b",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -690,7 +747,7 @@
 								"v1",
 								"finance",
 								"transactions",
-								"9f2d765c-c23c-46a8-900f-940f02ff9459"
+								"4231744a-6732-4890-918f-06078cea544b"
 							]
 						}
 					},
@@ -704,7 +761,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODA3NjQ5NDUsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MDc2Njc0NX0.fJmTAXi5jZXnrPvMHXgOtt4V5DRY8T1zO_pzf7X1uIvnzr0pfKNcosRuRx8qaewt",
+									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODIwMTgxNzEsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MjAxOTk3MX0.6mnWVvffRTWZKL9hZG-OeMabvnzPkzCjWpxorh0PST2XEwvewtcu0s2EMf2URBIP",
 									"type": "string"
 								}
 							]
@@ -713,14 +770,18 @@
 						"header": [
 							{
 								"key": "Content-Type",
-								"name": "Content-Type",
-								"type": "text",
-								"value": "application/json"
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
 							},
 							{
 								"key": "X-Family-Id",
-								"type": "text",
-								"value": "024066c0-5220-4d0c-acd9-8925f502d1db"
+								"value": "{{familyId}}",
+								"type": "text"
 							}
 						],
 						"body": {
@@ -728,7 +789,7 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "http://localhost:8061/famora/api/v1/finance/transactions/9f2d765c-c23c-46a8-900f-940f02ff9459",
+							"raw": "http://localhost:8061/famora/api/v1/finance/transactions/4231744a-6732-4890-918f-06078cea544b",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -740,7 +801,7 @@
 								"v1",
 								"finance",
 								"transactions",
-								"9f2d765c-c23c-46a8-900f-940f02ff9459"
+								"4231744a-6732-4890-918f-06078cea544b"
 							]
 						}
 					},
@@ -759,7 +820,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODA3NTg4NzgsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MDc2MDY3OH0.MTtyS-u40P44e1bBTTWTlNRniDPgandl52qlP7zhyXpmVNukLgMqe8qnxmy9Pn-s",
+									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODIwMjAzNDEsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MjAyMjE0MX0.RMJ5XfLM_XtRV425khlNiZZRWll9WyzRYIlykZYff-T_0z806ciJ0M_EDpN6ktla",
 									"type": "string"
 								}
 							]
@@ -768,19 +829,23 @@
 						"header": [
 							{
 								"key": "Content-Type",
-								"name": "Content-Type",
 								"value": "application/json",
 								"type": "text"
 							},
 							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							},
+							{
 								"key": "X-Family-Id",
-								"value": "024066c0-5220-4d0c-acd9-8925f502d1db",
+								"value": "{{familyId}}",
 								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"title\": \"Netflix\",\r\n  \"username\": \"family@example.com\",\r\n  \"secret\": \"my-secret-password\",\r\n  \"url\": \"https://netflix.com\",\r\n  \"notes\": \"Shared family account\"\r\n}"
+							"raw": "{\r\n  \"title\": \"Netflix sss\",\r\n  \"username\": \"family@example.com\",\r\n  \"secret\": \"my-secret-password\",\r\n  \"url\": \"https://netflix.com\",\r\n  \"notes\": \"Shared family account\",\r\n  \"visibility\":\"PRIVATE\"\r\n}"
 						},
 						"url": {
 							"raw": "http://localhost:8061/famora/api/v1/vault/items",
@@ -808,7 +873,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODA3NjE0MjgsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MDc2MzIyOH0.8lv15LBhUOhXsKdu5EBC3Lmh9Qdp4ik4KUfe-OeX-tRscaBv3rlnVHMRqkhj7LW9",
+									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODIwMjAzNDEsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MjAyMjE0MX0.RMJ5XfLM_XtRV425khlNiZZRWll9WyzRYIlykZYff-T_0z806ciJ0M_EDpN6ktla",
 									"type": "string"
 								}
 							]
@@ -817,14 +882,18 @@
 						"header": [
 							{
 								"key": "Content-Type",
-								"name": "Content-Type",
-								"type": "text",
-								"value": "application/json"
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
 							},
 							{
 								"key": "X-Family-Id",
-								"type": "text",
-								"value": "024066c0-5220-4d0c-acd9-8925f502d1db"
+								"value": "{{familyId}}",
+								"type": "text"
 							}
 						],
 						"body": {
@@ -832,7 +901,7 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "http://localhost:8061/famora/api/v1/vault/items",
+							"raw": "http://localhost:8061/famora/api/v1/vault/items?visibility=FAMILY",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -844,6 +913,12 @@
 								"v1",
 								"vault",
 								"items"
+							],
+							"query": [
+								{
+									"key": "visibility",
+									"value": "FAMILY"
+								}
 							]
 						}
 					},
@@ -857,7 +932,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODA3NjE0MjgsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MDc2MzIyOH0.8lv15LBhUOhXsKdu5EBC3Lmh9Qdp4ik4KUfe-OeX-tRscaBv3rlnVHMRqkhj7LW9",
+									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODIwMjAzNDEsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MjAyMjE0MX0.RMJ5XfLM_XtRV425khlNiZZRWll9WyzRYIlykZYff-T_0z806ciJ0M_EDpN6ktla",
 									"type": "string"
 								}
 							]
@@ -866,14 +941,18 @@
 						"header": [
 							{
 								"key": "Content-Type",
-								"name": "Content-Type",
-								"type": "text",
-								"value": "application/json"
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
 							},
 							{
 								"key": "X-Family-Id",
-								"type": "text",
-								"value": "024066c0-5220-4d0c-acd9-8925f502d1db"
+								"value": "{{familyId}}",
+								"type": "text"
 							}
 						],
 						"body": {
@@ -881,7 +960,7 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "http://localhost:8061/famora/api/v1/vault/items/37a30e5d-e409-4b88-a97a-82b08f84284d",
+							"raw": "http://localhost:8061/famora/api/v1/vault/items/5afab270-6718-4dc6-876c-fd0d4619a19a",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -893,7 +972,7 @@
 								"v1",
 								"vault",
 								"items",
-								"37a30e5d-e409-4b88-a97a-82b08f84284d"
+								"5afab270-6718-4dc6-876c-fd0d4619a19a"
 							]
 						}
 					},
@@ -907,7 +986,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODA3NjE0MjgsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MDc2MzIyOH0.8lv15LBhUOhXsKdu5EBC3Lmh9Qdp4ik4KUfe-OeX-tRscaBv3rlnVHMRqkhj7LW9",
+									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODIwMjAzNDEsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MjAyMjE0MX0.RMJ5XfLM_XtRV425khlNiZZRWll9WyzRYIlykZYff-T_0z806ciJ0M_EDpN6ktla",
 									"type": "string"
 								}
 							]
@@ -916,22 +995,26 @@
 						"header": [
 							{
 								"key": "Content-Type",
-								"name": "Content-Type",
 								"value": "application/json",
 								"type": "text"
 							},
 							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							},
+							{
 								"key": "X-Family-Id",
-								"type": "text",
-								"value": "024066c0-5220-4d0c-acd9-8925f502d1db"
+								"value": "{{familyId}}",
+								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"title\": \"Netflix\",\r\n  \"username\": \"family@example.com\",\r\n  \"secret\": \"my-secret-password\",\r\n  \"url\": \"https://netflix.com\",\r\n  \"notes\": \"Shared family account\"\r\n}"
+							"raw": "{\r\n  \"title\": \"Netflix\",\r\n  \"username\": \"family@example.com\",\r\n  \"secret\": \"my-secret-password\",\r\n  \"url\": \"https://netflix.com\",\r\n  \"notes\": \"Shared family account\",\r\n  \"visibility\":\"PRIVATE\"\r\n}"
 						},
 						"url": {
-							"raw": "http://localhost:8061/famora/api/v1/vault/items/37a30e5d-e409-4b88-a97a-82b08f84284d",
+							"raw": "http://localhost:8061/famora/api/v1/vault/items/5afab270-6718-4dc6-876c-fd0d4619a19a",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -943,7 +1026,7 @@
 								"v1",
 								"vault",
 								"items",
-								"37a30e5d-e409-4b88-a97a-82b08f84284d"
+								"5afab270-6718-4dc6-876c-fd0d4619a19a"
 							]
 						}
 					},
@@ -953,27 +1036,24 @@
 					"name": "/api/v1/vault/items update Copy",
 					"request": {
 						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODA3NjE0MjgsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MDc2MzIyOH0.8lv15LBhUOhXsKdu5EBC3Lmh9Qdp4ik4KUfe-OeX-tRscaBv3rlnVHMRqkhj7LW9",
-									"type": "string"
-								}
-							]
+							"type": "noauth"
 						},
 						"method": "DELETE",
 						"header": [
 							{
 								"key": "Content-Type",
-								"name": "Content-Type",
 								"value": "application/json",
 								"type": "text"
 							},
 							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							},
+							{
 								"key": "X-Family-Id",
-								"type": "text",
-								"value": "024066c0-5220-4d0c-acd9-8925f502d1db"
+								"value": "{{familyId}}",
+								"type": "text"
 							}
 						],
 						"body": {
@@ -1008,32 +1088,29 @@
 					"name": "/api/v1/notes",
 					"request": {
 						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODA3NjE3OTUsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MDc2MzU5NX0.K7MpRg7xGQn99-QIjfuIIM21M8eyKtHJBsN2wX9pWW2hcsu0H24eG2IXDJLEc5eP",
-									"type": "string"
-								}
-							]
+							"type": "noauth"
 						},
 						"method": "POST",
 						"header": [
 							{
 								"key": "Content-Type",
-								"name": "Content-Type",
-								"type": "text",
-								"value": "application/json"
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
 							},
 							{
 								"key": "X-Family-Id",
-								"type": "text",
-								"value": "024066c0-5220-4d0c-acd9-8925f502d1db"
+								"value": "{{familyId}}",
+								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"title\": \"WiFi Rumah\",\r\n  \"content\": \"Password WiFi ada di router belakang TV\",\r\n  \"category\": \"HOME\"\r\n}"
+							"raw": "{\r\n  \"title\": \"WiFi DADA\",\r\n  \"content\": \"Password WiFi ada di router belakang TV\",\r\n  \"category\": \"HOME\",\r\n  \"visibility\":\"FAMILY\"\r\n}"
 						},
 						"url": {
 							"raw": "http://localhost:8061/famora/api/v1/notes",
@@ -1060,7 +1137,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODA3NjQ5NDUsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MDc2Njc0NX0.fJmTAXi5jZXnrPvMHXgOtt4V5DRY8T1zO_pzf7X1uIvnzr0pfKNcosRuRx8qaewt",
+									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODIwMjAzNDEsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MjAyMjE0MX0.RMJ5XfLM_XtRV425khlNiZZRWll9WyzRYIlykZYff-T_0z806ciJ0M_EDpN6ktla",
 									"type": "string"
 								}
 							]
@@ -1069,14 +1146,18 @@
 						"header": [
 							{
 								"key": "Content-Type",
-								"name": "Content-Type",
-								"type": "text",
-								"value": "application/json"
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
 							},
 							{
 								"key": "X-Family-Id",
-								"type": "text",
-								"value": "024066c0-5220-4d0c-acd9-8925f502d1db"
+								"value": "{{familyId}}",
+								"type": "text"
 							}
 						],
 						"body": {
@@ -1084,7 +1165,7 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "http://localhost:8061/famora/api/v1/notes",
+							"raw": "http://localhost:8061/famora/api/v1/notes?visibility=FAMILY",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -1095,6 +1176,12 @@
 								"api",
 								"v1",
 								"notes"
+							],
+							"query": [
+								{
+									"key": "visibility",
+									"value": "FAMILY"
+								}
 							]
 						}
 					},
@@ -1108,7 +1195,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODA3NjIyMTksImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MDc2NDAxOX0.SnwEQM2_NroZDrQLlaGYDj_xBrv--15bcZN5vjJ4l4OWYbuqngpJoEGETOfOiA9d",
+									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODIwMjAzNDEsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MjAyMjE0MX0.RMJ5XfLM_XtRV425khlNiZZRWll9WyzRYIlykZYff-T_0z806ciJ0M_EDpN6ktla",
 									"type": "string"
 								}
 							]
@@ -1117,14 +1204,18 @@
 						"header": [
 							{
 								"key": "Content-Type",
-								"name": "Content-Type",
-								"type": "text",
-								"value": "application/json"
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
 							},
 							{
 								"key": "X-Family-Id",
-								"type": "text",
-								"value": "024066c0-5220-4d0c-acd9-8925f502d1db"
+								"value": "{{familyId}}",
+								"type": "text"
 							}
 						],
 						"body": {
@@ -1132,7 +1223,7 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "http://localhost:8061/famora/api/v1/notes/a7b88ad5-f416-4768-aa9d-cae06eb35b94",
+							"raw": "http://localhost:8061/famora/api/v1/notes/2a02b5b9-0ec6-4c4d-a9bc-5c2c7aacca02",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -1143,7 +1234,7 @@
 								"api",
 								"v1",
 								"notes",
-								"a7b88ad5-f416-4768-aa9d-cae06eb35b94"
+								"2a02b5b9-0ec6-4c4d-a9bc-5c2c7aacca02"
 							]
 						}
 					},
@@ -1166,14 +1257,18 @@
 						"header": [
 							{
 								"key": "Content-Type",
-								"name": "Content-Type",
-								"type": "text",
-								"value": "application/json"
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
 							},
 							{
 								"key": "X-Family-Id",
-								"type": "text",
-								"value": "024066c0-5220-4d0c-acd9-8925f502d1db"
+								"value": "{{familyId}}",
+								"type": "text"
 							}
 						],
 						"body": {
@@ -1215,14 +1310,18 @@
 						"header": [
 							{
 								"key": "Content-Type",
-								"name": "Content-Type",
-								"type": "text",
-								"value": "application/json"
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
 							},
 							{
 								"key": "X-Family-Id",
-								"type": "text",
-								"value": "024066c0-5220-4d0c-acd9-8925f502d1db"
+								"value": "{{familyId}}",
+								"type": "text"
 							}
 						],
 						"body": {
@@ -1242,6 +1341,1186 @@
 								"v1",
 								"notes",
 								"a7b88ad5-f416-4768-aa9d-cae06eb35b94"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Health",
+			"item": [
+				{
+					"name": "Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/famora/actuator/health",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"famora",
+								"actuator",
+								"health"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Ping",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/famora/api/v1/ping",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"famora",
+								"api",
+								"v1",
+								"ping"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Files / Manual Backup",
+			"item": [
+				{
+					"name": "Upload Backup File",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "23c56c27-5eb6-4e15-91f1-7207ceb86737",
+								"exec": [
+									"pm.test('Upload file success', function(){ pm.response.to.have.status(200); });",
+									"const json = pm.response.json();",
+									"if (json.data && json.data.id) pm.collectionVariables.set('fileId', json.data.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							},
+							{
+								"key": "X-Family-Id",
+								"value": "{{familyId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": ""
+								},
+								{
+									"key": "category",
+									"value": "FAMILY_BACKUP",
+									"type": "text"
+								},
+								{
+									"key": "notes",
+									"value": "Manual backup file from Postman",
+									"type": "text"
+								},
+								{
+									"key": "visibility",
+									"value": "PRIVATE",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/famora/api/v1/files/upload",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"famora",
+								"api",
+								"v1",
+								"files",
+								"upload"
+							]
+						},
+						"description": "Choose a local file in Postman for the file form-data field."
+					},
+					"response": []
+				},
+				{
+					"name": "List Files",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							},
+							{
+								"key": "X-Family-Id",
+								"value": "{{familyId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/famora/api/v1/files?page=0&size=20",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"famora",
+								"api",
+								"v1",
+								"files"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "20"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List Files - PDF Only",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							},
+							{
+								"key": "X-Family-Id",
+								"value": "{{familyId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/famora/api/v1/files?fileType=PDF&page=0&size=20",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"famora",
+								"api",
+								"v1",
+								"files"
+							],
+							"query": [
+								{
+									"key": "fileType",
+									"value": "PDF"
+								},
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "20"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List Files - PRIVATE",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							},
+							{
+								"key": "X-Family-Id",
+								"value": "{{familyId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/famora/api/v1/files?visibility=PRIVATE&page=0&size=20",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"famora",
+								"api",
+								"v1",
+								"files"
+							],
+							"query": [
+								{
+									"key": "visibility",
+									"value": "PRIVATE"
+								},
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "20"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get File Detail",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							},
+							{
+								"key": "X-Family-Id",
+								"value": "{{familyId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/famora/api/v1/files/{{fileId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"famora",
+								"api",
+								"v1",
+								"files",
+								"{{fileId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Download File",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							},
+							{
+								"key": "X-Family-Id",
+								"value": "{{familyId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/famora/api/v1/files/{{fileId}}/download",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"famora",
+								"api",
+								"v1",
+								"files",
+								"{{fileId}}",
+								"download"
+							]
+						},
+						"description": "Use Send and Download in Postman."
+					},
+					"response": []
+				},
+				{
+					"name": "Update File Metadata",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							},
+							{
+								"key": "X-Family-Id",
+								"value": "{{familyId}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"category\": \"UPDATED_BACKUP\",\n  \"notes\": \"Updated notes from Postman\",\n  \"visibility\": \"FAMILY\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/famora/api/v1/files/{{fileId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"famora",
+								"api",
+								"v1",
+								"files",
+								"{{fileId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete File Soft Delete",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							},
+							{
+								"key": "X-Family-Id",
+								"value": "{{familyId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/famora/api/v1/files/{{fileId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"famora",
+								"api",
+								"v1",
+								"files",
+								"{{fileId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Documents",
+			"item": [
+				{
+					"name": "Upload Important Document",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "c7a5f10a-21b0-4c9c-8748-01571c68a8b7",
+								"exec": [
+									"pm.test('Upload document success', function(){ pm.response.to.have.status(200); });",
+									"const json = pm.response.json();",
+									"if (json.data && json.data.id) pm.collectionVariables.set('documentId', json.data.id);",
+									"if (json.data && json.data.fileId) pm.collectionVariables.set('fileId', json.data.fileId);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							},
+							{
+								"key": "X-Family-Id",
+								"value": "{{familyId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": ""
+								},
+								{
+									"key": "title",
+									"value": "Passport Amanda",
+									"type": "text"
+								},
+								{
+									"key": "documentType",
+									"value": "PASSPORT",
+									"type": "text"
+								},
+								{
+									"key": "documentNumber",
+									"value": "A1234567",
+									"type": "text"
+								},
+								{
+									"key": "issueDate",
+									"value": "2023-01-01",
+									"type": "text"
+								},
+								{
+									"key": "expiryDate",
+									"value": "2033-01-01",
+									"type": "text"
+								},
+								{
+									"key": "visibility",
+									"value": "OWNER_ONLY",
+									"type": "text"
+								},
+								{
+									"key": "notes",
+									"value": "Important document uploaded from Postman",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/famora/api/v1/documents",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"famora",
+								"api",
+								"v1",
+								"documents"
+							]
+						},
+						"description": "Choose a local file in Postman for the file form-data field."
+					},
+					"response": []
+				},
+				{
+					"name": "List Documents",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							},
+							{
+								"key": "X-Family-Id",
+								"value": "{{familyId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/famora/api/v1/documents?page=0&size=20",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"famora",
+								"api",
+								"v1",
+								"documents"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "20"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List Documents - Passport",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							},
+							{
+								"key": "X-Family-Id",
+								"value": "{{familyId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/famora/api/v1/documents?documentType=PASSPORT&page=0&size=20",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"famora",
+								"api",
+								"v1",
+								"documents"
+							],
+							"query": [
+								{
+									"key": "documentType",
+									"value": "PASSPORT"
+								},
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "20"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List Expiring Soon Documents",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							},
+							{
+								"key": "X-Family-Id",
+								"value": "{{familyId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/famora/api/v1/documents?expiringSoon=true&page=0&size=20",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"famora",
+								"api",
+								"v1",
+								"documents"
+							],
+							"query": [
+								{
+									"key": "expiringSoon",
+									"value": "true"
+								},
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "20"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Document Detail",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							},
+							{
+								"key": "X-Family-Id",
+								"value": "{{familyId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/famora/api/v1/documents/{{documentId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"famora",
+								"api",
+								"v1",
+								"documents",
+								"{{documentId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Download Document",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							},
+							{
+								"key": "X-Family-Id",
+								"value": "{{familyId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/famora/api/v1/documents/{{documentId}}/download",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"famora",
+								"api",
+								"v1",
+								"documents",
+								"{{documentId}}",
+								"download"
+							]
+						},
+						"description": "Use Send and Download in Postman."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Document",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							},
+							{
+								"key": "X-Family-Id",
+								"value": "{{familyId}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Updated Passport Amanda\",\n  \"documentType\": \"PASSPORT\",\n  \"documentNumber\": \"A7654321\",\n  \"ownerUserId\": null,\n  \"issueDate\": \"2023-01-01\",\n  \"expiryDate\": \"2033-01-01\",\n  \"notes\": \"Updated document notes\",\n  \"visibility\": \"FAMILY\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/famora/api/v1/documents/{{documentId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"famora",
+								"api",
+								"v1",
+								"documents",
+								"{{documentId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Document Soft Delete",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							},
+							{
+								"key": "X-Family-Id",
+								"value": "{{familyId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/famora/api/v1/documents/{{documentId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"famora",
+								"api",
+								"v1",
+								"documents",
+								"{{documentId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Emergency Contacts",
+			"item": [
+				{
+					"name": "Create Emergency Contact",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "463a0100-1aa2-4a15-b66f-c2a127a8a083",
+								"exec": [
+									"pm.test('Create emergency contact success', function(){ pm.response.to.have.status(200); });",
+									"const json = pm.response.json();",
+									"if (json.data && json.data.id) pm.collectionVariables.set('emergencyContactId', json.data.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							},
+							{
+								"key": "X-Family-Id",
+								"value": "{{familyId}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Klinik Mediviron\",\n  \"phone\": \"03xxxxxxx\",\n  \"category\": \"CLINIC\",\n  \"location\": \"Petaling Jaya\",\n  \"notes\": \"Klinik dekat rumah\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/famora/api/v1/emergency-contacts",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"famora",
+								"api",
+								"v1",
+								"emergency-contacts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List Emergency Contacts",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							},
+							{
+								"key": "X-Family-Id",
+								"value": "{{familyId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/famora/api/v1/emergency-contacts?page=0&size=20",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"famora",
+								"api",
+								"v1",
+								"emergency-contacts"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "20"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List Emergency Contacts - Clinic",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							},
+							{
+								"key": "X-Family-Id",
+								"value": "{{familyId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/famora/api/v1/emergency-contacts?category=CLINIC&page=0&size=20",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"famora",
+								"api",
+								"v1",
+								"emergency-contacts"
+							],
+							"query": [
+								{
+									"key": "category",
+									"value": "CLINIC"
+								},
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "20"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search Emergency Contacts",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							},
+							{
+								"key": "X-Family-Id",
+								"value": "{{familyId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/famora/api/v1/emergency-contacts?keyword=Klinik&page=0&size=20",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"famora",
+								"api",
+								"v1",
+								"emergency-contacts"
+							],
+							"query": [
+								{
+									"key": "keyword",
+									"value": "Klinik"
+								},
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "20"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Emergency Contact Detail",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							},
+							{
+								"key": "X-Family-Id",
+								"value": "{{familyId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/famora/api/v1/emergency-contacts/b9c82952-9650-4e73-adaf-220086110e04",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"famora",
+								"api",
+								"v1",
+								"emergency-contacts",
+								"b9c82952-9650-4e73-adaf-220086110e04"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Emergency Contact",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							},
+							{
+								"key": "X-Family-Id",
+								"value": "{{familyId}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Klinik Mediviron Updated\",\n  \"phone\": \"0312345678\",\n  \"category\": \"CLINIC\",\n  \"location\": \"Petaling Jaya\",\n  \"notes\": \"Updated emergency contact\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/famora/api/v1/emergency-contacts/b9c82952-9650-4e73-adaf-220086110e04",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"famora",
+								"api",
+								"v1",
+								"emergency-contacts",
+								"b9c82952-9650-4e73-adaf-220086110e04"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Emergency Contact Soft Delete",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							},
+							{
+								"key": "X-Family-Id",
+								"value": "{{familyId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/famora/api/v1/emergency-contacts/b9c82952-9650-4e73-adaf-220086110e04",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"famora",
+								"api",
+								"v1",
+								"emergency-contacts",
+								"b9c82952-9650-4e73-adaf-220086110e04"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Dashboard",
+			"item": [
+				{
+					"name": "Dashboard Summary",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODIwMjAzNDEsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MjAyMjE0MX0.RMJ5XfLM_XtRV425khlNiZZRWll9WyzRYIlykZYff-T_0z806ciJ0M_EDpN6ktla",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							},
+							{
+								"key": "X-Family-Id",
+								"value": "{{familyId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/famora/api/v1/dashboard/summary",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"famora",
+								"api",
+								"v1",
+								"dashboard",
+								"summary"
 							]
 						}
 					},

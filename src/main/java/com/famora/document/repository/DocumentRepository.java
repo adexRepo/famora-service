@@ -44,8 +44,7 @@ public interface DocumentRepository extends JpaRepository<Document, UUID> {
           :isOwner = true
           and d.visibility = com.famora.common.helper.Visibility.OWNER_ONLY
         )
-      )
-    """)
+      )""")
   long countVisibleDocuments(
       @Param("familyId") UUID familyId,
       @Param("userId") UUID userId,
@@ -69,8 +68,7 @@ public interface DocumentRepository extends JpaRepository<Document, UUID> {
           :isOwner = true
           and d.visibility = com.famora.common.helper.Visibility.OWNER_ONLY
         )
-      )
-    """)
+      )""")
   long countVisibleExpiringDocuments(
       @Param("familyId") UUID familyId,
       @Param("userId") UUID userId,

@@ -18,7 +18,7 @@ public interface FamilyMemberRepository extends JpaRepository<FamilyMember, UUID
           where fm.user.id = :userId
             and fm.status = com.famora.family.helper.FamilyMemberStatus.ACTIVE
       """)
-  List<FamilyMember> findActiveFamiliesByUserId(@Param("user") UUID userId);
+  List<FamilyMember> findActiveFamiliesByUserId(@Param("userId") UUID userId);
   
   Optional<FamilyMember> findByFamilyIdAndUserIdAndStatus(UUID familyId, UUID userId,
       FamilyMemberStatus status);

@@ -35,7 +35,7 @@ public class FamilyController {
     return ApiResponse.ok(familyService.createFamily(request));
   }
   
-  @PostMapping("/{family}/invitations")
+  @PostMapping("/{familyId}/invitations")
   public ApiResponse<InvitationResponse> createInvitation(@PathVariable UUID familyId,
       @Valid @RequestBody CreateInvitationRequest request) {
     return ApiResponse.ok(familyService.createInvitation(familyId, request));

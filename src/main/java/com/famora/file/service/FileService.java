@@ -4,8 +4,8 @@ import com.famora.audit.entity.AuditAction;
 import com.famora.audit.service.AuditLogService;
 import com.famora.common.exception.AppException;
 import com.famora.common.helper.PermissionHelper;
-import com.famora.common.helper.Visibility;
 import com.famora.common.helper.Status;
+import com.famora.common.helper.Visibility;
 import com.famora.family.dto.FamilyContext;
 import com.famora.file.dto.FileDtos;
 import com.famora.file.dto.StoredFile;
@@ -141,7 +141,8 @@ public class FileService {
     
     var visible = page.getContent().stream().filter(f -> {
       try {
-        PermissionHelper.assertCanAccess(f.getVisibility(), f.getStatus(), f.getCreatedBy().getId(), ctx);
+        PermissionHelper.assertCanAccess(f.getVisibility(), f.getStatus(), f.getCreatedBy().getId(),
+            ctx);
         return true;
       } catch (AppException ex) {
         return false;
@@ -159,7 +160,8 @@ public class FileService {
         )
         .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "File not found"));
     
-    PermissionHelper.assertCanAccess(f.getVisibility(), f.getStatus(), f.getCreatedBy().getId(), ctx);
+    PermissionHelper.assertCanAccess(f.getVisibility(), f.getStatus(), f.getCreatedBy().getId(),
+        ctx);
     
     audit.log(
         ctx.family(),

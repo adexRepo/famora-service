@@ -2,6 +2,7 @@ package com.famora.vault.dto;
 
 import com.famora.common.helper.Visibility;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public record UpdateVaultItemRequest(
@@ -17,7 +18,7 @@ public record UpdateVaultItemRequest(
     String url,
     
     String notes,
-    @NotBlank
+    @NotNull
     Visibility visibility
 ) {
 

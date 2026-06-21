@@ -51,7 +51,8 @@ public class NoteController {
     
     FamilyContext ctx = familyContextService.require(familyId);
     
-    PageRequest pageRequest = PagingHelper.buildPageRequest(page, size, "createdAt", keyword, category);
+    PageRequest pageRequest = PagingHelper.buildPageRequest(page, size,"title", "category",
+        "createdAt");
     
     return ApiResponse.ok(PageResponse.from(
         noteService.list(ctx, keyword, category, visibility, pageRequest)));

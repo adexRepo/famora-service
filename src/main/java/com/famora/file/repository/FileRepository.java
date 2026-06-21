@@ -42,8 +42,7 @@ public interface FileRepository extends JpaRepository<FileAsset, UUID> {
           :isOwner = true
           and f.visibility = com.famora.common.helper.Visibility.OWNER_ONLY
         )
-      )
-    """)
+      )""")
   long countVisibleFiles(
       @Param("familyId") UUID familyId,
       @Param("userId") UUID userId,
@@ -66,8 +65,7 @@ public interface FileRepository extends JpaRepository<FileAsset, UUID> {
           :isOwner = true
           and f.visibility = com.famora.common.helper.Visibility.OWNER_ONLY
         )
-      )
-    """)
+      )""")
   long sumVisibleFileSize(
       @Param("familyId") UUID familyId,
       @Param("userId") UUID userId,

@@ -53,7 +53,7 @@ public class FinanceController {
     
     FamilyContext ctx = families.require(familyId);
     
-    PageRequest pageRequest = PagingHelper.buildPageRequest(page, size, "createdAt", category);
+    PageRequest pageRequest = PagingHelper.buildPageRequest(page, size, "category", "createdAt");
     
     return ApiResponse.ok(PageResponse.from(
         financeService.list(ctx, month, type, category, pageRequest)));
