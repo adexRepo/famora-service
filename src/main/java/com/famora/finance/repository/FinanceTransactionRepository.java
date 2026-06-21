@@ -44,7 +44,7 @@ public interface FinanceTransactionRepository extends JpaRepository<FinanceTrans
   );
   
   Page<FinanceTransaction>
-  findByFamily_IdAndDeletedAtIsNullAndTransactionDateBetweenAndTypeAndCategoryIgnoreCaseOrderByTransactionDateDescCreatedAtDesc(
+      findByFamily_IdAndDeletedAtIsNullAndTransactionDateBetweenAndTypeAndCategoryIgnoreCaseOrderByTransactionDateDescCreatedAtDesc(
       UUID familyId,
       LocalDate startDate,
       LocalDate endDate,
