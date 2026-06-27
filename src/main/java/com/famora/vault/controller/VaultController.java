@@ -49,7 +49,7 @@ public class VaultController {
     
     FamilyContext ctx = families.require(familyId);
     PageRequest request = PageRequest.of(page, size,
-        Sort.by("createdAt", StringUtils.defaultIfBlank(keyword, "updatedAt")).descending());
+        Sort.by("createdAt", "updatedAt").descending());
     
     return ApiResponse.ok(PageResponse.from(vaultService.list(ctx, keyword, visibility, request)));
   }
