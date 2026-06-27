@@ -72,13 +72,13 @@ public class DocumentService {
     return d;
   }
   
-  public Page<Document> list(FamilyContext ctx, DocumentType type, Boolean expiringSoon,
+  public Page<Document> list(FamilyContext ctx, DocumentType type, Boolean expiringSoon, Integer days,
       Pageable pageable) {
     Page<Document> page;
     if (Boolean.TRUE.equals(expiringSoon)) {
       page = docs.findAllByFamilyIdAndStatusAndExpiryDateBetween(ctx.family().getId(),
           Status.ACTIVE,
-          LocalDate.now(), LocalDate.now().plusDays(90), pageable);
+          LocalDate.now(), LocalDate.now().plusDays(days), pageable);
     } else if (type != null) {
       page = docs.findAllByFamilyIdAndStatusAndDocumentType(ctx.family().getId(), Status.ACTIVE,
           type,
