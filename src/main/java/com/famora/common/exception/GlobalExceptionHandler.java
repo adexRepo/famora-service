@@ -125,7 +125,7 @@ public class GlobalExceptionHandler {
   }
   
   private void printStackTrace(Throwable e) {
-    if(Boolean.TRUE.equals(enabledPrintStackTrace)){
+    if (Boolean.TRUE.equals(enabledPrintStackTrace)) {
       e.printStackTrace();
     }
   }
