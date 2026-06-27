@@ -61,11 +61,15 @@ public class DocumentController {
       @RequestParam(required = false) DocumentType documentType,
       @RequestParam(required = false) Boolean expiringSoon,
       @RequestParam(required = false) Integer days,
+      @RequestParam(required = false) Visibility visibility,
       @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
+    
     var ctx = families.require(familyId);
-    return ApiResponse.ok(PageResponse.from(service.list(ctx, documentType, expiringSoon, days,
-            PageRequest.of(page, size, Sort.by("createdAt").descending()))
-        .map(DocumentDtos.DocumentResponse::from)));
+    
+    return ApiResponse.ok(
+        PageResponse.from(service.list(ctx, documentType, expiringSoon, days, visibility,
+                PageRequest.of(page, size, Sort.by("createdAt").descending()))
+            .map(DocumentDtos.DocumentResponse::from)));
   }
   
   @GetMapping("/{id}")

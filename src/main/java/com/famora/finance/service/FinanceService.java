@@ -3,6 +3,7 @@ package com.famora.finance.service;
 import com.famora.audit.entity.AuditAction;
 import com.famora.audit.service.AuditLogService;
 import com.famora.common.exception.ResourceNotFoundException;
+import com.famora.common.helper.Status;
 import com.famora.currency.service.CurrencyConversionService;
 import com.famora.family.dto.FamilyContext;
 import com.famora.family.entity.Family;
@@ -14,6 +15,7 @@ import com.famora.finance.dto.UpdateFinanceTransactionRequest;
 import com.famora.finance.entity.FinanceTransaction;
 import com.famora.finance.entity.FinanceTransactionType;
 import com.famora.finance.repository.FinanceTransactionRepository;
+import com.famora.finance.spec.FinanceTransactionSpecifications;
 import com.famora.security.CurrentUserService;
 import com.famora.security.FamilyContextService;
 import com.famora.user.entity.User;
@@ -29,6 +31,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -89,45 +92,14 @@ public class FinanceService {
     
     String cleanCategory = clean(category);
     
-    Page<FinanceTransaction> page;
+    Specification<FinanceTransaction> spec = Specification
+        .where(FinanceTransactionSpecifications.family(familyId))
+        .and(FinanceTransactionSpecifications.status(Status.ACTIVE))
+        .and(FinanceTransactionSpecifications.transactionDateBetween(startDate, endDate))
+        .and(FinanceTransactionSpecifications.type(type))
+        .and(FinanceTransactionSpecifications.category(cleanCategory));
     
-    if (type == null && cleanCategory == null) {
-      page = financeTransactionRepository
-          .findByFamily_IdAndDeletedAtIsNullAndTransactionDateBetweenOrderByTransactionDateDescCreatedAtDesc(
-              familyId,
-              startDate,
-              endDate,
-              pageable
-          );
-    } else if (type != null && cleanCategory == null) {
-      page = financeTransactionRepository
-          .findByFamily_IdAndDeletedAtIsNullAndTransactionDateBetweenAndTypeOrderByTransactionDateDescCreatedAtDesc(
-              familyId,
-              startDate,
-              endDate,
-              type,
-              pageable
-          );
-    } else if (type == null) {
-      page = financeTransactionRepository
-          .findByFamily_IdAndDeletedAtIsNullAndTransactionDateBetweenAndCategoryIgnoreCaseOrderByTransactionDateDescCreatedAtDesc(
-              familyId,
-              startDate,
-              endDate,
-              cleanCategory,
-              pageable
-          );
-    } else {
-      page = financeTransactionRepository
-          .findByFamily_IdAndDeletedAtIsNullAndTransactionDateBetweenAndTypeAndCategoryIgnoreCaseOrderByTransactionDateDescCreatedAtDesc(
-              familyId,
-              startDate,
-              endDate,
-              type,
-              cleanCategory,
-              pageable
-          );
-    }
+    Page<FinanceTransaction> page = financeTransactionRepository.findAll(spec, pageable);
     
     return page.map(this::toResponse);
   }

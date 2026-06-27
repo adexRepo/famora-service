@@ -3,7 +3,9 @@ package com.famora.vault.service;
 import com.famora.audit.entity.AuditAction;
 import com.famora.audit.service.AuditLogService;
 import com.famora.common.exception.ResourceNotFoundException;
+import com.famora.common.helper.Status;
 import com.famora.common.helper.Visibility;
+import com.famora.common.spec.VisibleFamilyScopedSpecifications;
 import com.famora.family.dto.FamilyContext;
 import com.famora.family.entity.Family;
 import com.famora.security.CurrentUserService;
@@ -15,11 +17,13 @@ import com.famora.vault.dto.VaultItemDetailResponse;
 import com.famora.vault.dto.VaultItemResponse;
 import com.famora.vault.entity.VaultItem;
 import com.famora.vault.repository.VaultItemRepository;
+import com.famora.vault.spec.VaultItemSpecifications;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -74,32 +78,17 @@ public class VaultService {
     UUID userId = ctx.user().getId();
     boolean isOwner = ctx.owner();
     
-    Visibility selectedVisibility = visibility == null
-        ? Visibility.PRIVATE
-        : visibility;
+    Specification<VaultItem> spec = Specification
+        .where(VisibleFamilyScopedSpecifications.<VaultItem>visibleToUser(
+            familyId,
+            userId,
+            isOwner,
+            Status.ACTIVE,
+            visibility
+        ))
+        .and(VaultItemSpecifications.keyword(keyword));
     
-    String cleanKeyword = clean(keyword);
-    
-    Page<VaultItem> page;
-    
-    if (cleanKeyword == null) {
-      page = vaultItemRepository.findVisibleByFamilyAndVisibility(
-          familyId,
-          userId,
-          isOwner,
-          selectedVisibility,
-          pageable
-      );
-    } else {
-      page = vaultItemRepository.searchVisibleByFamilyAndKeywordAndVisibility(
-          familyId,
-          userId,
-          isOwner,
-          cleanKeyword,
-          selectedVisibility,
-          pageable
-      );
-    }
+    Page<VaultItem> page = vaultItemRepository.findAll(spec, pageable);
     
     return page.map(this::toVaultItemResponse);
   }

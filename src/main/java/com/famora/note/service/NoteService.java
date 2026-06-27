@@ -5,6 +5,7 @@ import com.famora.audit.service.AuditLogService;
 import com.famora.common.exception.ResourceNotFoundException;
 import com.famora.common.helper.Status;
 import com.famora.common.helper.Visibility;
+import com.famora.common.spec.VisibleFamilyScopedSpecifications;
 import com.famora.family.dto.FamilyContext;
 import com.famora.family.entity.Family;
 import com.famora.note.dto.CreateNoteRequest;
@@ -13,6 +14,7 @@ import com.famora.note.dto.NoteResponse;
 import com.famora.note.dto.UpdateNoteRequest;
 import com.famora.note.entity.Note;
 import com.famora.note.repository.NoteRepository;
+import com.famora.note.spec.NoteSpecifications;
 import com.famora.security.CurrentUserService;
 import com.famora.security.FamilyContextService;
 import com.famora.user.entity.User;
@@ -21,6 +23,7 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -63,62 +66,28 @@ public class NoteService {
   
   @Transactional(readOnly = true)
   public Page<NoteListResponse> list(
-      FamilyContext familyContext,
+      FamilyContext ctx,
       String keyword,
       String category,
       Visibility visibility,
       Pageable pageable
   ) {
-    UUID familyId = familyContext.family().getId();
-    UUID userId = familyContext.user().getId();
-    boolean isOwner = familyContext.owner();
+    UUID familyId = ctx.family().getId();
+    UUID userId = ctx.user().getId();
+    boolean isOwner = ctx.owner();
     
-    String cleanKeyword = clean(keyword);
-    String cleanCategory = clean(category);
+    Specification<Note> spec = Specification
+        .where(VisibleFamilyScopedSpecifications.<Note>visibleToUser(
+            familyId,
+            userId,
+            isOwner,
+            Status.ACTIVE,
+            visibility
+        ))
+        .and(NoteSpecifications.keyword(keyword))
+        .and(NoteSpecifications.category(category));
     
-    Visibility selectedVisibility = visibility == null
-        ? Visibility.FAMILY
-        : visibility;
-    
-    Page<Note> page;
-    
-    if (cleanKeyword == null && cleanCategory == null) {
-      page = noteRepository.findVisibleByFamilyAndVisibility(
-          familyId,
-          userId,
-          isOwner,
-          selectedVisibility,
-          pageable
-      );
-    } else if (cleanKeyword == null) {
-      page = noteRepository.findVisibleByFamilyAndVisibilityAndCategory(
-          familyId,
-          userId,
-          isOwner,
-          selectedVisibility,
-          cleanCategory,
-          pageable
-      );
-    } else if (cleanCategory == null) {
-      page = noteRepository.searchVisibleByKeyword(
-          familyId,
-          userId,
-          isOwner,
-          selectedVisibility,
-          cleanKeyword,
-          pageable
-      );
-    } else {
-      page = noteRepository.searchVisibleByKeywordAndCategory(
-          familyId,
-          userId,
-          isOwner,
-          selectedVisibility,
-          cleanKeyword,
-          cleanCategory,
-          pageable
-      );
-    }
+    Page<Note> page = noteRepository.findAll(spec, pageable);
     
     return page.map(this::toListResponse);
   }

@@ -6,10 +6,12 @@ import com.famora.common.exception.AppException;
 import com.famora.common.helper.PermissionHelper;
 import com.famora.common.helper.Status;
 import com.famora.common.helper.Visibility;
+import com.famora.common.spec.VisibleFamilyScopedSpecifications;
 import com.famora.document.dto.DocumentDtos;
 import com.famora.document.entity.Document;
 import com.famora.document.helper.DocumentType;
 import com.famora.document.repository.DocumentRepository;
+import com.famora.document.spec.DocumentSpecifications;
 import com.famora.family.dto.FamilyContext;
 import com.famora.family.entity.Family;
 import com.famora.file.entity.FileAsset;
@@ -24,8 +26,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
@@ -72,30 +76,31 @@ public class DocumentService {
     return d;
   }
   
-  public Page<Document> list(FamilyContext ctx, DocumentType type, Boolean expiringSoon, Integer days,
-      Pageable pageable) {
-    Page<Document> page;
-    if (Boolean.TRUE.equals(expiringSoon)) {
-      page = docs.findAllByFamilyIdAndStatusAndExpiryDateBetween(ctx.family().getId(),
-          Status.ACTIVE,
-          LocalDate.now(), LocalDate.now().plusDays(days), pageable);
-    } else if (type != null) {
-      page = docs.findAllByFamilyIdAndStatusAndDocumentType(ctx.family().getId(), Status.ACTIVE,
-          type,
-          pageable);
-    } else {
-      page = docs.findAllByFamilyIdAndStatus(ctx.family().getId(), Status.ACTIVE, pageable);
-    }
-    var visible = page.getContent().stream().filter(d -> {
-      try {
-        PermissionHelper.assertCanAccess(d.getVisibility(), d.getStatus(), d.getCreatedBy().getId(),
-            ctx);
-        return true;
-      } catch (AppException ex) {
-        return false;
-      }
-    }).toList();
-    return new PageImpl<>(visible, pageable, visible.size());
+  @Transactional(readOnly = true)
+  public Page<Document> list(
+      FamilyContext ctx,
+      DocumentType type,
+      Boolean expiringSoon,
+      Integer days,
+      Visibility visibility,
+      Pageable pageable
+  ) {
+    UUID familyId = ctx.family().getId();
+    UUID userId = ctx.user().getId();
+    boolean isOwner = ctx.owner();
+    
+    Specification<Document> spec = Specification
+        .where(VisibleFamilyScopedSpecifications.<Document>visibleToUser(
+            familyId,
+            userId,
+            isOwner,
+            Status.ACTIVE,
+            visibility
+        ))
+        .and(DocumentSpecifications.documentType(type))
+        .and(DocumentSpecifications.expiringSoon(expiringSoon, days));
+    
+    return docs.findAll(spec, pageable);
   }
   
   public Document get(UUID id, FamilyContext ctx) {

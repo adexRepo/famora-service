@@ -11,6 +11,7 @@ import com.famora.vault.dto.VaultItemDetailResponse;
 import com.famora.vault.dto.VaultItemResponse;
 import com.famora.vault.service.VaultService;
 import jakarta.validation.Valid;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -36,7 +37,8 @@ public class VaultController {
   private final VaultService vaultService;
   
   @PostMapping
-  public ApiResponse<VaultItemDetailResponse> create(@Valid @RequestBody CreateVaultItemRequest request) {
+  public ApiResponse<VaultItemDetailResponse> create(
+      @Valid @RequestBody CreateVaultItemRequest request) {
     return ApiResponse.ok(vaultService.create(request));
   }
   

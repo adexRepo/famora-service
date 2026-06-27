@@ -6,6 +6,7 @@ import com.famora.common.exception.AppException;
 import com.famora.common.helper.PermissionHelper;
 import com.famora.common.helper.Status;
 import com.famora.common.helper.Visibility;
+import com.famora.common.spec.VisibleFamilyScopedSpecifications;
 import com.famora.family.dto.FamilyContext;
 import com.famora.file.dto.FileDtos;
 import com.famora.file.dto.StoredFile;
@@ -13,6 +14,7 @@ import com.famora.file.entity.FileAsset;
 import com.famora.file.helper.FileType;
 import com.famora.file.helper.StorageType;
 import com.famora.file.repository.FileRepository;
+import com.famora.file.spec.FileAssetSpecifications;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,8 +22,10 @@ import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -100,6 +104,7 @@ public class FileService {
     return fa;
   }
   
+  @Transactional(readOnly = true)
   public Page<FileAsset> list(
       FamilyContext ctx,
       String keyword,
@@ -107,49 +112,22 @@ public class FileService {
       Visibility visibility,
       Pageable pageable
   ) {
-    Page<FileAsset> page;
+    UUID familyId = ctx.family().getId();
+    UUID userId = ctx.user().getId();
+    boolean isOwner = ctx.owner();
     
-    if (fileType != null && visibility != null) {
-      page = repo.findAllByFamilyIdAndStatusAndFileTypeAndVisibility(
-          ctx.family().getId(),
-          Status.ACTIVE,
-          fileType,
-          visibility,
-          pageable
-      );
-    } else if (fileType != null) {
-      page = repo.findAllByFamilyIdAndStatusAndFileType(
-          ctx.family().getId(),
-          Status.ACTIVE,
-          fileType,
-          pageable
-      );
-    } else if (visibility != null) {
-      page = repo.findAllByFamilyIdAndStatusAndVisibility(
-          ctx.family().getId(),
-          Status.ACTIVE,
-          visibility,
-          pageable
-      );
-    } else {
-      page = repo.findAllByFamilyIdAndStatus(
-          ctx.family().getId(),
-          Status.ACTIVE,
-          pageable
-      );
-    }
+    Specification<FileAsset> spec = Specification
+        .where(VisibleFamilyScopedSpecifications.<FileAsset>visibleToUser(
+            familyId,
+            userId,
+            isOwner,
+            Status.ACTIVE,
+            visibility
+        ))
+        .and(FileAssetSpecifications.keyword(keyword))
+        .and(FileAssetSpecifications.fileType(fileType));
     
-    var visible = page.getContent().stream().filter(f -> {
-      try {
-        PermissionHelper.assertCanAccess(f.getVisibility(), f.getStatus(), f.getCreatedBy().getId(),
-            ctx);
-        return true;
-      } catch (AppException ex) {
-        return false;
-      }
-    }).toList();
-    
-    return new PageImpl<>(visible, pageable, visible.size());
+    return repo.findAll(spec, pageable);
   }
   
   public FileAsset get(UUID id, FamilyContext ctx) {
