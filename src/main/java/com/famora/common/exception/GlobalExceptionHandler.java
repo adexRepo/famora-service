@@ -6,6 +6,7 @@ import jakarta.validation.ConstraintViolationException;
 import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -18,11 +19,15 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
   
+  @Value("${app.print-stack-trace.enabled}")
+  private Boolean enabledPrintStackTrace;
+  
   @ExceptionHandler(ResourceNotFoundException.class)
   public ResponseEntity<ApiErrorResponse> handleResourceNotFound(
       ResourceNotFoundException ex,
       HttpServletRequest request
   ) {
+    printStackTrace(ex);
     return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage(), request);
   }
   
@@ -31,6 +36,7 @@ public class GlobalExceptionHandler {
       IllegalArgumentException ex,
       HttpServletRequest request
   ) {
+    printStackTrace(ex);
     return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), request);
   }
   
@@ -39,6 +45,7 @@ public class GlobalExceptionHandler {
       SecurityException ex,
       HttpServletRequest request
   ) {
+    printStackTrace(ex);
     return buildResponse(HttpStatus.FORBIDDEN, ex.getMessage(), request);
   }
   
@@ -47,6 +54,7 @@ public class GlobalExceptionHandler {
       BadCredentialsException ex,
       HttpServletRequest request
   ) {
+    printStackTrace(ex);
     return buildResponse(HttpStatus.UNAUTHORIZED, "Invalid email or password", request);
   }
   
@@ -55,6 +63,7 @@ public class GlobalExceptionHandler {
       AuthorizationDeniedException ex,
       HttpServletRequest request
   ) {
+    printStackTrace(ex);
     return buildResponse(HttpStatus.FORBIDDEN, "Access denied", request);
   }
   
@@ -63,6 +72,9 @@ public class GlobalExceptionHandler {
       MethodArgumentNotValidException ex,
       HttpServletRequest request
   ) {
+    
+    printStackTrace(ex);
+    
     Map<String, String> fields = new HashMap<>();
     
     ex.getBindingResult().getFieldErrors().forEach(error ->
@@ -86,6 +98,7 @@ public class GlobalExceptionHandler {
       ConstraintViolationException ex,
       HttpServletRequest request
   ) {
+    printStackTrace(ex);
     return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), request);
   }
   
@@ -94,6 +107,7 @@ public class GlobalExceptionHandler {
       NoResourceFoundException ex,
       HttpServletRequest request
   ) {
+    printStackTrace(ex);
     return buildResponse(HttpStatus.NOT_FOUND, "Resource not found", request);
   }
   
@@ -102,11 +116,18 @@ public class GlobalExceptionHandler {
       Exception ex,
       HttpServletRequest request
   ) {
+    printStackTrace(ex);
     return buildResponse(
         HttpStatus.INTERNAL_SERVER_ERROR,
         "Unexpected server error",
         request
     );
+  }
+  
+  private void printStackTrace(Throwable e) {
+    if(Boolean.TRUE.equals(enabledPrintStackTrace)){
+      e.printStackTrace();
+    }
   }
   
   private ResponseEntity<ApiErrorResponse> buildResponse(

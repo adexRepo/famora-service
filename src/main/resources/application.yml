@@ -55,6 +55,8 @@ management:
     redis:
       enabled: false
 app:
+  print-stack-trace:
+    enabled: ${ENABLED_PRINT_STACKTRACE:true}
   async:
     thread:
       core-pool-size: ${ASYNC_THREAD_CORE_POOL_SIZE:5}
