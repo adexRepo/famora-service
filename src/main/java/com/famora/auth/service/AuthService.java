@@ -4,6 +4,7 @@ import com.famora.auth.dto.AuthResponse;
 import com.famora.auth.dto.LoginRequest;
 import com.famora.auth.dto.RefreshTokenRequest;
 import com.famora.auth.dto.RegisterRequest;
+import com.famora.common.helper.Status;
 import com.famora.family.repository.FamilyMemberRepository;
 import com.famora.security.TokenHashService;
 import com.famora.security.jwt.JwtService;
@@ -62,7 +63,7 @@ public class AuthService {
   @Transactional
   public AuthResponse login(LoginRequest request) {
     String normalizedEmail = request.email().trim().toLowerCase();
-    User user = userRepository.findByEmailAndDeletedAtIsNull(normalizedEmail)
+    User user = userRepository.findByEmailAndStatus(normalizedEmail, Status.ACTIVE)
         .orElseThrow(() -> new BadCredentialsException("Invalid email or password"));
     if (!passwordEncoder.matches(request.password(), user.getPasswordHash())) {
       throw new BadCredentialsException("Invalid email or password");

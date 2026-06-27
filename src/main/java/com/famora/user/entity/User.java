@@ -48,9 +48,6 @@ public class User extends BaseEntity {
   @Column(name = "last_login_at")
   private OffsetDateTime lastLoginAt;
   
-  @Column(name = "deleted_at")
-  private OffsetDateTime deletedAt;
-  
   @PrePersist
   public void prePersist() {
     if (status == null) {

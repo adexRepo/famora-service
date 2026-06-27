@@ -38,6 +38,4 @@ public class Note extends VisibleFamilyScopedEntity {
   private String content;
   @Column(name = "category", length = 80)
   private String category;
-  @Column(name = "deleted_at")
-  private OffsetDateTime deletedAt;
 }

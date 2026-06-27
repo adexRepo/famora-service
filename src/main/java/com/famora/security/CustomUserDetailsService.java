@@ -1,5 +1,6 @@
 package com.famora.security;
 
+import com.famora.common.helper.Status;
 import com.famora.user.entity.User;
 import com.famora.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +19,7 @@ public class CustomUserDetailsService implements UserDetailsService {
   @Override
   @Transactional(readOnly = true)
   public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-    User user = userRepository.findByEmailAndDeletedAtIsNull(email)
+    User user = userRepository.findByEmailAndStatus(email, Status.ACTIVE)
         .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     return UserPrincipal.from(user);
   }

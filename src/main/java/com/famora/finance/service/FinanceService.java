@@ -22,7 +22,6 @@ import com.famora.user.entity.User;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.time.OffsetDateTime;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.Locale;
@@ -108,11 +107,15 @@ public class FinanceService {
   public FinanceTransactionResponse getDetail(UUID id) {
     Family family = familyContextService.getCurrentFamily();
     
-    FinanceTransaction transaction = financeTransactionRepository
-        .findByIdAndFamilyIdAndDeletedAtIsNull(id, family.getId())
-        .orElseThrow(() -> new ResourceNotFoundException("Finance transaction not found"));
+    FinanceTransaction transaction = getFinanceTransaction(id, family);
     
     return toResponse(transaction);
+  }
+  
+  private FinanceTransaction getFinanceTransaction(UUID id, Family family) {
+    return financeTransactionRepository
+        .findByIdAndFamilyIdAndStatus(id, family.getId(), Status.ACTIVE)
+        .orElseThrow(() -> new ResourceNotFoundException("Finance transaction not found"));
   }
   
   @Transactional
@@ -120,9 +123,7 @@ public class FinanceService {
     User user = currentUserService.getCurrentUser();
     Family family = familyContextService.getCurrentFamily();
     
-    FinanceTransaction transaction = financeTransactionRepository
-        .findByIdAndFamilyIdAndDeletedAtIsNull(id, family.getId())
-        .orElseThrow(() -> new ResourceNotFoundException("Finance transaction not found"));
+    FinanceTransaction transaction = getFinanceTransaction(id, family);
     
     transaction.setType(request.type());
     transaction.setAmount(request.amount());
@@ -151,11 +152,9 @@ public class FinanceService {
     User user = currentUserService.getCurrentUser();
     Family family = familyContextService.getCurrentFamily();
     
-    FinanceTransaction transaction = financeTransactionRepository
-        .findByIdAndFamilyIdAndDeletedAtIsNull(id, family.getId())
-        .orElseThrow(() -> new ResourceNotFoundException("Finance transaction not found"));
+    FinanceTransaction transaction = getFinanceTransaction(id, family);
     
-    transaction.setDeletedAt(OffsetDateTime.now());
+    transaction.setStatus(Status.DELETED);
     transaction.setUpdatedBy(user);
     
     financeTransactionRepository.save(transaction);

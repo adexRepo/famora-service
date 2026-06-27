@@ -42,6 +42,4 @@ public class VaultItem extends VisibleFamilyScopedEntity {
   private String url;
   @Column(name = "notes", columnDefinition = "text")
   private String notes;
-  @Column(name = "deleted_at")
-  private OffsetDateTime deletedAt;
 }

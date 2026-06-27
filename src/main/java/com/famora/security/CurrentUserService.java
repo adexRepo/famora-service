@@ -2,6 +2,7 @@ package com.famora.security;
 
 import com.famora.common.exception.AppException;
 import com.famora.common.exception.ResourceNotFoundException;
+import com.famora.common.helper.Status;
 import com.famora.user.entity.User;
 import com.famora.user.repository.UserRepository;
 import java.util.UUID;
@@ -36,7 +37,7 @@ public class CurrentUserService {
   }
   
   public User getCurrentUser() {
-    return userRepository.findByIdAndDeletedAtIsNull(getCurrentUserId())
+    return userRepository.findByIdAndStatus(getCurrentUserId(), Status.ACTIVE)
         .orElseThrow(() -> new ResourceNotFoundException("Current user not found"));
   }
 }

@@ -41,50 +41,27 @@ public class NoteService {
     User user = currentUserService.getCurrentUser();
     Family family = familyContextService.getCurrentFamily();
     
-    Note note = Note.builder()
-        .family(family)
-        .title(request.title().trim())
-        .content(request.content().trim())
-        .category(clean(request.category()))
-        .createdBy(user)
-        .visibility(request.visibility())
-        .build();
+    Note note = Note.builder().family(family).title(request.title().trim())
+        .content(request.content().trim()).category(clean(request.category())).createdBy(user)
+        .visibility(request.visibility()).build();
     
     noteRepository.save(note);
     
-    auditLogService.log(
-        family,
-        user,
-        AuditAction.NOTE_CREATED,
-        "notes",
-        note.getId(),
-        null
-    );
+    auditLogService.log(family, user, AuditAction.NOTE_CREATED, "notes", note.getId(), null);
     
     return toResponse(note);
   }
   
   @Transactional(readOnly = true)
-  public Page<NoteListResponse> list(
-      FamilyContext ctx,
-      String keyword,
-      String category,
-      Visibility visibility,
-      Pageable pageable
-  ) {
+  public Page<NoteListResponse> list(FamilyContext ctx, String keyword, String category,
+      Visibility visibility, Pageable pageable) {
     UUID familyId = ctx.family().getId();
     UUID userId = ctx.user().getId();
     boolean isOwner = ctx.owner();
     
-    Specification<Note> spec = Specification
-        .where(VisibleFamilyScopedSpecifications.<Note>visibleToUser(
-            familyId,
-            userId,
-            isOwner,
-            Status.ACTIVE,
-            visibility
-        ))
-        .and(NoteSpecifications.keyword(keyword))
+    Specification<Note> spec = Specification.where(
+            VisibleFamilyScopedSpecifications.<Note>visibleToUser(familyId, userId, isOwner,
+                Status.ACTIVE, visibility)).and(NoteSpecifications.keyword(keyword))
         .and(NoteSpecifications.category(category));
     
     Page<Note> page = noteRepository.findAll(spec, pageable);
@@ -96,11 +73,14 @@ public class NoteService {
   public NoteResponse getDetail(UUID id) {
     Family family = familyContextService.getCurrentFamily();
     
-    Note note = noteRepository
-        .findByIdAndFamilyIdAndDeletedAtIsNull(id, family.getId())
-        .orElseThrow(() -> new ResourceNotFoundException("Note not found"));
+    Note note = getNoteActive(id, family);
     
     return toResponse(note);
+  }
+  
+  private Note getNoteActive(UUID id, Family family) {
+    return noteRepository.findByIdAndFamilyIdAndStatus(id, family.getId(), Status.ACTIVE)
+        .orElseThrow(() -> new ResourceNotFoundException("Note not found"));
   }
   
   @Transactional
@@ -108,9 +88,7 @@ public class NoteService {
     User user = currentUserService.getCurrentUser();
     Family family = familyContextService.getCurrentFamily();
     
-    Note note = noteRepository
-        .findByIdAndFamilyIdAndDeletedAtIsNull(id, family.getId())
-        .orElseThrow(() -> new ResourceNotFoundException("Note not found"));
+    Note note = getNoteActive(id, family);
     
     note.setTitle(request.title().trim());
     note.setContent(request.content().trim());
@@ -120,14 +98,7 @@ public class NoteService {
     
     noteRepository.save(note);
     
-    auditLogService.log(
-        family,
-        user,
-        AuditAction.NOTE_UPDATED,
-        "notes",
-        note.getId(),
-        null
-    );
+    auditLogService.log(family, user, AuditAction.NOTE_UPDATED, "notes", note.getId(), null);
     
     return toResponse(note);
   }
@@ -137,44 +108,24 @@ public class NoteService {
     User user = currentUserService.getCurrentUser();
     Family family = familyContextService.getCurrentFamily();
     
-    Note note = noteRepository
-        .findByIdAndFamilyIdAndDeletedAtIsNull(id, family.getId())
-        .orElseThrow(() -> new ResourceNotFoundException("Note not found"));
+    Note note = getNoteActive(id, family);
     
-    note.setDeletedAt(OffsetDateTime.now());
+    note.setStatus(Status.DELETED);
     note.setUpdatedBy(user);
     
     noteRepository.save(note);
     
-    auditLogService.log(
-        family,
-        user,
-        AuditAction.NOTE_DELETED,
-        "notes",
-        note.getId(),
-        null
-    );
+    auditLogService.log(family, user, AuditAction.NOTE_DELETED, "notes", note.getId(), null);
   }
   
   private NoteResponse toResponse(Note note) {
-    return new NoteResponse(
-        note.getId(),
-        note.getTitle(),
-        note.getContent(),
-        note.getCategory(),
-        note.getCreatedAt(),
-        note.getUpdatedAt()
-    );
+    return new NoteResponse(note.getId(), note.getTitle(), note.getContent(), note.getCategory(),
+        note.getCreatedAt(), note.getUpdatedAt());
   }
   
   private NoteListResponse toListResponse(Note note) {
-    return new NoteListResponse(
-        note.getId(),
-        note.getTitle(),
-        note.getCategory(),
-        note.getCreatedAt(),
-        note.getUpdatedAt()
-    );
+    return new NoteListResponse(note.getId(), note.getTitle(), note.getCategory(),
+        note.getCreatedAt(), note.getUpdatedAt());
   }
   
   private String clean(String value) {

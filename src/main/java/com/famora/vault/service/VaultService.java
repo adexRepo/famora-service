@@ -18,7 +18,6 @@ import com.famora.vault.dto.VaultItemResponse;
 import com.famora.vault.entity.VaultItem;
 import com.famora.vault.repository.VaultItemRepository;
 import com.famora.vault.spec.VaultItemSpecifications;
-import java.time.OffsetDateTime;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -98,9 +97,7 @@ public class VaultService {
     User user = currentUserService.getCurrentUser();
     Family family = familyContextService.getCurrentFamily();
     
-    VaultItem item = vaultItemRepository
-        .findByIdAndFamilyIdAndDeletedAtIsNull(id, family.getId())
-        .orElseThrow(() -> new ResourceNotFoundException("Vault item not found"));
+    VaultItem item = getVaultActive(id, family);
     
     auditLogService.log(
         family,
@@ -114,14 +111,18 @@ public class VaultService {
     return toDetailResponse(item);
   }
   
+  private VaultItem getVaultActive(UUID id, Family family) {
+    return vaultItemRepository
+        .findByIdAndFamilyIdAndStatus(id, family.getId(), Status.ACTIVE)
+        .orElseThrow(() -> new ResourceNotFoundException("Vault item not found"));
+  }
+  
   @Transactional
   public VaultItemDetailResponse update(UUID id, UpdateVaultItemRequest request) {
     User user = currentUserService.getCurrentUser();
     Family family = familyContextService.getCurrentFamily();
     
-    VaultItem item = vaultItemRepository
-        .findByIdAndFamilyIdAndDeletedAtIsNull(id, family.getId())
-        .orElseThrow(() -> new ResourceNotFoundException("Vault item not found"));
+    VaultItem item = getVaultActive(id, family);
     
     item.setTitle(request.title().trim());
     item.setUsername(clean(request.username()));
@@ -153,12 +154,10 @@ public class VaultService {
     User user = currentUserService.getCurrentUser();
     Family family = familyContextService.getCurrentFamily();
     
-    VaultItem item = vaultItemRepository
-        .findByIdAndFamilyIdAndDeletedAtIsNull(id, family.getId())
-        .orElseThrow(() -> new ResourceNotFoundException("Vault item not found"));
+    VaultItem item = getVaultActive(id, family);
     
-    item.setDeletedAt(OffsetDateTime.now());
     item.setUpdatedBy(user);
+    item.setStatus(Status.DELETED);
     
     vaultItemRepository.save(item);
     

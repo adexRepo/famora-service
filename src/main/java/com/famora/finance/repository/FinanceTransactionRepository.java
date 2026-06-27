@@ -1,5 +1,6 @@
 package com.famora.finance.repository;
 
+import com.famora.common.helper.Status;
 import com.famora.finance.dto.CurrencyAmountProjection;
 import com.famora.finance.entity.FinanceTransaction;
 import com.famora.finance.entity.FinanceTransactionType;
@@ -14,9 +15,10 @@ import org.springframework.data.jpa.repository.Query;
 public interface FinanceTransactionRepository extends JpaRepository<FinanceTransaction, UUID>,
     JpaSpecificationExecutor<FinanceTransaction> {
   
-  Optional<FinanceTransaction> findByIdAndFamilyIdAndDeletedAtIsNull(
+  Optional<FinanceTransaction> findByIdAndFamilyIdAndStatus(
       UUID id,
-      UUID familyId
+      UUID familyId,
+      Status status
   );
   
   @Query("""
@@ -25,7 +27,7 @@ public interface FinanceTransactionRepository extends JpaRepository<FinanceTrans
           coalesce(sum(ft.amount), 0) as totalAmount
         from FinanceTransaction ft
         where ft.family.id = :familyId
-          and ft.deletedAt is null
+          and ft.status = com.famora.common.helper.Status.ACTIVE
           and ft.transactionDate between :startDate and :endDate
           and ft.type = :type
         group by ft.currency

@@ -44,6 +44,4 @@ public class FinanceTransaction extends FamilyScopedEntity {
   private String description;
   @Column(name = "transaction_date", nullable = false)
   private LocalDate transactionDate;
-  @Column(name = "deleted_at")
-  private OffsetDateTime deletedAt;
 }
