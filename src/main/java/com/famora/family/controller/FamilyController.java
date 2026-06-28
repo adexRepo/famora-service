@@ -1,21 +1,33 @@
 package com.famora.family.controller;
 
 import com.famora.common.dto.ApiResponse;
+import com.famora.common.dto.PageResponse;
 import com.famora.family.dto.CreateFamilyRequest;
 import com.famora.family.dto.CreateInvitationRequest;
+import com.famora.family.dto.FamilyContext;
+import com.famora.family.dto.FamilyMemberResponse;
 import com.famora.family.dto.FamilyResponse;
 import com.famora.family.dto.InvitationResponse;
 import com.famora.family.dto.JoinFamilyRequest;
+import com.famora.family.helper.FamilyMemberRole;
+import com.famora.family.helper.FamilyMemberStatus;
+import com.famora.family.service.FamilyMemberService;
 import com.famora.family.service.FamilyService;
+import com.famora.security.FamilyContextService;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -24,6 +36,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class FamilyController {
   
   private final FamilyService familyService;
+  private final FamilyMemberService familyMemberService;
+  private final FamilyContextService familyContextService;
   
   @GetMapping
   public ApiResponse<List<FamilyResponse>> getMyFamilies() {
@@ -44,5 +58,31 @@ public class FamilyController {
   @PostMapping("/join")
   public ApiResponse<FamilyResponse> joinFamily(@Valid @RequestBody JoinFamilyRequest request) {
     return ApiResponse.ok(familyService.joinFamily(request));
+  }
+  
+  
+  @GetMapping("/{familyId}/members")
+  public ApiResponse<PageResponse<FamilyMemberResponse>> list(
+      @PathVariable String familyId,
+      @RequestParam(required = false) String keyword,
+      @RequestParam(required = false) FamilyMemberRole role,
+      @RequestParam(required = false) FamilyMemberStatus status,
+      @PageableDefault(
+          size = 20,
+          sort = "createdAt",
+          direction = Sort.Direction.ASC
+      ) Pageable pageable
+  ) {
+    
+    FamilyContext ctx = familyContextService.require(familyId);
+    Page<FamilyMemberResponse> page = familyMemberService.list(
+        ctx,
+        keyword,
+        role,
+        status,
+        pageable
+    );
+    
+    return ApiResponse.ok(PageResponse.from(page));
   }
 }
