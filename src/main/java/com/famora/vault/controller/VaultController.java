@@ -11,10 +11,8 @@ import com.famora.vault.dto.VaultItemDetailResponse;
 import com.famora.vault.dto.VaultItemResponse;
 import com.famora.vault.service.VaultService;
 import jakarta.validation.Valid;
-import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -29,7 +27,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/vault/items")
+@RequestMapping("/api/v1/vault-items")
 @RequiredArgsConstructor
 public class VaultController {
   
