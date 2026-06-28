@@ -4,6 +4,7 @@ import com.famora.common.exception.AppException;
 import com.famora.common.exception.ResourceNotFoundException;
 import com.famora.common.helper.Status;
 import com.famora.user.entity.User;
+import com.famora.user.entity.UserStatus;
 import com.famora.user.repository.UserRepository;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -37,7 +38,7 @@ public class CurrentUserService {
   }
   
   public User getCurrentUser() {
-    return userRepository.findByIdAndStatus(getCurrentUserId(), Status.ACTIVE)
+    return userRepository.findByIdAndStatus(getCurrentUserId(), UserStatus.ACTIVE)
         .orElseThrow(() -> new ResourceNotFoundException("Current user not found"));
   }
 }

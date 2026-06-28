@@ -2,6 +2,7 @@ package com.famora.security;
 
 import com.famora.common.helper.Status;
 import com.famora.user.entity.User;
+import com.famora.user.entity.UserStatus;
 import com.famora.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,7 +20,7 @@ public class CustomUserDetailsService implements UserDetailsService {
   @Override
   @Transactional(readOnly = true)
   public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-    User user = userRepository.findByEmailAndStatus(email, Status.ACTIVE)
+    User user = userRepository.findByEmailAndStatus(email, UserStatus.ACTIVE)
         .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     return UserPrincipal.from(user);
   }

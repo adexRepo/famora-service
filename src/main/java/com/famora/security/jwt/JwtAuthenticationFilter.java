@@ -3,6 +3,7 @@ package com.famora.security.jwt;
 import com.famora.common.helper.Status;
 import com.famora.security.UserPrincipal;
 import com.famora.user.entity.User;
+import com.famora.user.entity.UserStatus;
 import com.famora.user.repository.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -37,7 +38,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       return;
     }
     UUID userId = jwtService.extractUserId(token);
-    User user = userRepository.findByIdAndStatus(userId, Status.ACTIVE).orElse(null);
+    User user = userRepository.findByIdAndStatus(userId, UserStatus.ACTIVE).orElse(null);
     if (user == null) {
       filterChain.doFilter(request, response);
       return;
