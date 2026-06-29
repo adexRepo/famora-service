@@ -41,10 +41,7 @@ public class FamilyService {
   @Transactional(readOnly = true)
   public List<FamilyResponse> getMyFamilies() {
     User user = currentUserService.getCurrentUser();
-    return familyMemberRepository.findActiveFamiliesByUserId(user.getId()).stream()
-        .map(member -> new FamilyResponse(member.getFamily().getId(), member.getFamily().getName(),
-            member.getRole().name()))
-        .toList();
+    return familyMemberRepository.findActiveFamiliesByUserId(user.getId());
   }
   
   @Transactional
