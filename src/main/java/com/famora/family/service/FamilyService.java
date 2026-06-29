@@ -41,40 +41,30 @@ public class FamilyService {
   @Transactional(readOnly = true)
   public List<FamilyResponse> getMyFamilies() {
     User user = currentUserService.getCurrentUser();
-    return familyMemberRepository.findActiveFamiliesByUserId(user.getId());
+    return familyMemberRepository.findActiveFamiliesByUserId(user.getId()).stream().map(
+        member -> new FamilyResponse(member.getFamily().getId(), member.getFamily().getName(),
+            member.getRole().name())).toList();
   }
   
   @Transactional
   public FamilyResponse createFamily(CreateFamilyRequest request) {
     User user = currentUserService.getCurrentUser();
     
-    Family family = Family.builder()
-        .name(request.name().trim())
-        .ownerUser(user)
-        .status(Status.ACTIVE)
-        .build();
+    Family family = Family.builder().name(request.name().trim()).ownerUser(user)
+        .status(Status.ACTIVE).build();
     
     familyRepository.save(family);
     
-    FamilyMember member = FamilyMember.builder()
-        .family(family)
-        .user(user)
-        .role(FamilyMemberRole.OWNER)
-        .status(FamilyMemberStatus.ACTIVE)
-        .joinedAt(OffsetDateTime.now())
-        .build();
+    FamilyMember member = FamilyMember.builder().family(family).user(user)
+        .role(FamilyMemberRole.OWNER).status(FamilyMemberStatus.ACTIVE)
+        .joinedAt(OffsetDateTime.now()).build();
     
     familyMemberRepository.save(member);
     
-    auditLogService.log(family, user, AuditAction.FAMILY_CREATED,
-        "families", family.getId(),
+    auditLogService.log(family, user, AuditAction.FAMILY_CREATED, "families", family.getId(),
         "{\"family\":\"" + family.getId() + "\",\"familyMemberId\":\"" + member.getId() + "\"}");
     
-    return new FamilyResponse(
-        family.getId(),
-        family.getName(),
-        FamilyMemberRole.OWNER.name()
-    );
+    return new FamilyResponse(family.getId(), family.getName(), FamilyMemberRole.OWNER.name());
   }
   
   @Transactional
@@ -88,18 +78,13 @@ public class FamilyService {
       throw new SecurityException("Only OWNER or ADMIN can invite member");
     }
     String inviteCode = generateInviteCode();
-    FamilyInvitation invitation = FamilyInvitation.builder()
-        .family(requester.getFamily())
-        .inviteCode(inviteCode)
-        .role(request.role())
-        .status(InvitationStatus.ACTIVE)
-        .expiresAt(OffsetDateTime.now()
-            .plusDays(2)).createdBy(user).build();
+    FamilyInvitation invitation = FamilyInvitation.builder().family(requester.getFamily())
+        .inviteCode(inviteCode).role(request.role()).status(InvitationStatus.ACTIVE)
+        .expiresAt(OffsetDateTime.now().plusDays(2)).createdBy(user).build();
     familyInvitationRepository.save(invitation);
     
     auditLogService.log(requester.getFamily(), user, AuditAction.FAMILY_MEMBER_INVITED,
-        "family_invitations", invitation.getId(),
-        """
+        "family_invitations", invitation.getId(), """
             {
               "family" : "%s",
               "userId" : "%s",
@@ -137,8 +122,7 @@ public class FamilyService {
     familyInvitationRepository.save(invitation);
     
     auditLogService.log(member.getFamily(), user, AuditAction.FAMILY_MEMBER_JOINED,
-        "family_members", invitation.getId(),
-        """
+        "family_members", invitation.getId(), """
             {
               "family" : "%s",
               "userId" : "%s",
