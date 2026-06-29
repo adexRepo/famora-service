@@ -69,6 +69,7 @@ public class DocumentService {
     d.setIssueDate(issueDate);
     d.setExpiryDate(expiryDate);
     d.setNotes(notes);
+    d.setCreatedBy(user);
     d.setVisibility(visibility == null ? Visibility.OWNER_ONLY : visibility);
     docs.save(d);
     audit.log(family, user, AuditAction.DOCUMENT_CREATED, "documents", d.getId(),
