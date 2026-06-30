@@ -15,10 +15,9 @@ import com.famora.note.dto.UpdateNoteRequest;
 import com.famora.note.entity.Note;
 import com.famora.note.repository.NoteRepository;
 import com.famora.note.spec.NoteSpecifications;
-import com.famora.security.CurrentUserService;
+import com.famora.security.CurrentUserProvider;
 import com.famora.security.FamilyContextService;
 import com.famora.user.entity.User;
-import java.time.OffsetDateTime;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -32,13 +31,13 @@ import org.springframework.transaction.annotation.Transactional;
 public class NoteService {
   
   private final NoteRepository noteRepository;
-  private final CurrentUserService currentUserService;
+  private final CurrentUserProvider currentUserProvider;
   private final FamilyContextService familyContextService;
   private final AuditLogService auditLogService;
   
   @Transactional
   public NoteResponse create(CreateNoteRequest request) {
-    User user = currentUserService.getCurrentUser();
+    User user = currentUserProvider.getCurrentUser();
     Family family = familyContextService.getCurrentFamily();
     
     Note note = Note.builder().family(family).title(request.title().trim())
@@ -85,7 +84,7 @@ public class NoteService {
   
   @Transactional
   public NoteResponse update(UUID id, UpdateNoteRequest request) {
-    User user = currentUserService.getCurrentUser();
+    User user = currentUserProvider.getCurrentUser();
     Family family = familyContextService.getCurrentFamily();
     
     Note note = getNoteActive(id, family);
@@ -105,7 +104,7 @@ public class NoteService {
   
   @Transactional
   public void delete(UUID id) {
-    User user = currentUserService.getCurrentUser();
+    User user = currentUserProvider.getCurrentUser();
     Family family = familyContextService.getCurrentFamily();
     
     Note note = getNoteActive(id, family);

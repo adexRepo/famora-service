@@ -34,10 +34,6 @@ import lombok.Setter;
 @Table(name = "family_invitations", uniqueConstraints = @UniqueConstraint(name = "uk_family_invitations_invite_code", columnNames = "invite_code"))
 public class FamilyInvitation extends BaseEntity {
   
-  @Id
-  @GeneratedValue
-  @Column(name = "id", columnDefinition = "uuid")
-  private UUID id;
   @ManyToOne(fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name = "family_id", nullable = false)
   private Family family;

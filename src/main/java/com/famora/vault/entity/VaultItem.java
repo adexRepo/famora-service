@@ -28,10 +28,6 @@ import lombok.experimental.SuperBuilder;
 @Table(name = "vault_items")
 public class VaultItem extends VisibleFamilyScopedEntity {
   
-  @Id
-  @GeneratedValue
-  @Column(name = "id", columnDefinition = "uuid")
-  private UUID id;
   @Column(name = "title", nullable = false, length = 180)
   private String title;
   @Column(name = "username", length = 180)

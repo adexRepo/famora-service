@@ -8,7 +8,7 @@ import com.famora.common.helper.Visibility;
 import com.famora.common.spec.VisibleFamilyScopedSpecifications;
 import com.famora.family.dto.FamilyContext;
 import com.famora.family.entity.Family;
-import com.famora.security.CurrentUserService;
+import com.famora.security.CurrentUserProvider;
 import com.famora.security.FamilyContextService;
 import com.famora.user.entity.User;
 import com.famora.vault.dto.CreateVaultItemRequest;
@@ -31,14 +31,14 @@ import org.springframework.transaction.annotation.Transactional;
 public class VaultService {
   
   private final VaultItemRepository vaultItemRepository;
-  private final CurrentUserService currentUserService;
+  private final CurrentUserProvider currentUserProvider;
   private final FamilyContextService familyContextService;
   private final VaultCryptoService vaultCryptoService;
   private final AuditLogService auditLogService;
   
   @Transactional
   public VaultItemDetailResponse create(CreateVaultItemRequest request) {
-    User user = currentUserService.getCurrentUser();
+    User user = currentUserProvider.getCurrentUser();
     Family family = familyContextService.getCurrentFamily();
     
     VaultItem item = VaultItem.builder()
@@ -94,7 +94,7 @@ public class VaultService {
   
   @Transactional(readOnly = true)
   public VaultItemDetailResponse getDetail(UUID id) {
-    User user = currentUserService.getCurrentUser();
+    User user = currentUserProvider.getCurrentUser();
     Family family = familyContextService.getCurrentFamily();
     
     VaultItem item = getVaultActive(id, family);
@@ -119,7 +119,7 @@ public class VaultService {
   
   @Transactional
   public VaultItemDetailResponse update(UUID id, UpdateVaultItemRequest request) {
-    User user = currentUserService.getCurrentUser();
+    User user = currentUserProvider.getCurrentUser();
     Family family = familyContextService.getCurrentFamily();
     
     VaultItem item = getVaultActive(id, family);
@@ -151,7 +151,7 @@ public class VaultService {
   
   @Transactional
   public void delete(UUID id) {
-    User user = currentUserService.getCurrentUser();
+    User user = currentUserProvider.getCurrentUser();
     Family family = familyContextService.getCurrentFamily();
     
     VaultItem item = getVaultActive(id, family);
@@ -190,6 +190,7 @@ public class VaultService {
         vaultCryptoService.decrypt(item.getEncryptedSecret()),
         item.getUrl(),
         item.getNotes(),
+        item.getVisibility(),
         item.getCreatedAt(),
         item.getUpdatedAt()
     );

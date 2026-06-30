@@ -2,7 +2,6 @@ package com.famora.security;
 
 import com.famora.common.exception.AppException;
 import com.famora.common.exception.ResourceNotFoundException;
-import com.famora.common.helper.Status;
 import com.famora.user.entity.User;
 import com.famora.user.entity.UserStatus;
 import com.famora.user.repository.UserRepository;
@@ -16,7 +15,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class CurrentUserService {
+public class CurrentUserProvider {
   
   private final UserRepository userRepository;
   

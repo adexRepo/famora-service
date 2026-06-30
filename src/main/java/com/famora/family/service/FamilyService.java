@@ -17,7 +17,7 @@ import com.famora.family.helper.InvitationStatus;
 import com.famora.family.repository.FamilyInvitationRepository;
 import com.famora.family.repository.FamilyMemberRepository;
 import com.famora.family.repository.FamilyRepository;
-import com.famora.security.CurrentUserService;
+import com.famora.security.CurrentUserProvider;
 import com.famora.user.entity.User;
 import java.security.SecureRandom;
 import java.time.OffsetDateTime;
@@ -31,7 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class FamilyService {
   
-  private final CurrentUserService currentUserService;
+  private final CurrentUserProvider currentUserProvider;
   private final FamilyRepository familyRepository;
   private final AuditLogService auditLogService;
   private final FamilyMemberRepository familyMemberRepository;
@@ -40,7 +40,7 @@ public class FamilyService {
   
   @Transactional(readOnly = true)
   public List<FamilyResponse> getMyFamilies() {
-    User user = currentUserService.getCurrentUser();
+    User user = currentUserProvider.getCurrentUser();
     return familyMemberRepository.findActiveFamiliesByUserId(user.getId()).stream().map(
         member -> new FamilyResponse(member.getFamily().getId(), member.getFamily().getName(),
             member.getRole().name())).toList();
@@ -48,7 +48,7 @@ public class FamilyService {
   
   @Transactional
   public FamilyResponse createFamily(CreateFamilyRequest request) {
-    User user = currentUserService.getCurrentUser();
+    User user = currentUserProvider.getCurrentUser();
     
     Family family = Family.builder().name(request.name().trim()).ownerUser(user)
         .status(Status.ACTIVE).build();
@@ -69,7 +69,7 @@ public class FamilyService {
   
   @Transactional
   public InvitationResponse createInvitation(UUID familyId, CreateInvitationRequest request) {
-    User user = currentUserService.getCurrentUser();
+    User user = currentUserProvider.getCurrentUser();
     FamilyMember requester = familyMemberRepository.findByFamilyIdAndUserIdAndStatus(familyId,
             user.getId(), FamilyMemberStatus.ACTIVE)
         .orElseThrow(() -> new SecurityException("Access denied"));
@@ -98,7 +98,7 @@ public class FamilyService {
   
   @Transactional
   public FamilyResponse joinFamily(JoinFamilyRequest request) {
-    User user = currentUserService.getCurrentUser();
+    User user = currentUserProvider.getCurrentUser();
     FamilyInvitation invitation = familyInvitationRepository.findByInviteCodeAndStatus(
             request.inviteCode(), InvitationStatus.ACTIVE)
         .orElseThrow(() -> new IllegalArgumentException("Invalid invite code"));

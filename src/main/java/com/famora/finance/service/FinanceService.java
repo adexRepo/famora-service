@@ -16,7 +16,7 @@ import com.famora.finance.entity.FinanceTransaction;
 import com.famora.finance.entity.FinanceTransactionType;
 import com.famora.finance.repository.FinanceTransactionRepository;
 import com.famora.finance.spec.FinanceTransactionSpecifications;
-import com.famora.security.CurrentUserService;
+import com.famora.security.CurrentUserProvider;
 import com.famora.security.FamilyContextService;
 import com.famora.user.entity.User;
 import java.math.BigDecimal;
@@ -40,14 +40,14 @@ import org.springframework.transaction.annotation.Transactional;
 public class FinanceService {
   
   private final FinanceTransactionRepository financeTransactionRepository;
-  private final CurrentUserService currentUserService;
+  private final CurrentUserProvider currentUserProvider;
   private final FamilyContextService familyContextService;
   private final AuditLogService auditLogService;
   private final CurrencyConversionService currencyConversionService;
   
   @Transactional
   public FinanceTransactionResponse create(CreateFinanceTransactionRequest request) {
-    User user = currentUserService.getCurrentUser();
+    User user = currentUserProvider.getCurrentUser();
     Family family = familyContextService.getCurrentFamily();
     
     FinanceTransaction transaction = FinanceTransaction.builder()
@@ -120,7 +120,7 @@ public class FinanceService {
   
   @Transactional
   public FinanceTransactionResponse update(UUID id, UpdateFinanceTransactionRequest request) {
-    User user = currentUserService.getCurrentUser();
+    User user = currentUserProvider.getCurrentUser();
     Family family = familyContextService.getCurrentFamily();
     
     FinanceTransaction transaction = getFinanceTransaction(id, family);
@@ -149,7 +149,7 @@ public class FinanceService {
   
   @Transactional
   public void delete(UUID id) {
-    User user = currentUserService.getCurrentUser();
+    User user = currentUserProvider.getCurrentUser();
     Family family = familyContextService.getCurrentFamily();
     
     FinanceTransaction transaction = getFinanceTransaction(id, family);

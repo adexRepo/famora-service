@@ -27,11 +27,6 @@ import lombok.Setter;
 @Table(name = "users", uniqueConstraints = @UniqueConstraint(name = "uk_users_email", columnNames = "email"))
 public class User extends BaseEntity {
   
-  @Id
-  @GeneratedValue
-  @Column(name = "id", columnDefinition = "uuid")
-  private UUID id;
-  
   @Column(name = "full_name", nullable = false, length = 150)
   private String fullName;
   

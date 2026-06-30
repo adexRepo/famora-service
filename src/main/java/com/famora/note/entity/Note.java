@@ -28,10 +28,6 @@ import lombok.experimental.SuperBuilder;
 @Table(name = "notes")
 public class Note extends VisibleFamilyScopedEntity {
   
-  @Id
-  @GeneratedValue
-  @Column(name = "id", columnDefinition = "uuid")
-  private UUID id;
   @Column(name = "title", nullable = false, length = 180)
   private String title;
   @Column(name = "content", nullable = false, columnDefinition = "text")

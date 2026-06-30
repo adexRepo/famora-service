@@ -26,10 +26,6 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 public class Document extends VisibleFamilyScopedEntity {
   
-  @Id
-  @GeneratedValue
-  @Column(name = "id", columnDefinition = "uuid")
-  private UUID id;
   @Column(nullable = false)
   private UUID fileId;
   private UUID ownerUserId;

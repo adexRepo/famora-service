@@ -1,11 +1,14 @@
 package com.famora.common.entity;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,6 +22,11 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @SuperBuilder
 public abstract class BaseEntity {
+  
+  @Id
+  @GeneratedValue
+  @Column(name = "id", columnDefinition = "uuid")
+  private UUID id;
   
   @Column(name = "created_at", nullable = false, updatable = false)
   private OffsetDateTime createdAt;
@@ -37,4 +45,5 @@ public abstract class BaseEntity {
   protected void onUpdate() {
     this.updatedAt = OffsetDateTime.now(ZoneOffset.UTC);
   }
+  
 }

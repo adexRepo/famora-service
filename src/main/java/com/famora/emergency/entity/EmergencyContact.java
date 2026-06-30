@@ -25,10 +25,6 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 public class EmergencyContact extends FamilyScopedEntity {
   
-  @Id
-  @GeneratedValue
-  @Column(name = "id", columnDefinition = "uuid")
-  private UUID id;
   @Column(nullable = false)
   private String name;
   @Column(nullable = false)

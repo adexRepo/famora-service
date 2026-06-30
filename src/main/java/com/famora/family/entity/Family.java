@@ -30,10 +30,6 @@ import lombok.Setter;
 @Table(name = "families")
 public class Family extends BaseEntity {
   
-  @Id
-  @GeneratedValue
-  @Column(name = "id", columnDefinition = "uuid")
-  private UUID id;
   @Column(name = "name", nullable = false, length = 150)
   private String name;
   @ManyToOne(fetch = FetchType.LAZY, optional = false)

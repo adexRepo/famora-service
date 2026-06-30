@@ -27,10 +27,6 @@ import lombok.experimental.SuperBuilder;
 @Table(name = "finance_transactions")
 public class FinanceTransaction extends FamilyScopedEntity {
   
-  @Id
-  @GeneratedValue
-  @Column(name = "id", columnDefinition = "uuid")
-  private UUID id;
   @Enumerated(EnumType.STRING)
   @Column(name = "type", nullable = false)
   private FinanceTransactionType type;

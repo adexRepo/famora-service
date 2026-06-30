@@ -21,12 +21,12 @@ public class FamilyContextService {
   
   public static final String FAMILY_ID_HEADER = "X-Family-Id";
   private final HttpServletRequest request;
-  private final CurrentUserService currentUserService;
+  private final CurrentUserProvider currentUserProvider;
   private final FamilyMemberRepository familyMemberRepository;
   
   public Family getCurrentFamily() {
     UUID familyId = getCurrentFamilyId();
-    UUID userId = currentUserService.getCurrentUserId();
+    UUID userId = currentUserProvider.getCurrentUserId();
     FamilyMember member = familyMemberRepository.findByFamilyIdAndUserIdAndStatus(familyId, userId,
             FamilyMemberStatus.ACTIVE)
         .orElseThrow(() -> new SecurityException("You are not member of this family"));
@@ -46,7 +46,7 @@ public class FamilyContextService {
   }
   
   public boolean isCurrentUserFamilyMember(UUID familyId) {
-    UUID userId = currentUserService.getCurrentUserId();
+    UUID userId = currentUserProvider.getCurrentUserId();
     return familyMemberRepository.existsByFamilyIdAndUserIdAndStatus(familyId, userId,
         FamilyMemberStatus.ACTIVE);
   }
@@ -70,7 +70,7 @@ public class FamilyContextService {
     } catch (Exception e) {
       throw new AppException(HttpStatus.BAD_REQUEST, "Invalid X-Family-Id");
     }
-    User user = currentUserService.getCurrentUser();
+    User user = currentUserProvider.getCurrentUser();
     Family family = getCurrentFamily();
     FamilyMember m = familyMemberRepository.findByFamilyIdAndUserIdAndStatus(familyId, user.getId(),
             FamilyMemberStatus.ACTIVE)

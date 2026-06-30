@@ -17,14 +17,13 @@ import com.famora.family.entity.Family;
 import com.famora.file.entity.FileAsset;
 import com.famora.file.repository.FileRepository;
 import com.famora.file.service.FileService;
-import com.famora.security.CurrentUserService;
+import com.famora.security.CurrentUserProvider;
 import com.famora.security.FamilyContextService;
 import com.famora.user.entity.User;
 import java.time.LocalDate;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
@@ -40,14 +39,14 @@ public class DocumentService {
   private final FileService files;
   private final FileRepository fileRepo;
   private final AuditLogService audit;
-  private final CurrentUserService currentUserService;
+  private final CurrentUserProvider currentUserProvider;
   private final FamilyContextService familyContextService;
   
   public Document create(MultipartFile file, String title, DocumentType documentType,
       String documentNumber, UUID ownerUserId, LocalDate issueDate, LocalDate expiryDate,
       String notes, Visibility visibility, FamilyContext ctx) {
     
-    User user = currentUserService.getCurrentUser();
+    User user = currentUserProvider.getCurrentUser();
     Family family = familyContextService.getCurrentFamily();
     
     if (title == null || title.isBlank()) {
@@ -106,7 +105,7 @@ public class DocumentService {
   
   public Document get(UUID id, FamilyContext ctx) {
     
-    User user = currentUserService.getCurrentUser();
+    User user = currentUserProvider.getCurrentUser();
     Family family = familyContextService.getCurrentFamily();
     
     Document d = docs.findByIdAndFamilyIdAndStatus(id, ctx.family().getId(), Status.ACTIVE)
@@ -127,7 +126,7 @@ public class DocumentService {
   }
   
   public Document update(UUID id, DocumentDtos.UpdateDocumentRequest req, FamilyContext ctx) {
-    User user = currentUserService.getCurrentUser();
+    User user = currentUserProvider.getCurrentUser();
     Family family = familyContextService.getCurrentFamily();
     
     Document d = get(id, ctx);

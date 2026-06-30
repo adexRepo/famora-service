@@ -35,10 +35,6 @@ import lombok.Setter;
     "family_id", "user_id"}))
 public class FamilyMember extends BaseEntity {
   
-  @Id
-  @GeneratedValue
-  @Column(name = "id", columnDefinition = "uuid")
-  private UUID id;
   @ManyToOne(fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name = "family_id", nullable = false)
   private Family family;

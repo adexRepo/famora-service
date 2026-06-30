@@ -1,0 +1,111 @@
+package com.famora.business.controller;
+
+import com.famora.business.constant.BusinessApiMessages;
+import com.famora.business.dto.request.RejectReportRequest;
+import com.famora.business.dto.request.RequestRevisionRequest;
+import com.famora.business.dto.request.SubmitDailyReportRequest;
+import com.famora.business.dto.request.VoidReportRequest;
+import com.famora.business.dto.response.DailyReportDetailResponse;
+import com.famora.business.dto.response.DailyReportRevisionDetailResponse;
+import com.famora.business.dto.response.DailyReportRevisionListResponse;
+import com.famora.business.dto.response.DailyReportSummaryResponse;
+import com.famora.business.dto.response.DailyReportWorkflowResponse;
+import com.famora.business.dto.response.SubmitDailyReportResponse;
+import com.famora.business.service.BusinessDailyReportService;
+import com.famora.business.service.BusinessDailyReportWorkflowService;
+import com.famora.common.dto.ApiResponse;
+import com.famora.common.dto.PageResponse;
+import jakarta.validation.Valid;
+import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/api/v1/businesses/{businessId}/daily-reports")
+@RequiredArgsConstructor
+public class BusinessDailyReportController {
+  
+  private final BusinessDailyReportService reportService;
+  private final BusinessDailyReportWorkflowService workflowService;
+  
+  @PostMapping
+  public ResponseEntity<ApiResponse<DailyReportSummaryResponse>> create(
+      @PathVariable UUID businessId,
+      @Valid @RequestBody SubmitDailyReportRequest request) {
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(ApiResponse.ok(BusinessApiMessages.CREATED,
+            reportService.createDraft(businessId, request)));
+  }
+  
+  @GetMapping
+  public ApiResponse<PageResponse<DailyReportSummaryResponse>> list(@PathVariable UUID businessId,
+      Pageable pageable) {
+    return ApiResponse.ok(PageResponse.from(reportService.list(businessId, pageable)));
+  }
+  
+  @GetMapping("/{reportId}")
+  public ApiResponse<DailyReportDetailResponse> get(@PathVariable UUID businessId,
+      @PathVariable UUID reportId) {
+    return ApiResponse.ok(reportService.get(businessId, reportId));
+  }
+  
+  @PostMapping("/{reportId}/submit")
+  public ApiResponse<SubmitDailyReportResponse> submit(@PathVariable UUID businessId,
+      @PathVariable UUID reportId) {
+    return ApiResponse.ok(workflowService.submitReport(businessId, reportId));
+  }
+  
+  @PostMapping("/{reportId}/request-revision")
+  public ApiResponse<DailyReportWorkflowResponse> requestRevision(@PathVariable UUID businessId,
+      @PathVariable UUID reportId,
+      @Valid @RequestBody RequestRevisionRequest request) {
+    return ApiResponse.ok(
+        workflowService.requestRevision(businessId, reportId, request.reason()));
+  }
+  
+  @PostMapping("/{reportId}/approve")
+  public ApiResponse<DailyReportWorkflowResponse> approve(@PathVariable UUID businessId,
+      @PathVariable UUID reportId) {
+    return ApiResponse.ok(workflowService.approveReport(businessId, reportId));
+  }
+  
+  @PostMapping("/{reportId}/reject")
+  public ApiResponse<DailyReportWorkflowResponse> reject(@PathVariable UUID businessId,
+      @PathVariable UUID reportId,
+      @Valid @RequestBody RejectReportRequest request) {
+    return ApiResponse.ok(workflowService.rejectReport(businessId, reportId, request.reason()));
+  }
+  
+  @PostMapping("/{reportId}/void")
+  public ApiResponse<DailyReportWorkflowResponse> voidReport(@PathVariable UUID businessId,
+      @PathVariable UUID reportId,
+      @Valid @RequestBody VoidReportRequest request) {
+    return ApiResponse.ok(workflowService.voidReport(businessId, reportId, request.reason()));
+  }
+  
+  @GetMapping("/{reportId}/revisions")
+  public ApiResponse<PageResponse<DailyReportRevisionListResponse>> revisions(
+      @PathVariable UUID businessId,
+      @PathVariable UUID reportId,
+      Pageable pageable) {
+    return ApiResponse.ok(
+        PageResponse.from(workflowService.getRevisionHistory(businessId, reportId, pageable)));
+  }
+  
+  @GetMapping("/{reportId}/revisions/{revisionId}")
+  public ApiResponse<DailyReportRevisionDetailResponse> revisionDetail(
+      @PathVariable UUID businessId,
+      @PathVariable UUID reportId,
+      @PathVariable UUID revisionId) {
+    return ApiResponse.ok(
+        workflowService.getRevisionDetail(businessId, reportId, revisionId));
+  }
+}

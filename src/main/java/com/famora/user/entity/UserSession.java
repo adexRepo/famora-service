@@ -29,11 +29,6 @@ import lombok.Setter;
         columnNames = "refresh_token_hash"))
 public class UserSession extends BaseEntity {
   
-  @Id
-  @GeneratedValue
-  @Column(name = "id", columnDefinition = "uuid")
-  private UUID id;
-  
   @ManyToOne(fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name = "user_id", nullable = false)
   private User user;

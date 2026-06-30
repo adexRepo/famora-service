@@ -1,5 +1,6 @@
 package com.famora.audit.entity;
 
+import com.famora.business.entity.Business;
 import com.famora.common.entity.BaseEntity;
 import com.famora.family.entity.Family;
 import com.famora.user.entity.User;
@@ -8,8 +9,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -29,16 +28,15 @@ import lombok.experimental.SuperBuilder;
 @Table(name = "audit_logs")
 public class AuditLog extends BaseEntity {
   
-  @Id
-  @GeneratedValue
-  @Column(name = "id", columnDefinition = "uuid")
-  private UUID id;
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "family_id")
   private Family family;
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id")
   private User user;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "business_id")
+  private Business business;
   @Enumerated(EnumType.STRING)
   @Column(name = "action", nullable = false)
   private AuditAction action;
