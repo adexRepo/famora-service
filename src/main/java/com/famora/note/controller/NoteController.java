@@ -39,7 +39,7 @@ public class NoteController {
   }
   
   @GetMapping
-  public ApiResponse<PageResponse<NoteListResponse>> list(
+  public ApiResponse<PageResponse<NoteResponse>> list(
       @RequestHeader("X-Family-Id") String familyId,
       @RequestParam(required = false) String keyword,
       @RequestParam(required = false) String category,
