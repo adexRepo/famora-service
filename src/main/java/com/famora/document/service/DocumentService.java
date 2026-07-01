@@ -9,6 +9,7 @@ import com.famora.common.helper.Visibility;
 import com.famora.common.spec.VisibleFamilyScopedSpecifications;
 import com.famora.document.dto.DocumentDtos;
 import com.famora.document.entity.Document;
+import com.famora.document.helper.DocumentCategory;
 import com.famora.document.helper.DocumentType;
 import com.famora.document.repository.DocumentRepository;
 import com.famora.document.spec.DocumentSpecifications;
@@ -79,6 +80,7 @@ public class DocumentService {
   @Transactional(readOnly = true)
   public Page<Document> list(
       FamilyContext ctx,
+      DocumentCategory category,
       DocumentType type,
       Boolean expiringSoon,
       Integer days,
@@ -97,6 +99,7 @@ public class DocumentService {
             Status.ACTIVE,
             visibility
         ))
+        .and(DocumentSpecifications.documentCategory(category))
         .and(DocumentSpecifications.documentType(type))
         .and(DocumentSpecifications.expiringSoon(expiringSoon, days));
     

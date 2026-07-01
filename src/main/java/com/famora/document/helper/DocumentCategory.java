@@ -1,0 +1,12 @@
+package com.famora.document.helper;
+
+public enum DocumentCategory {
+  IDENTITY_CIVIL,
+  IMMIGRATION_TRAVEL,
+  CAREER_EDUCATION,
+  HEALTH_INSURANCE,
+  ASSETS_PROPERTY,
+  FINANCE_TAX,
+  LEGAL_POWER_OF_ATTORNEY,
+  OTHER
+}

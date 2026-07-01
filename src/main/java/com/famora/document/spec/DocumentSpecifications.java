@@ -1,6 +1,7 @@
 package com.famora.document.spec;
 
 import com.famora.document.entity.Document;
+import com.famora.document.helper.DocumentCategory;
 import com.famora.document.helper.DocumentType;
 import java.time.LocalDate;
 import org.springframework.data.jpa.domain.Specification;
@@ -17,6 +18,16 @@ public final class DocumentSpecifications {
       }
       
       return cb.equal(root.get("documentType"), type);
+    };
+  }
+  
+  public static Specification<Document> documentCategory(DocumentCategory category) {
+    return (root, query, cb) -> {
+      if (category == null) {
+        return cb.conjunction();
+      }
+      
+      return root.get("documentType").in(DocumentType.byCategory(category));
     };
   }
   

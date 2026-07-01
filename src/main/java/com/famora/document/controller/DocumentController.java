@@ -5,6 +5,7 @@ import com.famora.common.dto.PageResponse;
 import com.famora.common.helper.Visibility;
 import com.famora.document.dto.DocumentDtos;
 import com.famora.document.dto.DocumentDtos.DocumentResponse;
+import com.famora.document.helper.DocumentCategory;
 import com.famora.document.helper.DocumentType;
 import com.famora.document.service.DocumentService;
 import com.famora.security.FamilyContextService;
@@ -58,6 +59,7 @@ public class DocumentController {
   @GetMapping
   public ApiResponse<PageResponse<DocumentDtos.DocumentResponse>> list(
       @RequestHeader("X-Family-Id") String familyId,
+      @RequestParam(required = false) DocumentCategory documentCategory,
       @RequestParam(required = false) DocumentType documentType,
       @RequestParam(required = false) Boolean expiringSoon,
       @RequestParam(required = false) Integer days,
@@ -67,7 +69,7 @@ public class DocumentController {
     var ctx = families.require(familyId);
     
     return ApiResponse.ok(
-        PageResponse.from(service.list(ctx, documentType, expiringSoon, days, visibility,
+        PageResponse.from(service.list(ctx, documentCategory, documentType, expiringSoon, days, visibility,
                 PageRequest.of(page, size, Sort.by("createdAt").descending()))
             .map(DocumentDtos.DocumentResponse::from)));
   }
