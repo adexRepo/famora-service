@@ -31,12 +31,18 @@ public class JwtService {
   }
   
   public String generateAccessToken(UUID userId, String email) {
+    return generateAccessTokenDetails(userId, email).token();
+  }
+  
+  public GeneratedToken generateAccessTokenDetails(UUID userId, String email) {
     Instant now = Instant.now();
-    return Jwts.builder().subject(userId.toString()).claim("email", email)
+    Instant expiresAt = now.plus(accessTokenExpirationMinutes, ChronoUnit.MINUTES);
+    String token = Jwts.builder().subject(userId.toString()).claim("email", email)
         .issuedAt(Date.from(now))
         .issuer(jwtIssuer)
-        .expiration(Date.from(now.plus(accessTokenExpirationMinutes, ChronoUnit.MINUTES)))
+        .expiration(Date.from(expiresAt))
         .signWith(signingKey).compact();
+    return new GeneratedToken(token, expiresAt);
   }
   
   public UUID extractUserId(String token) {
@@ -58,5 +64,9 @@ public class JwtService {
   
   private Claims parseClaims(String token) {
     return Jwts.parser().verifyWith(signingKey).build().parseSignedClaims(token).getPayload();
+  }
+  
+  public record GeneratedToken(String token, Instant expiresAt) {
+  
   }
 }

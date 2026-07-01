@@ -98,11 +98,13 @@ public class AuthService {
   }
   
   private AuthResponse generateAuthResponse(User user) {
-    String accessToken = jwtService.generateAccessToken(user.getId(), user.getEmail());
+    JwtService.GeneratedToken accessToken = jwtService.generateAccessTokenDetails(user.getId(),
+        user.getEmail());
     String refreshToken = generateSecureToken();
+    OffsetDateTime refreshTokenExpiresAt = OffsetDateTime.now().plusDays(refreshTokenExpirationDays);
     UserSession session = UserSession.builder().user(user)
         .refreshTokenHash(tokenHashService.sha256(refreshToken))
-        .expiresAt(OffsetDateTime.now().plusDays(refreshTokenExpirationDays)).build();
+        .expiresAt(refreshTokenExpiresAt).build();
     log.debug("Save User Session");
     userSessionRepository.save(session);
     List<AuthResponse.FamilySummary> families = familyMemberRepository.findActiveFamiliesByUserId(
@@ -110,7 +112,8 @@ public class AuthService {
         .map(member -> new AuthResponse.FamilySummary(member.getFamily().getId(),
             member.getFamily().getName(), member.getRole().name()))
         .toList();
-    return new AuthResponse(accessToken, refreshToken,
+    return new AuthResponse(accessToken.token(), refreshToken, accessToken.expiresAt(),
+        refreshTokenExpiresAt.toInstant(),
         new AuthResponse.UserSummary(user.getId(), user.getFullName(), user.getEmail()), families);
   }
   
