@@ -9,7 +9,6 @@ import com.famora.common.spec.VisibleFamilyScopedSpecifications;
 import com.famora.family.dto.FamilyContext;
 import com.famora.family.entity.Family;
 import com.famora.note.dto.CreateNoteRequest;
-import com.famora.note.dto.NoteListResponse;
 import com.famora.note.dto.NoteResponse;
 import com.famora.note.dto.UpdateNoteRequest;
 import com.famora.note.entity.Note;
@@ -35,6 +34,8 @@ public class NoteService {
   private final FamilyContextService familyContextService;
   private final AuditLogService auditLogService;
   
+  private static final int NOTE_CONTENT_PREVIEW_MAX_LENGTH = 50;
+  
   @Transactional
   public NoteResponse create(CreateNoteRequest request) {
     User user = currentUserProvider.getCurrentUser();
@@ -52,7 +53,7 @@ public class NoteService {
   }
   
   @Transactional(readOnly = true)
-  public Page<NoteListResponse> list(FamilyContext ctx, String keyword, String category,
+  public Page<NoteResponse> list(FamilyContext ctx, String keyword, String category,
       Visibility visibility, Pageable pageable) {
     UUID familyId = ctx.family().getId();
     UUID userId = ctx.user().getId();
@@ -122,9 +123,26 @@ public class NoteService {
         note.getCreatedAt(), note.getUpdatedAt());
   }
   
-  private NoteListResponse toListResponse(Note note) {
-    return new NoteListResponse(note.getId(), note.getTitle(), note.getCategory(),
+  private NoteResponse toListResponse(Note note) {
+    return new NoteResponse(note.getId(), note.getTitle(), noteContentPreview(note.getContent()),
+        note.getCategory(),
         note.getCreatedAt(), note.getUpdatedAt());
+  }
+  
+  public static String noteContentPreview(String content) {
+    String normalized = content == null
+        ? ""
+        : content.trim().replaceAll("\\s+", " ");
+    
+    if (normalized.length() <= NOTE_CONTENT_PREVIEW_MAX_LENGTH) {
+      return normalized;
+    }
+    
+    String suffix = "...";
+    return normalized.substring(
+        0,
+        NOTE_CONTENT_PREVIEW_MAX_LENGTH - suffix.length()
+    ) + suffix;
   }
   
   private String clean(String value) {

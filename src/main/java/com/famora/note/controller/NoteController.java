@@ -6,7 +6,6 @@ import com.famora.common.helper.PagingHelper;
 import com.famora.common.helper.Visibility;
 import com.famora.family.dto.FamilyContext;
 import com.famora.note.dto.CreateNoteRequest;
-import com.famora.note.dto.NoteListResponse;
 import com.famora.note.dto.NoteResponse;
 import com.famora.note.dto.UpdateNoteRequest;
 import com.famora.note.service.NoteService;
