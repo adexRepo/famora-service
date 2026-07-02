@@ -14,7 +14,7 @@ public record DailyReportRevisionListResponse(
     DailyReportStatus newStatus,
     UUID changedByUserId,
     String changeReason,
-    OffsetDateTime createdDt
+    OffsetDateTime createdAt
 ) {
 
   public static DailyReportRevisionListResponse from(BusinessDailyReportRevision revision) {

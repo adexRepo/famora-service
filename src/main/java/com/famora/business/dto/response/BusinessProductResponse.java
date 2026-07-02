@@ -7,4 +7,4 @@ import java.util.UUID;
 
 public record BusinessProductResponse(UUID id, UUID businessId, String productName, String category, String unit,
                                       BigDecimal defaultSellingPrice, BigDecimal costPrice, Status status,
-                                      OffsetDateTime createdDt, OffsetDateTime updatedDt) {}
+                                      OffsetDateTime createdAt, OffsetDateTime updatedAt) {}

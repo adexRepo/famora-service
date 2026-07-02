@@ -28,7 +28,7 @@ public class BusinessDailyReportSnapshotQueryRepository {
             select i
             from BusinessDailySalesItem i
             where i.dailyReportId = :reportId
-            order by i.createdDt asc
+            order by i.createdAt asc
             """, BusinessDailySalesItem.class)
         .setParameter("reportId", reportId)
         .getResultList();
@@ -39,7 +39,7 @@ public class BusinessDailyReportSnapshotQueryRepository {
             select p
             from BusinessDailyPaymentBreakdown p
             where p.dailyReportId = :reportId
-            order by p.createdDt asc
+            order by p.createdAt asc
             """, BusinessDailyPaymentBreakdown.class)
         .setParameter("reportId", reportId)
         .getResultList();
@@ -50,7 +50,7 @@ public class BusinessDailyReportSnapshotQueryRepository {
             select l
             from BusinessDailyLossItem l
             where l.dailyReportId = :reportId
-            order by l.createdDt asc
+            order by l.createdAt asc
             """, BusinessDailyLossItem.class)
         .setParameter("reportId", reportId)
         .getResultList();
@@ -62,7 +62,7 @@ public class BusinessDailyReportSnapshotQueryRepository {
             from BusinessExpense e
             where e.dailyReportId = :reportId
               and e.status <> com.famora.common.helper.Status.DELETED
-            order by e.createdDt asc
+            order by e.createdAt asc
             """, BusinessExpense.class)
         .setParameter("reportId", reportId)
         .getResultList();

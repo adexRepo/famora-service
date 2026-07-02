@@ -13,7 +13,7 @@ public record ExpenseResponse(UUID id, UUID businessId, UUID dailyReportId, Loca
                               ExpenseCategory category, BigDecimal quantity, String unit,
                               BigDecimal amount,
                               PaymentMethod paymentMethod, String notes, Status status,
-                              UUID createdByUserId, OffsetDateTime createdDt,
-                              OffsetDateTime updatedDt) {
+                              UUID createdByUserId, OffsetDateTime createdAt,
+                              OffsetDateTime updatedAt) {
   
 }

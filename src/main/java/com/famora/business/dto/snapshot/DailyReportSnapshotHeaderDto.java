@@ -41,8 +41,8 @@ public record DailyReportSnapshotHeaderDto(
     UUID voidedByUserId,
     OffsetDateTime voidedAt,
     String voidReason,
-    OffsetDateTime createdDt,
-    OffsetDateTime updatedDt
+    OffsetDateTime createdAt,
+    OffsetDateTime updatedAt
 ) {
 
   public static DailyReportSnapshotHeaderDto from(BusinessDailyReport report) {

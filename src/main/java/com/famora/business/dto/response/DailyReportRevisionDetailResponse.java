@@ -17,7 +17,7 @@ public record DailyReportRevisionDetailResponse(
     DailyReportStatus newStatus,
     UUID changedByUserId,
     String changeReason,
-    OffsetDateTime createdDt,
+    OffsetDateTime createdAt,
     JsonNode snapshot
 ) {
 

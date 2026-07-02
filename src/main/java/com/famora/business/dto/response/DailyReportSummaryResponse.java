@@ -3,7 +3,6 @@ package com.famora.business.dto.response;
 import com.famora.business.enums.DailyReportStatus;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -15,4 +14,4 @@ public record DailyReportSummaryResponse(UUID id, UUID businessId, LocalDate rep
                                          BigDecimal totalCashExpenseAmount, BigDecimal totalNonCashExpenseAmount,
                                          BigDecimal totalLossAmount, BigDecimal expectedCashAmount,
                                          BigDecimal netOperatingAmount, DailyReportStatus reportStatus, String notes,
-                                         OffsetDateTime createdDt, OffsetDateTime updatedDt) {}
+                                         OffsetDateTime createdAt, OffsetDateTime updatedAt) {}
