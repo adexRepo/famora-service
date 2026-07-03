@@ -12,9 +12,11 @@ import com.famora.common.exception.BusinessDailyReportWorkflowException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class BusinessDailyReportSnapshotService {
@@ -47,6 +49,7 @@ public class BusinessDailyReportSnapshotService {
     try {
       return objectMapper.writeValueAsString(snapshot);
     } catch (JsonProcessingException exception) {
+      log.warn("Failed to build daily report snapshot for reportId={}", report.getId(), exception);
       throw new BusinessDailyReportWorkflowException("Failed to build daily report snapshot.");
     }
   }
