@@ -97,6 +97,12 @@ public class BusinessProductService {
     p.setUnit(blank(req.unit()) ? BusinessDefaults.UNIT : req.unit().trim());
     p.setDefaultSellingPrice(MoneyUtil.nvl(req.defaultSellingPrice()));
     p.setCostPrice(req.costPrice() == null ? null : MoneyUtil.nvl(req.costPrice()));
+    if (req.status() != null) {
+      if (req.status() == Status.DELETED) {
+        throw BusinessException.validation("Use delete product API to delete product");
+      }
+      p.setStatus(req.status());
+    }
     p.setUpdatedBy(user);
     p = productRepository.save(p);
     publishProductAudit(user, businessId, AuditAction.BUSINESS_PRODUCT_UPDATED, p);
