@@ -108,9 +108,9 @@ public class AuthService {
     log.debug("Save User Session");
     userSessionRepository.save(session);
     List<AuthResponse.FamilySummary> families = familyMemberRepository.findActiveFamiliesByUserId(
-            user.getId()).stream()
+        user.getId()).stream()
         .map(member -> new AuthResponse.FamilySummary(member.getFamily().getId(),
-            member.getFamily().getName(), member.getRole().name()))
+            member.getFamily().getName(), member.getRole().name(), member.isDefaultFamily()))
         .toList();
     return new AuthResponse(accessToken.token(), refreshToken, accessToken.expiresAt(),
         refreshTokenExpiresAt.toInstant(),

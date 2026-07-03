@@ -51,6 +51,8 @@ public class FamilyMember extends BaseEntity {
   private OffsetDateTime joinedAt;
   @Column(name = "removed_at")
   private OffsetDateTime removedAt;
+  @Column(name = "is_default", nullable = false)
+  private boolean defaultFamily;
   
   @PrePersist
   public void prePersist() {

@@ -12,7 +12,7 @@ public record AuthResponse(String accessToken, String refreshToken, Instant acce
   
   }
   
-  public record FamilySummary(UUID id, String name, String role) {
+  public record FamilySummary(UUID id, String name, String role, boolean isDefault) {
   
   }
 }

@@ -6,6 +6,7 @@ import java.util.UUID;
 
 public record BusinessResponse(UUID id, String name, String businessType, String defaultCurrency,
                                UUID ownerUserId, UUID primaryFamilyId, String description,
-                               Status status, OffsetDateTime createdAt, OffsetDateTime updatedAt) {
+                               Status status, boolean isDefault, OffsetDateTime createdAt,
+                               OffsetDateTime updatedAt) {
   
 }

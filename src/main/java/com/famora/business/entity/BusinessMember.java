@@ -29,4 +29,6 @@ public class BusinessMember extends BusinessScopedEntity {
   private UUID invitedByUserId;
   @Column(name = "joined_at")
   private LocalDateTime joinedAt;
+  @Column(name = "is_default", nullable = false)
+  private boolean defaultBusiness;
 }

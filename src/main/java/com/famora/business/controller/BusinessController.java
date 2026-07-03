@@ -41,9 +41,19 @@ public class BusinessController {
     return ApiResponse.ok(PageResponse.from(businessService.list(pageable)));
   }
   
+  @GetMapping("/default")
+  public ApiResponse<BusinessResponse> getDefaultBusiness() {
+    return ApiResponse.ok(businessService.getDefaultBusiness());
+  }
+  
   @GetMapping("/{businessId}")
   public ApiResponse<BusinessResponse> get(@PathVariable UUID businessId) {
     return ApiResponse.ok(businessService.get(businessId));
+  }
+  
+  @PutMapping("/{businessId}/default")
+  public ApiResponse<BusinessResponse> setDefaultBusiness(@PathVariable UUID businessId) {
+    return ApiResponse.ok(businessService.setDefaultBusiness(businessId));
   }
   
   @PutMapping("/{businessId}")

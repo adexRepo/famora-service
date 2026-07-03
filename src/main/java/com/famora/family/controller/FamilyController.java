@@ -25,6 +25,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -44,6 +45,11 @@ public class FamilyController {
     return ApiResponse.ok(familyService.getMyFamilies());
   }
   
+  @GetMapping("/default")
+  public ApiResponse<FamilyResponse> getDefaultFamily() {
+    return ApiResponse.ok(familyService.getDefaultFamily());
+  }
+  
   @PostMapping
   public ApiResponse<FamilyResponse> createFamily(@Valid @RequestBody CreateFamilyRequest request) {
     return ApiResponse.ok(familyService.createFamily(request));
@@ -58,6 +64,11 @@ public class FamilyController {
   @PostMapping("/join")
   public ApiResponse<FamilyResponse> joinFamily(@Valid @RequestBody JoinFamilyRequest request) {
     return ApiResponse.ok(familyService.joinFamily(request));
+  }
+  
+  @PutMapping("/{familyId}/default")
+  public ApiResponse<FamilyResponse> setDefaultFamily(@PathVariable UUID familyId) {
+    return ApiResponse.ok(familyService.setDefaultFamily(familyId));
   }
   
   

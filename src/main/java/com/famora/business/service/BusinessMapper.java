@@ -28,16 +28,20 @@ public final class BusinessMapper {
   }
   
   public static BusinessResponse business(Business b) {
+    return business(b, false);
+  }
+  
+  public static BusinessResponse business(Business b, boolean isDefault) {
     return new BusinessResponse(b.getId(), b.getName(), b.getBusinessType(), b.getDefaultCurrency(),
         b.getOwnerUserId(),
-        b.getPrimaryFamilyId(), b.getDescription(), b.getStatus(), b.getCreatedAt(),
+        b.getPrimaryFamilyId(), b.getDescription(), b.getStatus(), isDefault, b.getCreatedAt(),
         b.getUpdatedAt());
   }
   
   public static BusinessMemberResponse member(BusinessMember m) {
     return new BusinessMemberResponse(m.getId(), m.getBusiness().getId(), m.getUserId(),
         m.getRole(),
-        m.getStatus(), m.getInvitedByUserId(), m.getJoinedAt());
+        m.getStatus(), m.isDefaultBusiness(), m.getInvitedByUserId(), m.getJoinedAt());
   }
   
   public static BusinessInvitationResponse invitation(BusinessInvitation i) {

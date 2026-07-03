@@ -120,6 +120,8 @@ public class BusinessInvitationService {
     m.setUserId(userId);
     m.setRole(i.getRole());
     m.setStatus(Status.ACTIVE);
+    m.setDefaultBusiness(!memberRepository.existsByUserIdAndDefaultBusinessTrueAndStatus(userId,
+        Status.ACTIVE));
     m.setInvitedByUserId(i.getInvitedByUserId());
     m.setJoinedAt(LocalDateTime.now());
     if (newMember) {

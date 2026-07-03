@@ -10,6 +10,7 @@ import com.famora.business.enums.BusinessRole;
 import com.famora.business.repository.BusinessMemberRepository;
 import com.famora.business.repository.BusinessRepository;
 import com.famora.business.spec.BusinessSpecifications;
+import com.famora.common.exception.BusinessException;
 import com.famora.common.helper.Status;
 import com.famora.security.CurrentUserProvider;
 import com.famora.user.entity.User;
@@ -35,6 +36,7 @@ public class BusinessService {
   @Transactional
   public BusinessResponse create(CreateBusinessRequest request) {
     User userId = currentUserProvider.getCurrentUser();
+    boolean shouldBeDefault = !hasDefaultBusiness(userId.getId());
     Business b = new Business();
     b.setName(request.name().trim());
     b.setBusinessType(
@@ -54,24 +56,42 @@ public class BusinessService {
     owner.setUserId(userId.getId());
     owner.setRole(BusinessRole.OWNER);
     owner.setStatus(Status.ACTIVE);
+    owner.setDefaultBusiness(shouldBeDefault);
     owner.setJoinedAt(LocalDateTime.now());
     owner.setCreatedBy(userId);
     memberRepository.save(owner);
     
-    return BusinessMapper.business(b);
+    return BusinessMapper.business(b, owner.isDefaultBusiness());
   }
   
   @Transactional(readOnly = true)
   public Page<BusinessResponse> list(Pageable pageable) {
+    UUID userId = currentUserProvider.getCurrentUserId();
+    UUID defaultBusinessId = memberRepository.findByUserIdAndDefaultBusinessTrueAndStatus(userId,
+            Status.ACTIVE)
+        .map(member -> member.getBusiness().getId())
+        .orElse(null);
     return businessRepository.findAll(
-        BusinessSpecifications.accessibleByUser(currentUserProvider.getCurrentUserId()),
-        defaultSort(pageable)).map(BusinessMapper::business);
+            BusinessSpecifications.accessibleByUser(userId),
+            defaultSort(pageable))
+        .map(business -> BusinessMapper.business(business, business.getId().equals(defaultBusinessId)));
+  }
+  
+  @Transactional(readOnly = true)
+  public BusinessResponse getDefaultBusiness() {
+    UUID userId = currentUserProvider.getCurrentUserId();
+    BusinessMember member = memberRepository.findByUserIdAndDefaultBusinessTrueAndStatus(userId,
+            Status.ACTIVE)
+        .orElseThrow(() -> BusinessException.notFound("Default business not found"));
+    return BusinessMapper.business(member.getBusiness(), true);
   }
   
   @Transactional(readOnly = true)
   public BusinessResponse get(UUID businessId) {
-    permissionService.requireCanView(businessId, currentUserProvider.getCurrentUserId());
-    return BusinessMapper.business(permissionService.requireActiveBusiness(businessId));
+    UUID userId = currentUserProvider.getCurrentUserId();
+    permissionService.requireCanView(businessId, userId);
+    Business b = permissionService.requireActiveBusiness(businessId);
+    return BusinessMapper.business(b, isDefaultBusiness(userId, businessId));
   }
   
   @Transactional
@@ -87,7 +107,20 @@ public class BusinessService {
     b.setPrimaryFamilyId(request.primaryFamilyId());
     b.setDescription(request.description());
     b.setUpdatedBy(currentUserProvider.getCurrentUser());
-    return BusinessMapper.business(businessRepository.save(b));
+    return BusinessMapper.business(businessRepository.save(b), isDefaultBusiness(userId, businessId));
+  }
+  
+  @Transactional
+  public BusinessResponse setDefaultBusiness(UUID businessId) {
+    User user = currentUserProvider.getCurrentUser();
+    BusinessMember member = memberRepository.findByBusinessIdAndUserIdAndStatus(businessId,
+            user.getId(), Status.ACTIVE)
+        .orElseThrow(() -> BusinessException.notFound("Active business member not found"));
+    memberRepository.clearDefaultByUserId(user.getId());
+    member.setDefaultBusiness(true);
+    member.setUpdatedBy(user);
+    memberRepository.save(member);
+    return BusinessMapper.business(member.getBusiness(), true);
   }
   
   @Transactional
@@ -110,5 +143,15 @@ public class BusinessService {
   
   private static boolean blank(String s) {
     return s == null || s.isBlank();
+  }
+  
+  private boolean hasDefaultBusiness(UUID userId) {
+    return memberRepository.existsByUserIdAndDefaultBusinessTrueAndStatus(userId, Status.ACTIVE);
+  }
+  
+  private boolean isDefaultBusiness(UUID userId, UUID businessId) {
+    return memberRepository.findByUserIdAndDefaultBusinessTrueAndStatus(userId, Status.ACTIVE)
+        .map(member -> member.getBusiness().getId().equals(businessId))
+        .orElse(false);
   }
 }

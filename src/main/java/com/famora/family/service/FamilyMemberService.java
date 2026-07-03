@@ -39,6 +39,7 @@ public class FamilyMemberService {
   private FamilyMemberResponse toResponse(FamilyMember member) {
     return new FamilyMemberResponse(member.getId(), member.getUser().getId(),
         member.getUser().getFullName(), member.getUser().getEmail(), member.getRole(),
-        member.getStatus(), member.getJoinedAt(), member.getCreatedAt(), member.getUpdatedAt());
+        member.getStatus(), member.isDefaultFamily(), member.getJoinedAt(), member.getCreatedAt(),
+        member.getUpdatedAt());
   }
 }

@@ -12,6 +12,7 @@ public record FamilyMemberResponse(
     String email,
     FamilyMemberRole role,
     FamilyMemberStatus status,
+    boolean isDefault,
     OffsetDateTime joinedAt,
     OffsetDateTime createdAt,
     OffsetDateTime updatedAt

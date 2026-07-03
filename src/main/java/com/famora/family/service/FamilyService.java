@@ -43,12 +43,22 @@ public class FamilyService {
     User user = currentUserProvider.getCurrentUser();
     return familyMemberRepository.findActiveFamiliesByUserId(user.getId()).stream().map(
         member -> new FamilyResponse(member.getFamily().getId(), member.getFamily().getName(),
-            member.getRole().name())).toList();
+            member.getRole().name(), member.isDefaultFamily())).toList();
+  }
+  
+  @Transactional(readOnly = true)
+  public FamilyResponse getDefaultFamily() {
+    User user = currentUserProvider.getCurrentUser();
+    FamilyMember member = familyMemberRepository.findByUserIdAndDefaultFamilyTrueAndStatus(
+            user.getId(), FamilyMemberStatus.ACTIVE)
+        .orElseThrow(() -> new IllegalArgumentException("Default family not found"));
+    return toFamilyResponse(member);
   }
   
   @Transactional
   public FamilyResponse createFamily(CreateFamilyRequest request) {
     User user = currentUserProvider.getCurrentUser();
+    boolean shouldBeDefault = !hasDefaultFamily(user.getId());
     
     Family family = Family.builder().name(request.name().trim()).ownerUser(user)
         .status(Status.ACTIVE).build();
@@ -57,14 +67,14 @@ public class FamilyService {
     
     FamilyMember member = FamilyMember.builder().family(family).user(user)
         .role(FamilyMemberRole.OWNER).status(FamilyMemberStatus.ACTIVE)
-        .joinedAt(OffsetDateTime.now()).build();
+        .defaultFamily(shouldBeDefault).joinedAt(OffsetDateTime.now()).build();
     
     familyMemberRepository.save(member);
     
     auditLogService.log(family, user, AuditAction.FAMILY_CREATED, "families", family.getId(),
         "{\"family\":\"" + family.getId() + "\",\"familyMemberId\":\"" + member.getId() + "\"}");
     
-    return new FamilyResponse(family.getId(), family.getName(), FamilyMemberRole.OWNER.name());
+    return toFamilyResponse(member);
   }
   
   @Transactional
@@ -115,6 +125,7 @@ public class FamilyService {
     FamilyMember member = FamilyMember.builder().family(invitation.getFamily()).user(user)
         .role(invitation.getRole()).status(FamilyMemberStatus.ACTIVE).joinedAt(OffsetDateTime.now())
         .build();
+    member.setDefaultFamily(!hasDefaultFamily(user.getId()));
     familyMemberRepository.save(member);
     invitation.setStatus(InvitationStatus.USED);
     invitation.setUsedByUser(user);
@@ -130,8 +141,20 @@ public class FamilyService {
             }
             """.formatted(member.getFamily().getId(), user.getId(), invitation.getInviteCode()));
     
-    return new FamilyResponse(invitation.getFamily().getId(), invitation.getFamily().getName(),
-        member.getRole().name());
+    return toFamilyResponse(member);
+  }
+  
+  @Transactional
+  public FamilyResponse setDefaultFamily(UUID familyId) {
+    User user = currentUserProvider.getCurrentUser();
+    FamilyMember member = familyMemberRepository.findByFamilyIdAndUserIdAndStatus(familyId,
+            user.getId(), FamilyMemberStatus.ACTIVE)
+        .orElseThrow(() -> new SecurityException("User is not active member of selected family"));
+    
+    familyMemberRepository.clearDefaultByUserId(user.getId());
+    member.setDefaultFamily(true);
+    familyMemberRepository.save(member);
+    return toFamilyResponse(member);
   }
   
   private String generateInviteCode() {
@@ -141,5 +164,15 @@ public class FamilyService {
       sb.append(alphabet.charAt(random.nextInt(alphabet.length())));
     }
     return sb.toString();
+  }
+  
+  private boolean hasDefaultFamily(UUID userId) {
+    return familyMemberRepository.existsByUserIdAndDefaultFamilyTrueAndStatus(userId,
+        FamilyMemberStatus.ACTIVE);
+  }
+  
+  private FamilyResponse toFamilyResponse(FamilyMember member) {
+    return new FamilyResponse(member.getFamily().getId(), member.getFamily().getName(),
+        member.getRole().name(), member.isDefaultFamily());
   }
 }

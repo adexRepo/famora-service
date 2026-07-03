@@ -5,6 +5,7 @@ import com.famora.family.helper.FamilyMemberStatus;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -25,5 +26,19 @@ public interface FamilyMemberRepository extends JpaRepository<FamilyMember, UUID
   Optional<FamilyMember> findByFamilyIdAndUserIdAndStatus(UUID familyId, UUID userId,
       FamilyMemberStatus status);
   
+  Optional<FamilyMember> findByUserIdAndDefaultFamilyTrueAndStatus(UUID userId,
+      FamilyMemberStatus status);
+  
   boolean existsByFamilyIdAndUserIdAndStatus(UUID familyId, UUID userId, FamilyMemberStatus status);
+  
+  boolean existsByUserIdAndDefaultFamilyTrueAndStatus(UUID userId, FamilyMemberStatus status);
+  
+  @Modifying
+  @Query("""
+      update FamilyMember fm
+      set fm.defaultFamily = false
+      where fm.user.id = :userId
+        and fm.defaultFamily = true
+      """)
+  void clearDefaultByUserId(@Param("userId") UUID userId);
 }

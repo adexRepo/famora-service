@@ -6,4 +6,5 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 public record BusinessMemberResponse(UUID id, UUID businessId, UUID userId, BusinessRole role,
-                                     Status status, UUID invitedByUserId, LocalDateTime joinedAt) {}
+                                     Status status, boolean isDefault, UUID invitedByUserId,
+                                     LocalDateTime joinedAt) {}
