@@ -28,6 +28,7 @@ public class BusinessDailyReportSnapshotQueryRepository {
             select i
             from BusinessDailySalesItem i
             where i.dailyReportId = :reportId
+              and i.status = com.famora.common.helper.Status.ACTIVE
             order by i.createdAt asc
             """, BusinessDailySalesItem.class)
         .setParameter("reportId", reportId)
@@ -39,6 +40,7 @@ public class BusinessDailyReportSnapshotQueryRepository {
             select p
             from BusinessDailyPaymentBreakdown p
             where p.dailyReportId = :reportId
+              and p.status = com.famora.common.helper.Status.ACTIVE
             order by p.createdAt asc
             """, BusinessDailyPaymentBreakdown.class)
         .setParameter("reportId", reportId)
@@ -50,6 +52,7 @@ public class BusinessDailyReportSnapshotQueryRepository {
             select l
             from BusinessDailyLossItem l
             where l.dailyReportId = :reportId
+              and l.status = com.famora.common.helper.Status.ACTIVE
             order by l.createdAt asc
             """, BusinessDailyLossItem.class)
         .setParameter("reportId", reportId)

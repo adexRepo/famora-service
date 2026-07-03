@@ -74,6 +74,7 @@ public class BusinessInvitationService {
     permissionService.requireCanInviteMember(businessId, currentUserProvider.getCurrentUserId());
     return invitationRepository.findAll(
         BusinessInvitationSpecifications.belongsToBusiness(businessId)
+            .and(BusinessInvitationSpecifications.status(Status.ACTIVE))
             .and(BusinessInvitationSpecifications.invitationStatus(InvitationStatus.PENDING)),
         pageable).map(BusinessMapper::invitation);
   }

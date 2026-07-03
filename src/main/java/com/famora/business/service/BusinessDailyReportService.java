@@ -127,8 +127,10 @@ public class BusinessDailyReportService {
   public DailyReportDetailResponse get(UUID businessId, UUID reportId) {
     permissionService.requireCanView(businessId, currentUserProvider.getCurrentUserId());
     BusinessDailyReport report = requireReport(businessId, reportId);
-    return BusinessMapper.reportDetail(report, salesRepo.findByDailyReportId(reportId),
-        paymentRepo.findByDailyReportId(reportId), lossRepo.findByDailyReportId(reportId),
+    return BusinessMapper.reportDetail(report,
+        salesRepo.findByDailyReportIdAndStatus(reportId, Status.ACTIVE),
+        paymentRepo.findByDailyReportIdAndStatus(reportId, Status.ACTIVE),
+        lossRepo.findByDailyReportIdAndStatus(reportId, Status.ACTIVE),
         expenseRepo.findByDailyReportIdAndStatus(reportId, Status.ACTIVE));
   }
   

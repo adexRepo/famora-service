@@ -1,6 +1,7 @@
 package com.famora.business.repository;
 
 import com.famora.business.entity.BusinessDailySalesItem;
+import com.famora.common.helper.Status;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
@@ -12,12 +13,13 @@ import org.springframework.data.repository.query.Param;
 public interface BusinessDailySalesItemRepository extends
     JpaRepository<BusinessDailySalesItem, UUID> {
   
-  List<BusinessDailySalesItem> findByDailyReportId(UUID dailyReportId);
+  List<BusinessDailySalesItem> findByDailyReportIdAndStatus(UUID dailyReportId, Status status);
   
   @Query("""
         select i.itemName, sum(i.quantitySold), sum(i.totalAmount)
         from BusinessDailySalesItem i
         where i.business.id = :businessId
+          and i.status = com.famora.common.helper.Status.ACTIVE
           and i.dailyReportId in (
             select r.id from BusinessDailyReport r
             where r.business.id = :businessId

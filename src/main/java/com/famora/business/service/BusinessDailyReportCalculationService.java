@@ -53,9 +53,12 @@ public class BusinessDailyReportCalculationService {
   }
   
   private void recalculate(BusinessDailyReport report, boolean validatePaymentMatch) {
-    List<BusinessDailySalesItem> salesItems = salesItemRepository.findByDailyReportId(report.getId());
-    List<BusinessDailyPaymentBreakdown> payments = paymentBreakdownRepository.findByDailyReportId(report.getId());
-    List<BusinessDailyLossItem> lossItems = lossItemRepository.findByDailyReportId(report.getId());
+    List<BusinessDailySalesItem> salesItems = salesItemRepository.findByDailyReportIdAndStatus(
+        report.getId(), Status.ACTIVE);
+    List<BusinessDailyPaymentBreakdown> payments = paymentBreakdownRepository.findByDailyReportIdAndStatus(
+        report.getId(), Status.ACTIVE);
+    List<BusinessDailyLossItem> lossItems = lossItemRepository.findByDailyReportIdAndStatus(
+        report.getId(), Status.ACTIVE);
     List<BusinessExpense> expenses = expenseRepository.findByDailyReportIdAndStatus(report.getId(), Status.ACTIVE);
     
     BigDecimal totalSales = salesItems.stream()

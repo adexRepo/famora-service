@@ -25,6 +25,7 @@ import com.famora.business.repository.BusinessDailyReportRevisionRepository;
 import com.famora.business.spec.BusinessDailyReportRevisionSpecifications;
 import com.famora.business.validator.BusinessDailyReportWorkflowValidator;
 import com.famora.common.exception.BusinessDailyReportWorkflowException;
+import com.famora.common.helper.Status;
 import com.famora.security.CurrentUserProvider;
 import com.famora.user.entity.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -379,7 +380,8 @@ public class BusinessDailyReportWorkflowService {
     
     return revisionRepository
         .findAll(BusinessDailyReportRevisionSpecifications.belongsToBusiness(businessId)
-                .and(BusinessDailyReportRevisionSpecifications.belongsToReport(reportId)),
+                .and(BusinessDailyReportRevisionSpecifications.belongsToReport(reportId))
+                .and(BusinessDailyReportRevisionSpecifications.status(Status.ACTIVE)),
             defaultRevisionSort(pageable))
         .map(DailyReportRevisionListResponse::from);
   }
