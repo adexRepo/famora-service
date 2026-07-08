@@ -37,6 +37,13 @@ public class GlobalExceptionHandler {
     return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage(), request);
   }
   
+  @ExceptionHandler(AppException.class)
+  public ResponseEntity<ApiErrorResponse> handleAppException(AppException ex,
+      HttpServletRequest request) {
+    printStackTrace(ex);
+    return buildResponse(ex.status(), ex.getMessage(), request);
+  }
+  
   @ExceptionHandler(IllegalArgumentException.class)
   public ResponseEntity<ApiErrorResponse> handleIllegalArgument(IllegalArgumentException ex,
       HttpServletRequest request) {

@@ -7,9 +7,11 @@ import com.famora.emergency.repository.EmergencyContactRepository;
 import com.famora.file.repository.FileRepository;
 import com.famora.security.FamilyContextService;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,6 +25,7 @@ public class DashboardController {
   private final DocumentRepository documents;
   private final FileRepository files;
   private final EmergencyContactRepository emergencies;
+  private final DashboardActivityService activities;
   
   @GetMapping("/summary")
   ApiResponse<DashboardSummary> summary(@RequestHeader("X-Family-Id") String familyId) {
@@ -79,5 +82,12 @@ public class DashboardController {
             totalEmergency
         )
     );
+  }
+  
+  @GetMapping("/recent-activities")
+  ApiResponse<List<RecentActivityResponse>> recentActivities(
+      @RequestHeader("X-Family-Id") String familyId,
+      @RequestParam(required = false) Integer limit) {
+    return ApiResponse.ok(activities.familyActivities(familyId, limit));
   }
 }

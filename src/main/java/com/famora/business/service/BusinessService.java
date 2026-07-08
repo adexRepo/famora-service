@@ -1,5 +1,12 @@
 package com.famora.business.service;
 
+import static com.famora.business.constant.BusinessAuditConstants.BUSINESS;
+import static com.famora.business.constant.BusinessAuditConstants.BUSINESS_NAME;
+import static com.famora.business.constant.BusinessAuditConstants.DEFAULT_CURRENCY;
+import static com.famora.business.constant.BusinessAuditConstants.IS_DEFAULT;
+import static com.famora.business.constant.BusinessAuditConstants.STATUS;
+
+import com.famora.audit.entity.AuditAction;
 import com.famora.business.constant.BusinessDefaults;
 import com.famora.business.dto.request.CreateBusinessRequest;
 import com.famora.business.dto.request.UpdateBusinessRequest;
@@ -9,12 +16,14 @@ import com.famora.business.entity.BusinessMember;
 import com.famora.business.enums.BusinessRole;
 import com.famora.business.repository.BusinessMemberRepository;
 import com.famora.business.repository.BusinessRepository;
+import com.famora.business.publisher.BusinessAuditPublisher;
 import com.famora.business.spec.BusinessSpecifications;
 import com.famora.common.exception.BusinessException;
 import com.famora.common.helper.Status;
 import com.famora.security.CurrentUserProvider;
 import com.famora.user.entity.User;
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -32,6 +41,7 @@ public class BusinessService {
   private final BusinessMemberRepository memberRepository;
   private final BusinessPermissionService permissionService;
   private final CurrentUserProvider currentUserProvider;
+  private final BusinessAuditPublisher auditPublisher;
   
   @Transactional
   public BusinessResponse create(CreateBusinessRequest request) {
@@ -48,6 +58,8 @@ public class BusinessService {
     b.setOwnerUserId(userId.getId());
     b.setPrimaryFamilyId(request.primaryFamilyId());
     b.setDescription(request.description());
+    b.setAddress(request.address());
+    b.setContact(trimToNull(request.contact()));
     b.setCreatedBy(userId);
     b = businessRepository.save(b);
     
@@ -60,6 +72,9 @@ public class BusinessService {
     owner.setJoinedAt(LocalDateTime.now());
     owner.setCreatedBy(userId);
     memberRepository.save(owner);
+    publishBusinessAudit(userId, b.getId(), AuditAction.BUSINESS_CREATED, b,
+        Map.of(BUSINESS_NAME, b.getName(), DEFAULT_CURRENCY, b.getDefaultCurrency(), IS_DEFAULT,
+            owner.isDefaultBusiness()));
     
     return BusinessMapper.business(b, owner.isDefaultBusiness());
   }
@@ -106,8 +121,14 @@ public class BusinessService {
         : request.defaultCurrency().trim().toUpperCase());
     b.setPrimaryFamilyId(request.primaryFamilyId());
     b.setDescription(request.description());
-    b.setUpdatedBy(currentUserProvider.getCurrentUser());
-    return BusinessMapper.business(businessRepository.save(b), isDefaultBusiness(userId, businessId));
+    b.setAddress(request.address());
+    b.setContact(trimToNull(request.contact()));
+    User user = currentUserProvider.getCurrentUser();
+    b.setUpdatedBy(user);
+    Business saved = businessRepository.save(b);
+    publishBusinessAudit(user, businessId, AuditAction.BUSINESS_UPDATED, saved,
+        Map.of(BUSINESS_NAME, saved.getName(), DEFAULT_CURRENCY, saved.getDefaultCurrency()));
+    return BusinessMapper.business(saved, isDefaultBusiness(userId, businessId));
   }
   
   @Transactional
@@ -120,17 +141,22 @@ public class BusinessService {
     member.setDefaultBusiness(true);
     member.setUpdatedBy(user);
     memberRepository.save(member);
+    publishBusinessAudit(user, businessId, AuditAction.BUSINESS_DEFAULT_SET, member.getBusiness(),
+        Map.of(IS_DEFAULT, true));
     return BusinessMapper.business(member.getBusiness(), true);
   }
   
   @Transactional
   public void delete(UUID businessId) {
-    permissionService.requireAnyRole(businessId, currentUserProvider.getCurrentUserId(),
+    User user = currentUserProvider.getCurrentUser();
+    permissionService.requireAnyRole(businessId, user.getId(),
         BusinessRole.OWNER);
     Business b = permissionService.requireActiveBusiness(businessId);
     b.setStatus(Status.DELETED);
-    b.setUpdatedBy(currentUserProvider.getCurrentUser());
-    businessRepository.save(b);
+    b.setUpdatedBy(user);
+    Business saved = businessRepository.save(b);
+    publishBusinessAudit(user, businessId, AuditAction.BUSINESS_DELETED, saved,
+        Map.of(STATUS, saved.getStatus()));
   }
   
   private Pageable defaultSort(Pageable pageable) {
@@ -145,6 +171,10 @@ public class BusinessService {
     return s == null || s.isBlank();
   }
   
+  private static String trimToNull(String s) {
+    return blank(s) ? null : s.trim();
+  }
+  
   private boolean hasDefaultBusiness(UUID userId) {
     return memberRepository.existsByUserIdAndDefaultBusinessTrueAndStatus(userId, Status.ACTIVE);
   }
@@ -153,5 +183,11 @@ public class BusinessService {
     return memberRepository.findByUserIdAndDefaultBusinessTrueAndStatus(userId, Status.ACTIVE)
         .map(member -> member.getBusiness().getId().equals(businessId))
         .orElse(false);
+  }
+  
+  private void publishBusinessAudit(User user, UUID businessId, AuditAction action, Business business,
+      Map<String, Object> metadata) {
+    auditPublisher.publishBusinessEvent(user.getId(), businessId, action, BUSINESS,
+        business.getId(), metadata);
   }
 }

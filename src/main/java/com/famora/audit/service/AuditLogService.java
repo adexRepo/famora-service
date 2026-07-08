@@ -1,40 +1,41 @@
 package com.famora.audit.service;
 
 import com.famora.audit.entity.AuditAction;
-import com.famora.audit.entity.AuditLog;
-import com.famora.audit.repository.AuditLogRepository;
 import com.famora.family.entity.Family;
 import com.famora.user.entity.User;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.springframework.scheduling.annotation.Async;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class AuditLogService {
   
-  private final AuditLogRepository auditLogRepository;
-  private final HttpServletRequest request;
+  private final AuditLogAsyncWriter asyncWriter;
+  private final ObjectProvider<HttpServletRequest> requestProvider;
   
-  @Async
   public void log(Family family, User user, AuditAction action, String entityType, UUID entityId,
       String metadataJson) {
-    AuditLog auditLog = AuditLog.builder()
-        .family(family)
-        .user(user)
-        .action(action)
-        .entityType(entityType)
-        .entityId(entityId)
-        .ipAddress(getClientIp())
-        .userAgent(request.getHeader("User-Agent"))
-        .metadata(metadataJson)
-        .build();
-    auditLogRepository.save(auditLog);
+    HttpServletRequest request = requestProvider.getIfAvailable();
+    asyncWriter.write(
+        family == null ? null : family.getId(),
+        user == null ? null : user.getId(),
+        null,
+        action,
+        entityType,
+        entityId,
+        getClientIp(request),
+        request == null ? null : request.getHeader("User-Agent"),
+        metadataJson
+    );
   }
   
-  private String getClientIp() {
+  private String getClientIp(HttpServletRequest request) {
+    if (request == null) {
+      return null;
+    }
     String forwardedFor = request.getHeader("X-Forwarded-For");
     if (forwardedFor != null && !forwardedFor.isBlank()) {
       return forwardedFor.split(",")[0].trim();

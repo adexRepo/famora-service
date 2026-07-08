@@ -1,13 +1,9 @@
 package com.famora.business.publisher;
 
 import com.famora.audit.entity.AuditAction;
-import com.famora.audit.entity.AuditLog;
-import com.famora.audit.repository.AuditLogRepository;
-import com.famora.business.entity.Business;
-import com.famora.user.entity.User;
+import com.famora.audit.service.AuditLogAsyncWriter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.persistence.EntityManager;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Map;
 import java.util.UUID;
@@ -19,8 +15,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class JpaBusinessAuditPublisher implements BusinessAuditPublisher {
   
-  private final AuditLogRepository auditLogRepository;
-  private final EntityManager entityManager;
+  private final AuditLogAsyncWriter asyncWriter;
   private final ObjectMapper objectMapper;
   private final ObjectProvider<HttpServletRequest> requestProvider;
   
@@ -33,18 +28,8 @@ public class JpaBusinessAuditPublisher implements BusinessAuditPublisher {
       UUID entityId,
       Map<String, Object> metadata
   ) {
-    AuditLog auditLog = AuditLog.builder()
-        .user(entityManager.getReference(User.class, userId))
-        .business(entityManager.getReference(Business.class, businessId))
-        .action(action)
-        .entityType(entityType)
-        .entityId(entityId)
-        .ipAddress(clientIp())
-        .userAgent(userAgent())
-        .metadata(metadataJson(metadata))
-        .build();
-    
-    auditLogRepository.save(auditLog);
+    asyncWriter.write(null, userId, businessId, action, entityType, entityId, clientIp(),
+        userAgent(), metadataJson(metadata));
   }
   
   private String metadataJson(Map<String, Object> metadata) {

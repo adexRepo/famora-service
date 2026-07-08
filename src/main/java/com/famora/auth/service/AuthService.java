@@ -1,5 +1,7 @@
 package com.famora.auth.service;
 
+import com.famora.audit.entity.AuditAction;
+import com.famora.audit.service.AuditLogService;
 import com.famora.auth.dto.AuthResponse;
 import com.famora.auth.dto.LoginRequest;
 import com.famora.auth.dto.RefreshTokenRequest;
@@ -36,6 +38,7 @@ public class AuthService {
   private final PasswordEncoder passwordEncoder;
   private final JwtService jwtService;
   private final TokenHashService tokenHashService;
+  private final AuditLogService auditLogService;
   @Value("${app.security.jwt.refresh-token-expiration-days}")
   private long refreshTokenExpirationDays;
   private final SecureRandom secureRandom = new SecureRandom();
@@ -57,7 +60,10 @@ public class AuthService {
     
     userRepository.save(user);
     
-    return generateAuthResponse(user);
+    AuthResponse response = generateAuthResponse(user);
+    auditLogService.log(null, user, AuditAction.USER_REGISTERED, "users", user.getId(),
+        "{\"email\":\"" + user.getEmail() + "\"}");
+    return response;
   }
   
   @Transactional
@@ -73,7 +79,10 @@ public class AuthService {
     }
     user.setLastLoginAt(OffsetDateTime.now());
     userRepository.save(user);
-    return generateAuthResponse(user);
+    AuthResponse response = generateAuthResponse(user);
+    auditLogService.log(null, user, AuditAction.USER_LOGGED_IN, "users", user.getId(),
+        "{\"email\":\"" + user.getEmail() + "\"}");
+    return response;
   }
   
   @Transactional
@@ -94,6 +103,8 @@ public class AuthService {
         .ifPresent(session -> {
           session.setRevokedAt(OffsetDateTime.now());
           userSessionRepository.save(session);
+          auditLogService.log(null, session.getUser(), AuditAction.USER_LOGGED_OUT, "user_sessions",
+              session.getId(), "{\"userId\":\"" + session.getUser().getId() + "\"}");
         });
   }
   

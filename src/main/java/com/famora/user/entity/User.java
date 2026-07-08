@@ -10,6 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -36,12 +37,18 @@ public class User extends BaseEntity {
   @Column(name = "password_hash", nullable = false, columnDefinition = "text")
   private String passwordHash;
   
+  @Column(name = "date_of_birth")
+  private LocalDate dateOfBirth;
+  
   @Enumerated(EnumType.STRING)
   @Column(name = "status", nullable = false)
   private UserStatus status;
   
   @Column(name = "last_login_at")
   private OffsetDateTime lastLoginAt;
+  
+  @Column(name = "password_changed_at")
+  private OffsetDateTime passwordChangedAt;
   
   @PrePersist
   public void prePersist() {

@@ -5,6 +5,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Base64;
 import java.util.Date;
@@ -60,6 +61,14 @@ public class JwtService {
     } catch (Exception ex) {
       return false;
     }
+  }
+  
+  public boolean isTokenIssuedBefore(String token, OffsetDateTime timestamp) {
+    if (timestamp == null) {
+      return false;
+    }
+    Date issuedAt = parseClaims(token).getIssuedAt();
+    return issuedAt == null || issuedAt.toInstant().isBefore(timestamp.toInstant());
   }
   
   private Claims parseClaims(String token) {

@@ -34,8 +34,8 @@ public final class BusinessMapper {
   public static BusinessResponse business(Business b, boolean isDefault) {
     return new BusinessResponse(b.getId(), b.getName(), b.getBusinessType(), b.getDefaultCurrency(),
         b.getOwnerUserId(),
-        b.getPrimaryFamilyId(), b.getDescription(), b.getStatus(), isDefault, b.getCreatedAt(),
-        b.getUpdatedAt());
+        b.getPrimaryFamilyId(), b.getDescription(), b.getAddress(), b.getContact(), b.getStatus(),
+        isDefault, b.getCreatedAt(), b.getUpdatedAt());
   }
   
   public static BusinessMemberResponse member(BusinessMember m) {

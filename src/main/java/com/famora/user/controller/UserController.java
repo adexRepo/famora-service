@@ -1,6 +1,7 @@
 package com.famora.user.controller;
 
 import com.famora.common.dto.ApiResponse;
+import com.famora.user.dto.ChangePasswordRequest;
 import com.famora.user.dto.UpdateUserProfileRequest;
 import com.famora.user.dto.UserProfileResponse;
 import com.famora.user.service.UserService;
@@ -28,5 +29,11 @@ public class UserController {
   public ApiResponse<UserProfileResponse> updateMe(
       @Valid @RequestBody UpdateUserProfileRequest request) {
     return ApiResponse.ok(userService.updateMe(request));
+  }
+  
+  @PutMapping("/password")
+  public ApiResponse<Boolean> changePassword(@Valid @RequestBody ChangePasswordRequest request) {
+    userService.changePassword(request);
+    return ApiResponse.ok(true);
   }
 }

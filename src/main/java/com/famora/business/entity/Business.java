@@ -29,4 +29,8 @@ public class Business extends AuditableEntity {
   private UUID primaryFamilyId;
   @Column(columnDefinition = "text")
   private String description;
+  @Column(columnDefinition = "text")
+  private String address;
+  @Column(length = 80)
+  private String contact;
 }

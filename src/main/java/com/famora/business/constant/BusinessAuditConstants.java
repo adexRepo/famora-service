@@ -2,6 +2,7 @@ package com.famora.business.constant;
 
 public final class BusinessAuditConstants {
   
+  public static final String BUSINESS = "BUSINESS";
   public static final String PRODUCT = "BUSINESS_PRODUCT";
   public static final String EXPENSE = "BUSINESS_EXPENSE";
   public static final String INVITATION = "BUSINESS_INVITATION";
@@ -9,6 +10,9 @@ public final class BusinessAuditConstants {
   public static final String DAILY_REPORT = "BUSINESS_DAILY_REPORT";
   
   public static final String PRODUCT_NAME = "productName";
+  public static final String BUSINESS_NAME = "businessName";
+  public static final String DEFAULT_CURRENCY = "defaultCurrency";
+  public static final String IS_DEFAULT = "isDefault";
   public static final String EXPENSE_NAME = "expenseName";
   public static final String REPORT_DATE = "reportDate";
   public static final String SHIFT = "shift";

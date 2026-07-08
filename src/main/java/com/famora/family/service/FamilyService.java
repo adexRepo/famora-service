@@ -154,6 +154,10 @@ public class FamilyService {
     familyMemberRepository.clearDefaultByUserId(user.getId());
     member.setDefaultFamily(true);
     familyMemberRepository.save(member);
+    auditLogService.log(member.getFamily(), user, AuditAction.FAMILY_DEFAULT_SET,
+        "family_members", member.getId(),
+        "{\"family\":\"" + member.getFamily().getId() + "\",\"userId\":\"" + user.getId()
+            + "\"}");
     return toFamilyResponse(member);
   }
   

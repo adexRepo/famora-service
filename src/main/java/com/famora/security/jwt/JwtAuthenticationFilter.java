@@ -43,6 +43,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       filterChain.doFilter(request, response);
       return;
     }
+    if (jwtService.isTokenIssuedBefore(token, user.getPasswordChangedAt())) {
+      filterChain.doFilter(request, response);
+      return;
+    }
     UserPrincipal principal = UserPrincipal.from(user);
     SecurityContextHolder.getContext().setAuthentication(
         new UsernamePasswordAuthenticationToken(principal, null, principal.getAuthorities()));
