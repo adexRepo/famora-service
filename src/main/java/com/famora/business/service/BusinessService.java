@@ -14,9 +14,9 @@ import com.famora.business.dto.response.BusinessResponse;
 import com.famora.business.entity.Business;
 import com.famora.business.entity.BusinessMember;
 import com.famora.business.enums.BusinessRole;
+import com.famora.business.publisher.BusinessAuditPublisher;
 import com.famora.business.repository.BusinessMemberRepository;
 import com.famora.business.repository.BusinessRepository;
-import com.famora.business.publisher.BusinessAuditPublisher;
 import com.famora.business.spec.BusinessSpecifications;
 import com.famora.common.exception.BusinessException;
 import com.famora.common.helper.Status;
@@ -89,7 +89,8 @@ public class BusinessService {
     return businessRepository.findAll(
             BusinessSpecifications.accessibleByUser(userId),
             defaultSort(pageable))
-        .map(business -> BusinessMapper.business(business, business.getId().equals(defaultBusinessId)));
+        .map(business -> BusinessMapper.business(business,
+            business.getId().equals(defaultBusinessId)));
   }
   
   @Transactional(readOnly = true)
@@ -185,7 +186,8 @@ public class BusinessService {
         .orElse(false);
   }
   
-  private void publishBusinessAudit(User user, UUID businessId, AuditAction action, Business business,
+  private void publishBusinessAudit(User user, UUID businessId, AuditAction action,
+      Business business,
       Map<String, Object> metadata) {
     auditPublisher.publishBusinessEvent(user.getId(), businessId, action, BUSINESS,
         business.getId(), metadata);

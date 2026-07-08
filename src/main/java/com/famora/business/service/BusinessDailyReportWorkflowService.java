@@ -9,10 +9,10 @@ import static com.famora.business.constant.BusinessAuditConstants.REPORT_ID;
 import static com.famora.business.constant.BusinessAuditConstants.REVISION_NUMBER;
 
 import com.famora.audit.entity.AuditAction;
+import com.famora.business.dto.response.DailyReportPhotoResponse;
 import com.famora.business.dto.response.DailyReportRevisionDetailResponse;
 import com.famora.business.dto.response.DailyReportRevisionListResponse;
 import com.famora.business.dto.response.DailyReportWorkflowResponse;
-import com.famora.business.dto.response.DailyReportPhotoResponse;
 import com.famora.business.dto.response.SubmitDailyReportResponse;
 import com.famora.business.entity.BusinessDailyReport;
 import com.famora.business.entity.BusinessDailyReportRevision;
