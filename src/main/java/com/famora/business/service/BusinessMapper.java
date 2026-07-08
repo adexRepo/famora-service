@@ -5,6 +5,7 @@ import com.famora.business.dto.response.BusinessMemberResponse;
 import com.famora.business.dto.response.BusinessProductResponse;
 import com.famora.business.dto.response.BusinessResponse;
 import com.famora.business.dto.response.DailyReportDetailResponse;
+import com.famora.business.dto.response.DailyReportPhotoResponse;
 import com.famora.business.dto.response.DailyReportSummaryResponse;
 import com.famora.business.dto.response.ExpenseResponse;
 import com.famora.business.dto.response.LossItemResponse;
@@ -95,11 +96,13 @@ public final class BusinessMapper {
       List<BusinessDailySalesItem> sales,
       List<BusinessDailyPaymentBreakdown> payments,
       List<BusinessDailyLossItem> losses,
-      List<BusinessExpense> expenses) {
+      List<BusinessExpense> expenses,
+      List<DailyReportPhotoResponse> photos) {
     return new DailyReportDetailResponse(reportSummary(r),
         sales.stream().map(BusinessMapper::salesItem).toList(),
         payments.stream().map(BusinessMapper::payment).toList(),
         losses.stream().map(BusinessMapper::loss).toList(),
-        expenses.stream().map(BusinessMapper::expense).toList());
+        expenses.stream().map(BusinessMapper::expense).toList(),
+        photos);
   }
 }

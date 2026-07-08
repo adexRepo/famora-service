@@ -24,6 +24,7 @@ import com.famora.business.enums.PaymentMethod;
 import com.famora.business.publisher.BusinessAuditPublisher;
 import com.famora.business.repository.BusinessDailyLossItemRepository;
 import com.famora.business.repository.BusinessDailyPaymentBreakdownRepository;
+import com.famora.business.repository.BusinessDailyReportPhotoRepository;
 import com.famora.business.repository.BusinessDailyReportRepository;
 import com.famora.business.repository.BusinessDailySalesItemRepository;
 import com.famora.business.repository.BusinessExpenseRepository;
@@ -51,6 +52,7 @@ public class BusinessDailyReportService {
   private final BusinessPermissionService permissionService;
   private final CurrentUserProvider currentUserProvider;
   private final BusinessDailyReportRepository reportRepository;
+  private final BusinessDailyReportPhotoRepository photoRepository;
   private final BusinessProductRepository productRepository;
   private final BusinessDailySalesItemRepository salesRepo;
   private final BusinessDailyPaymentBreakdownRepository paymentRepo;
@@ -131,7 +133,13 @@ public class BusinessDailyReportService {
         salesRepo.findByDailyReportIdAndStatus(reportId, Status.ACTIVE),
         paymentRepo.findByDailyReportIdAndStatus(reportId, Status.ACTIVE),
         lossRepo.findByDailyReportIdAndStatus(reportId, Status.ACTIVE),
-        expenseRepo.findByDailyReportIdAndStatus(reportId, Status.ACTIVE));
+        expenseRepo.findByDailyReportIdAndStatus(reportId, Status.ACTIVE),
+        photoRepository
+            .findByBusiness_IdAndDailyReport_IdAndStatusOrderByCreatedAtAsc(businessId, reportId,
+                Status.ACTIVE)
+            .stream()
+            .map(com.famora.business.dto.response.DailyReportPhotoResponse::from)
+            .toList());
   }
   
   private BusinessDailyReport requireReport(UUID businessId, UUID reportId) {

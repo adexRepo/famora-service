@@ -6,4 +6,5 @@ public record DailyReportDetailResponse(DailyReportSummaryResponse summary,
                                         List<SalesItemResponse> salesItems,
                                         List<PaymentBreakdownResponse> paymentBreakdowns,
                                         List<LossItemResponse> lossItems,
-                                        List<ExpenseResponse> expenses) {}
+                                        List<ExpenseResponse> expenses,
+                                        List<DailyReportPhotoResponse> photos) {}

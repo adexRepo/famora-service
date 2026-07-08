@@ -2,6 +2,7 @@ package com.famora.business.dto.response;
 
 import com.famora.business.enums.DailyReportStatus;
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.UUID;
 
 public record SubmitDailyReportResponse(
@@ -11,6 +12,7 @@ public record SubmitDailyReportResponse(
     DailyReportStatus newStatus,
     Integer revisionNumber,
     OffsetDateTime submittedAt,
-    String message
+    String message,
+    List<DailyReportPhotoResponse> photos
 ) {
 }

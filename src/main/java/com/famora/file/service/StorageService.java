@@ -60,12 +60,23 @@ public class StorageService {
   public StoredFile store(StorageType storageType, MultipartFile file, UUID familyId,
       String folder) {
     return storageType.equals(StorageType.MINIO)
-        ? storeToMinio(file, familyId, folder)
-        : storeToMft(file, familyId, folder);
+        ? storeToMinio(file, "families", familyId, folder)
+        : storeToMft(file, "families", familyId, folder);
     
   }
   
-  public StoredFile storeToMinio(MultipartFile file, UUID familyId, String folder) {
+  public StoredFile storeBusiness(StorageType storageType, MultipartFile file, UUID businessId,
+      String folder) {
+    return storageType.equals(StorageType.MINIO)
+        ? storeToMinio(file, "businesses", businessId, folder)
+        : storeToMft(file, "businesses", businessId, folder);
+  }
+  
+  public StoredFile storeToMinio(MultipartFile file, UUID ownerId, String folder) {
+    return storeToMinio(file, "families", ownerId, folder);
+  }
+  
+  private StoredFile storeToMinio(MultipartFile file, String scope, UUID ownerId, String folder) {
     validate(file);
     
     try {
@@ -75,7 +86,8 @@ public class StorageService {
       String storedName = UUID.randomUUID() + ext;
       
       String objectKey = buildObjectKey(
-          familyId,
+          scope,
+          ownerId,
           folder,
           now.getYear(),
           now.getMonthValue(),
@@ -172,7 +184,8 @@ public class StorageService {
   }
   
   private String buildObjectKey(
-      UUID familyId,
+      String scope,
+      UUID ownerId,
       String folder,
       int year,
       int month,
@@ -180,8 +193,9 @@ public class StorageService {
   ) {
     String safeFolder = normalizeFolder(folder);
     
-    return "families/%s/%s/%d/%02d/%s".formatted(
-        familyId,
+    return "%s/%s/%s/%d/%02d/%s".formatted(
+        normalizeScope(scope),
+        ownerId,
         safeFolder,
         year,
         month,
@@ -203,6 +217,13 @@ public class StorageService {
     return clean;
   }
   
+  private String normalizeScope(String scope) {
+    if ("businesses".equals(scope)) {
+      return "businesses";
+    }
+    return "families";
+  }
+  
   private void validateObjectKey(String objectKey) {
     String invalidObjectKey = "Invalid object key";
     if (!StringUtils.hasText(objectKey)) {
@@ -213,7 +234,7 @@ public class StorageService {
       throw new AppException(HttpStatus.BAD_REQUEST, invalidObjectKey);
     }
     
-    if (!objectKey.startsWith("families/")) {
+    if (!objectKey.startsWith("families/") && !objectKey.startsWith("businesses/")) {
       throw new AppException(HttpStatus.FORBIDDEN, invalidObjectKey);
     }
   }
@@ -250,13 +271,13 @@ public class StorageService {
   }
   
   
-  private StoredFile storeToMft(MultipartFile file, UUID familyId, String bucket) {
+  private StoredFile storeToMft(MultipartFile file, String scope, UUID ownerId, String bucket) {
     validate(file);
     try {
       LocalDate now = LocalDate.now();
       String ext = safeExtension(file.getOriginalFilename());
       String storedName = UUID.randomUUID() + ext;
-      Path dir = root.resolve("families").resolve(familyId.toString()).resolve(bucket)
+      Path dir = root.resolve(normalizeScope(scope)).resolve(ownerId.toString()).resolve(bucket)
           .resolve(String.valueOf(now.getYear())).resolve("%02d".formatted(now.getMonthValue()))
           .normalize();
       if (!dir.startsWith(root)) {

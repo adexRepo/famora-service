@@ -12,6 +12,7 @@ import com.famora.audit.entity.AuditAction;
 import com.famora.business.dto.response.DailyReportRevisionDetailResponse;
 import com.famora.business.dto.response.DailyReportRevisionListResponse;
 import com.famora.business.dto.response.DailyReportWorkflowResponse;
+import com.famora.business.dto.response.DailyReportPhotoResponse;
 import com.famora.business.dto.response.SubmitDailyReportResponse;
 import com.famora.business.entity.BusinessDailyReport;
 import com.famora.business.entity.BusinessDailyReportRevision;
@@ -33,6 +34,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.OffsetDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -43,6 +45,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -55,11 +58,18 @@ public class BusinessDailyReportWorkflowService {
   private final BusinessDailyReportWorkflowValidator workflowValidator;
   private final BusinessDailyReportCalculationService calculationService;
   private final BusinessDailyReportRevisionService revisionService;
+  private final BusinessDailyReportPhotoService photoService;
   private final BusinessAuditPublisher auditPublisher;
   private final ObjectMapper objectMapper;
   
   @Transactional
   public SubmitDailyReportResponse submitReport(UUID businessId, UUID reportId) {
+    return submitReport(businessId, reportId, List.of());
+  }
+  
+  @Transactional
+  public SubmitDailyReportResponse submitReport(UUID businessId, UUID reportId,
+      List<MultipartFile> photos) {
     User currentUser = currentUserProvider.getCurrentUser();
     UUID currentUserId = currentUser.getId();
     BusinessMember member = permissionService.requireAnyRole(
@@ -95,6 +105,8 @@ public class BusinessDailyReportWorkflowService {
     }
     
     BusinessDailyReport saved = reportRepository.save(report);
+    List<DailyReportPhotoResponse> photoResponses = photoService.saveSubmitPhotos(saved,
+        currentUser, photos);
     
     BusinessDailyReportRevision revision = revisionService.createRevision(
         saved,
@@ -127,7 +139,8 @@ public class BusinessDailyReportWorkflowService {
         saved.getReportStatus(),
         revision.getRevisionNumber(),
         saved.getSubmittedAt(),
-        "Daily report submitted successfully."
+        "Daily report submitted successfully.",
+        photoResponses
     );
   }
   
