@@ -120,12 +120,12 @@ public class NoteService {
   
   private NoteResponse toResponse(Note note) {
     return new NoteResponse(note.getId(), note.getTitle(), note.getContent(), note.getCategory(),
-        note.getCreatedAt(), note.getUpdatedAt());
+        note.getVisibility(), note.getCreatedAt(), note.getUpdatedAt());
   }
   
   private NoteResponse toListResponse(Note note) {
     return new NoteResponse(note.getId(), note.getTitle(), noteContentPreview(note.getContent()),
-        note.getCategory(),
+        note.getCategory(), note.getVisibility(),
         note.getCreatedAt(), note.getUpdatedAt());
   }
   

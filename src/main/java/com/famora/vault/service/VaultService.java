@@ -177,6 +177,7 @@ public class VaultService {
         item.getTitle(),
         item.getUsername(),
         item.getUrl(),
+        item.getVisibility(),
         item.getCreatedAt(),
         item.getUpdatedAt()
     );
