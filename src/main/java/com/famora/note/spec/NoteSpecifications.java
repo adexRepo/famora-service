@@ -1,6 +1,7 @@
 package com.famora.note.spec;
 
 import com.famora.note.entity.Note;
+import com.famora.note.helper.NoteType;
 import org.springframework.data.jpa.domain.Specification;
 
 public final class NoteSpecifications {
@@ -33,6 +34,16 @@ public final class NoteSpecifications {
           cb.lower(cb.coalesce(root.get("category"), "")),
           category.trim().toLowerCase()
       );
+    };
+  }
+  
+  public static Specification<Note> noteType(NoteType noteType) {
+    return (root, query, cb) -> {
+      if (noteType == null) {
+        return cb.conjunction();
+      }
+      
+      return cb.equal(root.get("noteType"), noteType);
     };
   }
 }

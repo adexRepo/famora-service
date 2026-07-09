@@ -1,16 +1,18 @@
 package com.famora.note.dto;
 
 import com.famora.common.helper.Visibility;
+import com.famora.note.helper.NoteType;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
-public record NoteResponse(
+public record NoteListResponse(
     UUID id,
     String title,
-    String content,
     String category,
     Visibility visibility,
-    OffsetDateTime createdAt,
+    NoteType noteType,
+    String content,
+    String contentPreview,
     OffsetDateTime updatedAt
 ) {
 }

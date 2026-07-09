@@ -6,8 +6,10 @@ import com.famora.common.helper.PagingHelper;
 import com.famora.common.helper.Visibility;
 import com.famora.family.dto.FamilyContext;
 import com.famora.note.dto.CreateNoteRequest;
-import com.famora.note.dto.NoteResponse;
+import com.famora.note.dto.NoteDetailResponse;
+import com.famora.note.dto.NoteListResponse;
 import com.famora.note.dto.UpdateNoteRequest;
+import com.famora.note.helper.NoteType;
 import com.famora.note.service.NoteService;
 import com.famora.security.FamilyContextService;
 import jakarta.validation.Valid;
@@ -34,16 +36,17 @@ public class NoteController {
   private final NoteService noteService;
   
   @PostMapping
-  public ApiResponse<NoteResponse> create(@Valid @RequestBody CreateNoteRequest request) {
+  public ApiResponse<NoteDetailResponse> create(@Valid @RequestBody CreateNoteRequest request) {
     return ApiResponse.ok(noteService.create(request));
   }
   
   @GetMapping
-  public ApiResponse<PageResponse<NoteResponse>> list(
+  public ApiResponse<PageResponse<NoteListResponse>> list(
       @RequestHeader("X-Family-Id") String familyId,
       @RequestParam(required = false) String keyword,
       @RequestParam(required = false) String category,
       @RequestParam(required = false) Visibility visibility,
+      @RequestParam(required = false) NoteType noteType,
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "20") int size
   ) {
@@ -55,16 +58,16 @@ public class NoteController {
     );
     
     return ApiResponse.ok(PageResponse.from(
-        noteService.list(ctx, keyword, category, visibility, pageRequest)));
+        noteService.list(ctx, keyword, category, visibility, noteType, pageRequest)));
   }
   
   @GetMapping("/{id}")
-  public ApiResponse<NoteResponse> getDetail(@PathVariable UUID id) {
+  public ApiResponse<NoteDetailResponse> getDetail(@PathVariable UUID id) {
     return ApiResponse.ok(noteService.getDetail(id));
   }
   
   @PutMapping("/{id}")
-  public ApiResponse<NoteResponse> update(
+  public ApiResponse<NoteDetailResponse> update(
       @PathVariable UUID id,
       @Valid @RequestBody UpdateNoteRequest request
   ) {
