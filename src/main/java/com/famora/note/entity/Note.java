@@ -2,12 +2,12 @@ package com.famora.note.entity;
 
 import com.famora.common.entity.VisibleFamilyScopedEntity;
 import com.famora.note.helper.NoteType;
-import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -34,7 +34,7 @@ public class Note extends VisibleFamilyScopedEntity {
   private NoteType noteType = NoteType.TEXT;
   @JdbcTypeCode(SqlTypes.JSON)
   @Column(name = "content_json", columnDefinition = "jsonb")
-  private JsonNode contentJson;
+  private Map<String, Object> contentJson;
   @Column(name = "category", length = 80)
   private String category;
 }

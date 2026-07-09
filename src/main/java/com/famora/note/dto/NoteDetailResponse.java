@@ -2,8 +2,8 @@ package com.famora.note.dto;
 
 import com.famora.common.helper.Visibility;
 import com.famora.note.helper.NoteType;
-import com.fasterxml.jackson.databind.JsonNode;
 import java.time.OffsetDateTime;
+import java.util.Map;
 import java.util.UUID;
 
 public record NoteDetailResponse(
@@ -13,7 +13,7 @@ public record NoteDetailResponse(
     String category,
     Visibility visibility,
     NoteType noteType,
-    JsonNode contentJson,
+    Map<String, Object> contentJson,
     OffsetDateTime createdAt,
     OffsetDateTime updatedAt
 ) {

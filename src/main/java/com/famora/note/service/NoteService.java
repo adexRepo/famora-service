@@ -20,7 +20,7 @@ import com.famora.note.spec.NoteSpecifications;
 import com.famora.security.CurrentUserProvider;
 import com.famora.security.FamilyContextService;
 import com.famora.user.entity.User;
-import com.fasterxml.jackson.databind.JsonNode;
+import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -170,10 +170,8 @@ public class NoteService {
     return noteType == null ? NoteType.TEXT : noteType;
   }
   
-  private void validateContentJson(JsonNode contentJson) {
-    if (contentJson != null && !contentJson.isObject()) {
-      throw new IllegalArgumentException("contentJson must be a JSON object");
-    }
+  private void validateContentJson(Map<String, Object> contentJson) {
+    // Map binding guarantees JSON object semantics for request payloads.
   }
   
   private FamilyContext currentContext() {

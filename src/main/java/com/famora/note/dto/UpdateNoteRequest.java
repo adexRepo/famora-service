@@ -2,10 +2,10 @@ package com.famora.note.dto;
 
 import com.famora.common.helper.Visibility;
 import com.famora.note.helper.NoteType;
-import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import java.util.Map;
 
 public record UpdateNoteRequest(
     @NotBlank
@@ -23,6 +23,6 @@ public record UpdateNoteRequest(
     
     NoteType noteType,
     
-    JsonNode contentJson
+    Map<String, Object> contentJson
 ) {
 }
