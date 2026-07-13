@@ -38,6 +38,8 @@ public class FileService {
   
   @Value("${app.storage.type:MINIO}")
   private StorageType defaultStorageType;
+  @Value("${app.storage.document-max-upload-bytes:52428800}")
+  private long documentMaxUploadBytes;
   
   public FileAsset upload(
       MultipartFile file,
@@ -47,6 +49,9 @@ public class FileService {
       FamilyContext ctx,
       String bucket
   ) {
+    if ("DOCUMENT".equalsIgnoreCase(category) || "documents".equalsIgnoreCase(bucket)) {
+      storage.validateMaxUploadSize(file, documentMaxUploadBytes, "Document file");
+    }
     
     StoredFile stored = storage.store(
         defaultStorageType,
@@ -60,9 +65,9 @@ public class FileService {
     fa.setFamily(ctx.family());
     fa.setCreatedBy(ctx.user());
     
-    fa.setOriginalName(StringUtils.cleanPath(
-        file.getOriginalFilename() == null ? "file" : file.getOriginalFilename()
-    ));
+    fa.setOriginalName(stored.originalName());
+    fa.setOriginalExtension(stored.originalExtension());
+    fa.setOriginalMimeType(stored.originalMimeType());
     
     fa.setStoredName(stored.storedName());
     
@@ -80,6 +85,7 @@ public class FileService {
     fa.setFileType(stored.fileType());
     fa.setFileSize(file.getSize());
     fa.setFileHash(stored.sha256());
+    fa.setMetadataJson(stored.metadataJson());
     
     fa.setCategory(category);
     fa.setNotes(notes);

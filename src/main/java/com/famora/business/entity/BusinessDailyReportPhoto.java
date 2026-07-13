@@ -11,9 +11,12 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.util.Map;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Getter
 @Setter
@@ -28,6 +31,12 @@ public class BusinessDailyReportPhoto extends BusinessScopedEntity {
   
   @Column(name = "original_name", nullable = false, length = 255)
   private String originalName;
+  
+  @Column(name = "original_extension", length = 20)
+  private String originalExtension;
+  
+  @Column(name = "original_mime_type", length = 120)
+  private String originalMimeType;
   
   @Column(name = "stored_name", nullable = false, length = 255)
   private String storedName;
@@ -57,4 +66,8 @@ public class BusinessDailyReportPhoto extends BusinessScopedEntity {
   
   @Column(name = "file_hash", columnDefinition = "text")
   private String fileHash;
+  
+  @JdbcTypeCode(SqlTypes.JSON)
+  @Column(name = "metadata_json", columnDefinition = "jsonb")
+  private Map<String, Object> metadataJson;
 }

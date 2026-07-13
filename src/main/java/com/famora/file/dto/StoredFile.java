@@ -1,6 +1,7 @@
 package com.famora.file.dto;
 
 import com.famora.file.helper.FileType;
+import java.util.Map;
 
 public record StoredFile(
     String storedName,
@@ -9,7 +10,11 @@ public record StoredFile(
     String objectKey,
     String sha256,
     FileType fileType,
-    String mimeType
+    String mimeType,
+    String originalName,
+    String originalExtension,
+    String originalMimeType,
+    Map<String, Object> metadataJson
 ) {
 
 }

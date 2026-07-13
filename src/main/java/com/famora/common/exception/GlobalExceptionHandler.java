@@ -15,6 +15,7 @@ import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @RestControllerAdvice
@@ -95,6 +96,15 @@ public class GlobalExceptionHandler {
       HttpServletRequest request) {
     printStackTrace(ex);
     return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), request);
+  }
+  
+  @ExceptionHandler(MaxUploadSizeExceededException.class)
+  public ResponseEntity<ApiErrorResponse> handleMaxUploadSizeExceeded(
+      MaxUploadSizeExceededException ex,
+      HttpServletRequest request) {
+    printStackTrace(ex);
+    return buildResponse(HttpStatus.PAYLOAD_TOO_LARGE,
+        "Uploaded file is too large. Please reduce the image size and try again.", request);
   }
   
   @ExceptionHandler(NoResourceFoundException.class)

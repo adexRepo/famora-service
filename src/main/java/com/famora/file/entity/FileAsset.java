@@ -10,12 +10,15 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import java.util.Map;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "files")
@@ -28,6 +31,10 @@ public class FileAsset extends VisibleFamilyScopedEntity {
   
   @Column(nullable = false)
   private String originalName;
+  @Column(name = "original_extension", length = 20)
+  private String originalExtension;
+  @Column(name = "original_mime_type", length = 120)
+  private String originalMimeType;
   @Column(nullable = false)
   private String storedName;
   @Column(nullable = false, columnDefinition = "TEXT")
@@ -41,6 +48,9 @@ public class FileAsset extends VisibleFamilyScopedEntity {
   private long fileSize;
   @Column(columnDefinition = "TEXT")
   private String fileHash;
+  @JdbcTypeCode(SqlTypes.JSON)
+  @Column(name = "metadata_json", columnDefinition = "jsonb")
+  private Map<String, Object> metadataJson;
   private String category;
   @Column(columnDefinition = "TEXT")
   private String notes;

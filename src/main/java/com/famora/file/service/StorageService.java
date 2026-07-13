@@ -18,7 +18,11 @@ import java.nio.file.StandardOpenOption;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.HexFormat;
+import java.util.LinkedHashMap;
+import java.util.Locale;
+import java.util.Map;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
@@ -78,11 +82,12 @@ public class StorageService {
   
   private StoredFile storeToMinio(MultipartFile file, String scope, UUID ownerId, String folder) {
     validate(file);
+    UploadMetadata metadata = inspect(file);
     
     try {
       LocalDate now = LocalDate.now();
       
-      String ext = safeExtension(file.getOriginalFilename());
+      String ext = safeStoredExtension(metadata.originalExtension());
       String storedName = UUID.randomUUID() + ext;
       
       String objectKey = buildObjectKey(
@@ -105,7 +110,7 @@ public class StorageService {
                 .bucket(bucketName)
                 .object(objectKey)
                 .stream(digestInputStream, file.getSize(), -1L)
-                .contentType(mime(file))
+                .contentType(metadata.resolvedMimeType())
                 .build()
         );
       }
@@ -118,8 +123,12 @@ public class StorageService {
           bucketName,
           objectKey,
           hash,
-          detectFileType(file.getContentType(), file.getOriginalFilename()),
-          mime(file)
+          metadata.fileType(),
+          metadata.resolvedMimeType(),
+          metadata.originalName(),
+          metadata.originalExtension(),
+          metadata.originalMimeType(),
+          metadata.toJson()
       );
       
     } catch (AppException e) {
@@ -273,9 +282,10 @@ public class StorageService {
   
   private StoredFile storeToMft(MultipartFile file, String scope, UUID ownerId, String bucket) {
     validate(file);
+    UploadMetadata metadata = inspect(file);
     try {
       LocalDate now = LocalDate.now();
-      String ext = safeExtension(file.getOriginalFilename());
+      String ext = safeStoredExtension(metadata.originalExtension());
       String storedName = UUID.randomUUID() + ext;
       Path dir = root.resolve(normalizeScope(scope)).resolve(ownerId.toString()).resolve(bucket)
           .resolve(String.valueOf(now.getYear())).resolve("%02d".formatted(now.getMonthValue()))
@@ -301,7 +311,8 @@ public class StorageService {
         hash = HexFormat.of().formatHex(digest.digest());
       }
       return new StoredFile(storedName, target.toString(), null, null, hash,
-          detectFileType(file.getContentType(), file.getOriginalFilename()), mime(file));
+          metadata.fileType(), metadata.resolvedMimeType(), metadata.originalName(),
+          metadata.originalExtension(), metadata.originalMimeType(), metadata.toJson());
     } catch (AppException e) {
       throw e;
     } catch (Exception e) {
@@ -346,23 +357,138 @@ public class StorageService {
     }
   }
   
+  public void validateMaxUploadSize(MultipartFile file, long maxBytes, String label) {
+    if (file == null || file.isEmpty()) {
+      throw new AppException(HttpStatus.BAD_REQUEST, label + " is required");
+    }
+    if (file.getSize() > maxBytes) {
+      throw new AppException(HttpStatus.PAYLOAD_TOO_LARGE,
+          "%s exceeds max upload size of %d bytes".formatted(label, maxBytes));
+    }
+  }
   
-  private String safeExtension(String name) {
+  public boolean isSupportedImage(MultipartFile file) {
+    return inspect(file).fileType() == FileType.IMAGE;
+  }
+  
+  private UploadMetadata inspect(MultipartFile file) {
+    String originalName = StringUtils.cleanPath(
+        file.getOriginalFilename() == null ? "file" : file.getOriginalFilename()
+    );
+    String originalExtension = originalExtension(originalName);
+    String originalMimeType = mime(file);
+    String resolvedMimeType = detectMimeType(file, originalMimeType, originalExtension);
+    FileType fileType = detectFileType(resolvedMimeType, originalName);
+    return new UploadMetadata(originalName, originalExtension, originalMimeType,
+        resolvedMimeType, fileType, file.getSize());
+  }
+  
+  private String detectMimeType(MultipartFile file, String originalMimeType,
+      String originalExtension) {
+    byte[] header = firstBytes(file, 16);
+    if (startsWith(header, 0xFF, 0xD8, 0xFF)) {
+      return "image/jpeg";
+    }
+    if (startsWith(header, 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A)) {
+      return "image/png";
+    }
+    if (startsWithAscii(header, "GIF87a") || startsWithAscii(header, "GIF89a")) {
+      return "image/gif";
+    }
+    if (startsWithAscii(header, "RIFF") && header.length >= 12
+        && startsWithAscii(Arrays.copyOfRange(header, 8, 12), "WEBP")) {
+      return "image/webp";
+    }
+    if (startsWithAscii(header, "%PDF-")) {
+      return "application/pdf";
+    }
+    if (startsWith(header, 0x50, 0x4B, 0x03, 0x04)) {
+      return officeZipMime(originalExtension);
+    }
+    return StringUtils.hasText(originalMimeType) ? originalMimeType : "application/octet-stream";
+  }
+  
+  private String officeZipMime(String extension) {
+    return switch (extension) {
+      case "docx" -> "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+      case "xlsx" -> "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+      case "pptx" -> "application/vnd.openxmlformats-officedocument.presentationml.presentation";
+      default -> "application/zip";
+    };
+  }
+  
+  private byte[] firstBytes(MultipartFile file, int maxBytes) {
+    try (InputStream inputStream = file.getInputStream()) {
+      return inputStream.readNBytes(maxBytes);
+    } catch (Exception e) {
+      throw new AppException(HttpStatus.BAD_REQUEST, "Unable to read uploaded file");
+    }
+  }
+  
+  private static boolean startsWith(byte[] actual, int... expected) {
+    if (actual.length < expected.length) {
+      return false;
+    }
+    for (int i = 0; i < expected.length; i++) {
+      if ((actual[i] & 0xFF) != expected[i]) {
+        return false;
+      }
+    }
+    return true;
+  }
+  
+  private static boolean startsWithAscii(byte[] actual, String expected) {
+    byte[] expectedBytes = expected.getBytes(java.nio.charset.StandardCharsets.US_ASCII);
+    if (actual.length < expectedBytes.length) {
+      return false;
+    }
+    for (int i = 0; i < expectedBytes.length; i++) {
+      if (actual[i] != expectedBytes[i]) {
+        return false;
+      }
+    }
+    return true;
+  }
+  
+  private String originalExtension(String name) {
     String clean = StringUtils.cleanPath(name == null ? "" : name);
     int i = clean.lastIndexOf('.');
-    
     if (i < 0 || i == clean.length() - 1) {
-      return "";
+      return null;
     }
-    
-    String ext = clean.substring(i).toLowerCase();
-    
-    return ext.matches("\\.[a-z0-9]{1,10}") ? ext : "";
+    String ext = clean.substring(i + 1).toLowerCase(Locale.ROOT);
+    return ext.matches("[a-z0-9]{1,10}") ? ext : null;
+  }
+  
+  private String safeStoredExtension(String originalExtension) {
+    return StringUtils.hasText(originalExtension) ? "." + originalExtension : "";
   }
   
   private String mime(MultipartFile file) {
     return StringUtils.hasText(file.getContentType())
         ? file.getContentType()
         : "application/octet-stream";
+  }
+  
+  private record UploadMetadata(
+      String originalName,
+      String originalExtension,
+      String originalMimeType,
+      String resolvedMimeType,
+      FileType fileType,
+      long originalFileSize
+  ) {
+    
+    Map<String, Object> toJson() {
+      Map<String, Object> metadata = new LinkedHashMap<>();
+      metadata.put("originalName", originalName);
+      metadata.put("originalExtension", originalExtension);
+      metadata.put("originalMimeType", originalMimeType);
+      metadata.put("resolvedMimeType", resolvedMimeType);
+      metadata.put("fileType", fileType.name());
+      metadata.put("originalFileSize", originalFileSize);
+      metadata.put("serverCompressed", false);
+      return metadata;
+    }
   }
 }

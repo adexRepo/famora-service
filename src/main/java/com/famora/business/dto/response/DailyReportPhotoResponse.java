@@ -7,6 +7,8 @@ import java.util.UUID;
 
 public record DailyReportPhotoResponse(UUID id,
                                        String originalName,
+                                       String originalExtension,
+                                       String originalMimeType,
                                        FileType fileType,
                                        String mimeType,
                                        long fileSize,
@@ -23,7 +25,7 @@ public record DailyReportPhotoResponse(UUID id,
             photo.getId()
         );
     return new DailyReportPhotoResponse(photo.getId(), photo.getOriginalName(),
-        photo.getFileType(), photo.getMimeType(), photo.getFileSize(), downloadPath,
-        photo.getCreatedAt());
+        photo.getOriginalExtension(), photo.getOriginalMimeType(), photo.getFileType(),
+        photo.getMimeType(), photo.getFileSize(), downloadPath, photo.getCreatedAt());
   }
 }

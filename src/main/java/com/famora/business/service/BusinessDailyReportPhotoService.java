@@ -20,7 +20,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
@@ -37,6 +36,8 @@ public class BusinessDailyReportPhotoService {
   
   @Value("${app.storage.type:MINIO}")
   private StorageType defaultStorageType;
+  @Value("${app.storage.daily-report-photo-max-upload-bytes:10485760}")
+  private long dailyReportPhotoMaxUploadBytes;
   
   public List<DailyReportPhotoResponse> saveSubmitPhotos(BusinessDailyReport report, User user,
       List<MultipartFile> photos) {
@@ -82,7 +83,9 @@ public class BusinessDailyReportPhotoService {
   
   private BusinessDailyReportPhoto savePhoto(BusinessDailyReport report, User user,
       MultipartFile photo) {
-    if (!isImage(photo)) {
+    storageService.validateMaxUploadSize(photo, dailyReportPhotoMaxUploadBytes,
+        "Daily report photo");
+    if (!storageService.isSupportedImage(photo)) {
       throw BusinessException.validation("Daily report photo must be an image file");
     }
     
@@ -93,8 +96,9 @@ public class BusinessDailyReportPhotoService {
     entity.setBusiness(report.getBusiness());
     entity.setDailyReport(report);
     entity.setCreatedBy(user);
-    entity.setOriginalName(StringUtils.cleanPath(
-        photo.getOriginalFilename() == null ? "photo" : photo.getOriginalFilename()));
+    entity.setOriginalName(stored.originalName());
+    entity.setOriginalExtension(stored.originalExtension());
+    entity.setOriginalMimeType(stored.originalMimeType());
     entity.setStoredName(stored.storedName());
     entity.setStorageType(defaultStorageType);
     entity.setStoragePath(stored.storagePath());
@@ -104,13 +108,9 @@ public class BusinessDailyReportPhotoService {
     entity.setMimeType(stored.mimeType());
     entity.setFileSize(photo.getSize());
     entity.setFileHash(stored.sha256());
+    entity.setMetadataJson(stored.metadataJson());
     
     return photoRepository.save(entity);
-  }
-  
-  private static boolean isImage(MultipartFile file) {
-    String contentType = file.getContentType();
-    return StringUtils.hasText(contentType) && contentType.toLowerCase().startsWith("image/");
   }
   
   public record Download(BusinessDailyReportPhoto photo, Resource resource) {
