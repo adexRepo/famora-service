@@ -1,6 +1,8 @@
 package com.famora.business.service;
 
 import com.famora.business.dto.response.BusinessSummaryResponse;
+import com.famora.business.dto.response.BusinessDashboardSummaryResponse;
+import com.famora.business.dto.response.BusinessPeriodSummaryResponse;
 import com.famora.business.dto.response.CashFlowResponse;
 import com.famora.business.dto.response.ExpenseCategorySummaryResponse;
 import com.famora.business.dto.response.LossSummaryResponse;
@@ -11,6 +13,7 @@ import com.famora.business.enums.DailyReportStatus;
 import com.famora.business.enums.ExpenseCategory;
 import com.famora.business.enums.LossReason;
 import com.famora.business.enums.PaymentMethod;
+import com.famora.business.enums.BusinessSummaryPeriod;
 import com.famora.business.repository.BusinessDailyLossItemRepository;
 import com.famora.business.repository.BusinessDailyReportRepository;
 import com.famora.business.repository.BusinessDailySalesItemRepository;
@@ -21,12 +24,15 @@ import com.famora.common.helper.MoneyUtil;
 import com.famora.common.helper.Status;
 import com.famora.security.CurrentUserProvider;
 import java.math.BigDecimal;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,6 +48,9 @@ public class BusinessSummaryService {
   private final BusinessDailySalesItemRepository salesItemRepository;
   private final BusinessDailyLossItemRepository lossItemRepository;
   
+  @Value("${app.business.dashboard.time-zone:Asia/Makassar}")
+  private String dashboardTimeZone;
+  
   @Transactional(readOnly = true)
   public BusinessSummaryResponse daily(UUID businessId, LocalDate date) {
     return summarize(businessId, date, date);
@@ -50,6 +59,37 @@ public class BusinessSummaryService {
   @Transactional(readOnly = true)
   public BusinessSummaryResponse monthly(UUID businessId, YearMonth month) {
     return summarize(businessId, month.atDay(1), month.atEndOfMonth());
+  }
+  
+  @Transactional(readOnly = true)
+  public BusinessDashboardSummaryResponse dashboardPresets(UUID businessId) {
+    ZoneId zoneId = ZoneId.of(dashboardTimeZone);
+    LocalDate today = LocalDate.now(zoneId);
+    return dashboardPresets(businessId, today);
+  }
+  
+  @Transactional(readOnly = true)
+  public BusinessDashboardSummaryResponse dashboardPresets(UUID businessId, LocalDate today) {
+    LocalDate weekStart = today.with(DayOfWeek.MONDAY);
+    LocalDate monthStart = today.withDayOfMonth(1);
+    LocalDate yearStart = today.withDayOfYear(1);
+    LocalDate last30DaysStart = today.minusDays(29);
+    
+    return new BusinessDashboardSummaryResponse(businessId, dashboardTimeZone, today, List.of(
+        periodSummary(businessId, BusinessSummaryPeriod.TODAY, today, today),
+        periodSummary(businessId, BusinessSummaryPeriod.THIS_WEEK, weekStart, today),
+        periodSummary(businessId, BusinessSummaryPeriod.THIS_MONTH, monthStart, today),
+        periodSummary(businessId, BusinessSummaryPeriod.THIS_YEAR, yearStart, today),
+        periodSummary(businessId, BusinessSummaryPeriod.LAST_30_DAYS, last30DaysStart, today)
+    ));
+  }
+  
+  @Transactional(readOnly = true)
+  public BusinessDashboardSummaryResponse dashboardCustom(UUID businessId, LocalDate fromDate,
+      LocalDate toDate) {
+    return new BusinessDashboardSummaryResponse(businessId, dashboardTimeZone, toDate, List.of(
+        periodSummary(businessId, BusinessSummaryPeriod.CUSTOM, fromDate, toDate)
+    ));
   }
   
   @Transactional(readOnly = true)
@@ -98,6 +138,12 @@ public class BusinessSummaryService {
         totalSales, cashSales, qrisSales, transferSales, otherSales,
         totalExpense, totalCashExpense, totalNonCashExpense,
         totalLoss, netOperating, expectedCash);
+  }
+  
+  private BusinessPeriodSummaryResponse periodSummary(UUID businessId, BusinessSummaryPeriod period,
+      LocalDate fromDate, LocalDate toDate) {
+    return new BusinessPeriodSummaryResponse(period, fromDate, toDate,
+        summarize(businessId, fromDate, toDate));
   }
   
   @Transactional(readOnly = true)

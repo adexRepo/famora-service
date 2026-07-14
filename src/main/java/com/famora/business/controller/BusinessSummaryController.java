@@ -1,6 +1,7 @@
 package com.famora.business.controller;
 
 import com.famora.business.constant.BusinessDefaults;
+import com.famora.business.dto.response.BusinessDashboardSummaryResponse;
 import com.famora.business.dto.response.BusinessSummaryResponse;
 import com.famora.business.dto.response.CashFlowResponse;
 import com.famora.business.dto.response.ExpenseCategorySummaryResponse;
@@ -27,10 +28,27 @@ public class BusinessSummaryController {
   
   private final BusinessSummaryService summaryService;
   
-  @GetMapping("/summary/daily")
-  public ApiResponse<BusinessSummaryResponse> daily(@PathVariable UUID businessId,
-      @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-    return ApiResponse.ok(summaryService.daily(businessId, date));
+  @GetMapping("/summary")
+  public ApiResponse<BusinessDashboardSummaryResponse> summary(@PathVariable UUID businessId,
+      @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+      @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate) {
+    if (fromDate == null && toDate == null) {
+      return ApiResponse.ok(summaryService.dashboardPresets(businessId));
+    }
+    if (fromDate == null || toDate == null) {
+      throw new IllegalArgumentException("fromDate and toDate must be provided together");
+    }
+    if (fromDate.isAfter(toDate)) {
+      throw new IllegalArgumentException("fromDate cannot be after toDate");
+    }
+    return ApiResponse.ok(summaryService.dashboardCustom(businessId, fromDate, toDate));
+  }
+  
+  @GetMapping("/summary/custom")
+  public ApiResponse<BusinessSummaryResponse> custom(@PathVariable UUID businessId,
+      @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+      @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate) {
+    return ApiResponse.ok(summaryService.summarize(businessId, fromDate, toDate));
   }
   
   @GetMapping("/summary/monthly")
