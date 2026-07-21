@@ -31,6 +31,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -65,6 +66,13 @@ public class BusinessDailyReportController {
   public ApiResponse<DailyReportDetailResponse> get(@PathVariable UUID businessId,
       @PathVariable UUID reportId) {
     return ApiResponse.ok(reportService.get(businessId, reportId));
+  }
+  
+  @PutMapping("/{reportId}")
+  public ApiResponse<DailyReportSummaryResponse> update(@PathVariable UUID businessId,
+      @PathVariable UUID reportId,
+      @Valid @RequestBody SubmitDailyReportRequest request) {
+    return ApiResponse.ok(reportService.updateDraft(businessId, reportId, request));
   }
   
   @PostMapping(value = "/{reportId}/submit", consumes = MediaType.APPLICATION_JSON_VALUE)

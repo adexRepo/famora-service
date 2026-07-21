@@ -116,6 +116,64 @@ public class BusinessDailyReportService {
     return BusinessMapper.reportSummary(saved);
   }
   
+  @Transactional
+  public DailyReportSummaryResponse updateDraft(UUID businessId, UUID reportId,
+      SubmitDailyReportRequest req) {
+    User user = currentUserProvider.getCurrentUser();
+    Business business = permissionService.requireActiveBusiness(businessId);
+    BusinessMember member = permissionService.requireCanSubmitDailyReport(businessId, user.getId());
+    BusinessDailyReport report = requireReport(businessId, reportId);
+    
+    if (report.getReportStatus() != DailyReportStatus.DRAFT
+        && report.getReportStatus() != DailyReportStatus.REVISION_REQUESTED) {
+      throw BusinessException.validation(
+          "Only DRAFT or REVISION_REQUESTED daily report can be updated");
+    }
+    
+    String shift = blank(req.shift()) ? BusinessDefaults.SHIFT : req.shift().trim();
+    if ((!report.getReportDate().equals(req.reportDate()) || !report.getShift().equals(shift))
+        && reportRepository.existsByBusinessIdAndReportDateAndShiftAndReportStatusNot(businessId,
+        req.reportDate(), shift, DailyReportStatus.VOIDED)) {
+      throw BusinessException.conflict(
+          "Daily report already exists for this business, date, and shift");
+    }
+    
+    report.setReportDate(req.reportDate());
+    report.setShift(shift);
+    report.setCurrency(business.getDefaultCurrency());
+    report.setDailyCapitalAmount(MoneyUtil.nvl(req.dailyCapitalAmount()));
+    report.setDailyCapitalNote(req.dailyCapitalNote());
+    report.setNotes(req.notes());
+    report.setUpdatedBy(user);
+    
+    softDeleteChildren(reportId, user);
+    
+    List<BusinessDailySalesItem> sales = buildSales(business, reportId, user, member.getRole(),
+        req.salesItems());
+    List<BusinessDailyPaymentBreakdown> payments = buildPayments(business, reportId, user,
+        req.paymentBreakdowns());
+    List<BusinessDailyLossItem> losses = buildLosses(business, reportId, user, req.lossItems());
+    List<BusinessExpense> expenses = buildExpenses(business, reportId, user, req.expenses());
+    
+    salesRepo.saveAll(sales);
+    paymentRepo.saveAll(payments);
+    lossRepo.saveAll(losses);
+    expenseRepo.saveAll(expenses);
+    calculationService.recalculateDraftTotals(report);
+    BusinessDailyReport saved = reportRepository.save(report);
+    
+    auditPublisher.publishBusinessEvent(
+        user.getId(),
+        businessId,
+        AuditAction.BUSINESS_DAILY_REPORT_UPDATED,
+        DAILY_REPORT,
+        saved.getId(),
+        Map.of(REPORT_DATE, saved.getReportDate(), SHIFT, saved.getShift())
+    );
+    
+    return BusinessMapper.reportSummary(saved);
+  }
+  
   @Transactional(readOnly = true)
   public Page<DailyReportSummaryResponse> list(UUID businessId, Pageable pageable) {
     permissionService.requireCanView(businessId, currentUserProvider.getCurrentUserId());
@@ -273,5 +331,39 @@ public class BusinessDailyReportService {
   
   private static boolean blank(String s) {
     return s == null || s.isBlank();
+  }
+  
+  private void softDeleteChildren(UUID reportId, User user) {
+    List<BusinessDailySalesItem> sales = salesRepo.findByDailyReportIdAndStatus(reportId,
+        Status.ACTIVE);
+    sales.forEach(item -> {
+      item.setStatus(Status.DELETED);
+      item.setUpdatedBy(user);
+    });
+    salesRepo.saveAll(sales);
+    
+    List<BusinessDailyPaymentBreakdown> payments = paymentRepo.findByDailyReportIdAndStatus(
+        reportId, Status.ACTIVE);
+    payments.forEach(item -> {
+      item.setStatus(Status.DELETED);
+      item.setUpdatedBy(user);
+    });
+    paymentRepo.saveAll(payments);
+    
+    List<BusinessDailyLossItem> losses = lossRepo.findByDailyReportIdAndStatus(reportId,
+        Status.ACTIVE);
+    losses.forEach(item -> {
+      item.setStatus(Status.DELETED);
+      item.setUpdatedBy(user);
+    });
+    lossRepo.saveAll(losses);
+    
+    List<BusinessExpense> expenses = expenseRepo.findByDailyReportIdAndStatus(reportId,
+        Status.ACTIVE);
+    expenses.forEach(item -> {
+      item.setStatus(Status.DELETED);
+      item.setUpdatedBy(user);
+    });
+    expenseRepo.saveAll(expenses);
   }
 }

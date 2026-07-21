@@ -101,8 +101,8 @@ public class SecurityConfiguration {
         Arrays.asList("GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS", "HEAD"));
     configuration.setAllowCredentials(true);
     configuration.setAllowedHeaders(
-        Arrays.asList("Authorization", "Channel-Type", "Content-Type"));
-    configuration.setExposedHeaders(List.of("X-Get-Header"));
+        Arrays.asList("Authorization", "Channel-Type", "Content-Type", "X-Correlation-Id"));
+    configuration.setExposedHeaders(List.of("X-Get-Header", "X-Correlation-Id"));
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
     source.registerCorsConfiguration("/**", configuration);
     return source;
