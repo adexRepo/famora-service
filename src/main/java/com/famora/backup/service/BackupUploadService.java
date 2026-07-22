@@ -62,7 +62,7 @@ public class BackupUploadService {
   private final FileService fileService;
   private final AuditLogService audit;
   
-  @Value("${app.backup.temp-root:/app/storage/backup-upload-sessions}")
+  @Value("${app.backup.temp-root:}")
   private String tempRoot;
   
   @Value("${app.backup.max-chunk-bytes:5242880}")
@@ -230,6 +230,7 @@ public class BackupUploadService {
     );
     
     if (session.getUploadStatus() == BackupUploadSessionStatus.COMPLETED) {
+      cleanupSessionTemp(session);
       audit.log(
           ctx.family(),
           ctx.user(),
@@ -261,6 +262,7 @@ public class BackupUploadService {
       }
       cleanupItemTemp(item);
     }
+    cleanupSessionTemp(session);
     itemRepository.saveAll(items);
     
     audit.log(
@@ -357,6 +359,10 @@ public class BackupUploadService {
     Path dir = itemTempDir(session, item);
     try {
       Files.createDirectories(dir);
+      if (!Files.isDirectory(dir) || !Files.isWritable(dir)) {
+        throw new AppException(HttpStatus.INTERNAL_SERVER_ERROR,
+            "Backup temp storage is not writable. Configure BACKUP_TEMP_ROOT to a writable path.");
+      }
       Path target = dir.resolve("%06d.part".formatted(chunkNumber)).normalize();
       ensureInside(dir, target);
       
@@ -376,7 +382,8 @@ public class BackupUploadService {
       throw e;
     } catch (Exception e) {
       throw new AppException(HttpStatus.INTERNAL_SERVER_ERROR,
-          "Failed to store backup chunk: " + e.getMessage());
+          "Failed to store backup chunk. Backup temp storage is unavailable. Configure "
+              + "BACKUP_TEMP_ROOT to a writable path.");
     }
   }
   
@@ -489,14 +496,37 @@ public class BackupUploadService {
   }
   
   private Path itemTempDir(BackupUploadSession session, BackupUploadItem item) {
-    Path root = Paths.get(tempRoot).toAbsolutePath().normalize();
+    Path dir = sessionTempDir(session)
+        .resolve(item.getId().toString())
+        .normalize();
+    ensureInside(backupTempRoot(), dir);
+    return dir;
+  }
+  
+  private Path sessionTempDir(BackupUploadSession session) {
+    Path root = backupTempRoot();
     Path dir = root
         .resolve(session.getFamily().getId().toString())
         .resolve(session.getId().toString())
-        .resolve(item.getId().toString())
         .normalize();
     ensureInside(root, dir);
     return dir;
+  }
+  
+  private Path backupTempRoot() {
+    if (StringUtils.hasText(tempRoot)) {
+      return Paths.get(tempRoot).toAbsolutePath().normalize();
+    }
+    
+    String systemTemp = System.getProperty("java.io.tmpdir");
+    if (StringUtils.hasText(systemTemp)) {
+      return Paths.get(systemTemp)
+          .resolve("famora-backup-upload-sessions")
+          .toAbsolutePath()
+          .normalize();
+    }
+    
+    return Paths.get("famora-backup-upload-sessions").toAbsolutePath().normalize();
   }
   
   private void cleanupItemTemp(BackupUploadItem item) {
@@ -510,6 +540,20 @@ public class BackupUploadService {
           .forEach(File::delete);
     } catch (IOException ignored) {
       // Cleanup failure should not break a completed backup item.
+    }
+  }
+  
+  private void cleanupSessionTemp(BackupUploadSession session) {
+    Path dir = sessionTempDir(session);
+    if (!Files.exists(dir)) {
+      return;
+    }
+    try (var paths = Files.walk(dir)) {
+      paths.sorted(Comparator.reverseOrder())
+          .map(Path::toFile)
+          .forEach(File::delete);
+    } catch (IOException ignored) {
+      // Remaining temp files can be removed by maintenance without affecting stored backups.
     }
   }
   
