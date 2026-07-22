@@ -123,6 +123,7 @@ public class BusinessDailyReportService {
     Business business = permissionService.requireActiveBusiness(businessId);
     BusinessMember member = permissionService.requireCanSubmitDailyReport(businessId, user.getId());
     BusinessDailyReport report = requireReport(businessId, reportId);
+    ensureCanUpdateReport(report, member, user.getId());
     
     if (report.getReportStatus() != DailyReportStatus.DRAFT
         && report.getReportStatus() != DailyReportStatus.REVISION_REQUESTED) {
@@ -331,6 +332,18 @@ public class BusinessDailyReportService {
   
   private static boolean blank(String s) {
     return s == null || s.isBlank();
+  }
+  
+  private void ensureCanUpdateReport(BusinessDailyReport report, BusinessMember member,
+      UUID currentUserId) {
+    BusinessRole role = member.getRole();
+    if (role == BusinessRole.OWNER || role == BusinessRole.PARTNER) {
+      return;
+    }
+    if (!currentUserId.equals(report.getReportedByUserId())) {
+      throw BusinessException.forbidden(
+          "Only report owner, OWNER, or PARTNER can update daily report data");
+    }
   }
   
   private void softDeleteChildren(UUID reportId, User user) {

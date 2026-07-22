@@ -10,6 +10,11 @@ public record VaultItemResponse(
     String username,
     String url,
     Visibility visibility,
+    UUID createdByUserId,
+    String createdByName,
+    boolean canViewSecret,
+    boolean canUpdate,
+    boolean canDelete,
     OffsetDateTime createdAt,
     OffsetDateTime updatedAt
 ) {

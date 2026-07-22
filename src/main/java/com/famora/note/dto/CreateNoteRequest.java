@@ -3,7 +3,6 @@ package com.famora.note.dto;
 import com.famora.common.helper.Visibility;
 import com.famora.note.helper.NoteType;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.util.Map;
 
@@ -18,7 +17,6 @@ public record CreateNoteRequest(
     @Size(max = 80)
     String category,
     
-    @NotNull
     Visibility visibility,
     
     NoteType noteType,

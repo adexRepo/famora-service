@@ -23,7 +23,7 @@ public final class BusinessSpecifications {
           );
       
       return cb.and(
-          cb.notEqual(root.get("status"), Status.DELETED),
+          cb.equal(root.get("status"), Status.ACTIVE),
           cb.exists(memberSubquery)
       );
     };

@@ -14,7 +14,9 @@ import com.famora.business.dto.response.BusinessResponse;
 import com.famora.business.entity.Business;
 import com.famora.business.entity.BusinessMember;
 import com.famora.business.enums.BusinessRole;
+import com.famora.business.enums.InvitationStatus;
 import com.famora.business.publisher.BusinessAuditPublisher;
+import com.famora.business.repository.BusinessInvitationRepository;
 import com.famora.business.repository.BusinessMemberRepository;
 import com.famora.business.repository.BusinessRepository;
 import com.famora.business.spec.BusinessSpecifications;
@@ -23,6 +25,7 @@ import com.famora.common.helper.Status;
 import com.famora.security.CurrentUserProvider;
 import com.famora.user.entity.User;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -39,6 +42,7 @@ public class BusinessService {
   
   private final BusinessRepository businessRepository;
   private final BusinessMemberRepository memberRepository;
+  private final BusinessInvitationRepository invitationRepository;
   private final BusinessPermissionService permissionService;
   private final CurrentUserProvider currentUserProvider;
   private final BusinessAuditPublisher auditPublisher;
@@ -76,7 +80,7 @@ public class BusinessService {
         Map.of(BUSINESS_NAME, b.getName(), DEFAULT_CURRENCY, b.getDefaultCurrency(), IS_DEFAULT,
             owner.isDefaultBusiness()));
     
-    return BusinessMapper.business(b, owner.isDefaultBusiness());
+    return BusinessMapper.business(b, owner.isDefaultBusiness(), owner.getRole());
   }
   
   @Transactional(readOnly = true)
@@ -89,31 +93,49 @@ public class BusinessService {
     return businessRepository.findAll(
             BusinessSpecifications.accessibleByUser(userId),
             defaultSort(pageable))
-        .map(business -> BusinessMapper.business(business,
-            business.getId().equals(defaultBusinessId)));
+        .map(business -> BusinessMapper.business(business, business.getId().equals(defaultBusinessId),
+            memberRepository.findByBusinessIdAndUserIdAndStatus(business.getId(), userId,
+                    Status.ACTIVE)
+                .map(BusinessMember::getRole)
+                .orElse(null)));
   }
   
-  @Transactional(readOnly = true)
+  @Transactional
   public BusinessResponse getDefaultBusiness() {
-    UUID userId = currentUserProvider.getCurrentUserId();
+    User user = currentUserProvider.getCurrentUser();
+    UUID userId = user.getId();
     BusinessMember member = memberRepository.findByUserIdAndDefaultBusinessTrueAndStatus(userId,
             Status.ACTIVE)
+        .filter(candidate -> {
+          if (candidate.getBusiness().getStatus() == Status.ACTIVE) {
+            return true;
+          }
+          candidate.setDefaultBusiness(false);
+          candidate.setUpdatedBy(user);
+          memberRepository.save(candidate);
+          assignReplacementDefault(userId, candidate.getBusiness().getId(), user);
+          return false;
+        })
+        .or(() -> memberRepository.findByUserIdAndDefaultBusinessTrueAndStatus(userId,
+            Status.ACTIVE)
+            .filter(candidate -> candidate.getBusiness().getStatus() == Status.ACTIVE))
         .orElseThrow(() -> BusinessException.notFound("Default business not found"));
-    return BusinessMapper.business(member.getBusiness(), true);
+    return BusinessMapper.business(member.getBusiness(), true, member.getRole());
   }
   
   @Transactional(readOnly = true)
   public BusinessResponse get(UUID businessId) {
     UUID userId = currentUserProvider.getCurrentUserId();
-    permissionService.requireCanView(businessId, userId);
+    BusinessMember member = permissionService.requireCanView(businessId, userId);
     Business b = permissionService.requireActiveBusiness(businessId);
-    return BusinessMapper.business(b, isDefaultBusiness(userId, businessId));
+    return BusinessMapper.business(b, isDefaultBusiness(userId, businessId), member.getRole());
   }
   
   @Transactional
   public BusinessResponse update(UUID businessId, UpdateBusinessRequest request) {
     UUID userId = currentUserProvider.getCurrentUserId();
-    permissionService.requireAnyRole(businessId, userId, BusinessRole.OWNER, BusinessRole.PARTNER);
+    BusinessMember member = permissionService.requireAnyRole(businessId, userId,
+        BusinessRole.OWNER, BusinessRole.PARTNER);
     Business b = permissionService.requireActiveBusiness(businessId);
     b.setName(request.name().trim());
     b.setBusinessType(
@@ -129,7 +151,7 @@ public class BusinessService {
     Business saved = businessRepository.save(b);
     publishBusinessAudit(user, businessId, AuditAction.BUSINESS_UPDATED, saved,
         Map.of(BUSINESS_NAME, saved.getName(), DEFAULT_CURRENCY, saved.getDefaultCurrency()));
-    return BusinessMapper.business(saved, isDefaultBusiness(userId, businessId));
+    return BusinessMapper.business(saved, isDefaultBusiness(userId, businessId), member.getRole());
   }
   
   @Transactional
@@ -138,13 +160,16 @@ public class BusinessService {
     BusinessMember member = memberRepository.findByBusinessIdAndUserIdAndStatus(businessId,
             user.getId(), Status.ACTIVE)
         .orElseThrow(() -> BusinessException.notFound("Active business member not found"));
+    if (member.getBusiness().getStatus() != Status.ACTIVE) {
+      throw BusinessException.notFound("Active business not found");
+    }
     memberRepository.clearDefaultByUserId(user.getId());
     member.setDefaultBusiness(true);
     member.setUpdatedBy(user);
     memberRepository.save(member);
     publishBusinessAudit(user, businessId, AuditAction.BUSINESS_DEFAULT_SET, member.getBusiness(),
         Map.of(IS_DEFAULT, true));
-    return BusinessMapper.business(member.getBusiness(), true);
+    return BusinessMapper.business(member.getBusiness(), true, member.getRole());
   }
   
   @Transactional
@@ -156,8 +181,48 @@ public class BusinessService {
     b.setStatus(Status.DELETED);
     b.setUpdatedBy(user);
     Business saved = businessRepository.save(b);
+    revokePendingInvitations(saved.getId(), user);
+    clearDeletedBusinessDefaults(saved.getId(), user);
     publishBusinessAudit(user, businessId, AuditAction.BUSINESS_DELETED, saved,
         Map.of(STATUS, saved.getStatus()));
+  }
+  
+  private void revokePendingInvitations(UUID businessId, User user) {
+    var invitations = invitationRepository.findByBusinessIdAndInvitationStatusAndStatus(
+        businessId, InvitationStatus.PENDING, Status.ACTIVE);
+    invitations.forEach(invitation -> {
+      invitation.setInvitationStatus(InvitationStatus.CANCELLED);
+      invitation.setUpdatedBy(user);
+    });
+    invitationRepository.saveAll(invitations);
+  }
+  
+  private void clearDeletedBusinessDefaults(UUID deletedBusinessId, User user) {
+    var members = memberRepository.findByBusinessIdAndStatus(deletedBusinessId, Status.ACTIVE);
+    for (BusinessMember member : members) {
+      if (!member.isDefaultBusiness()) {
+        continue;
+      }
+      member.setDefaultBusiness(false);
+      member.setUpdatedBy(user);
+      memberRepository.save(member);
+      assignReplacementDefault(member.getUserId(), deletedBusinessId, user);
+    }
+  }
+  
+  private void assignReplacementDefault(UUID userId, UUID deletedBusinessId, User actor) {
+    memberRepository.findByUserIdAndStatus(userId, Status.ACTIVE).stream()
+        .filter(member -> deletedBusinessId == null
+            || !member.getBusiness().getId().equals(deletedBusinessId))
+        .filter(member -> member.getBusiness().getStatus() == Status.ACTIVE)
+        .sorted(Comparator.comparing(BusinessMember::getJoinedAt,
+            Comparator.nullsLast(Comparator.reverseOrder())))
+        .findFirst()
+        .ifPresent(member -> {
+          member.setDefaultBusiness(true);
+          member.setUpdatedBy(actor);
+          memberRepository.save(member);
+        });
   }
   
   private Pageable defaultSort(Pageable pageable) {

@@ -105,6 +105,22 @@ public class BusinessDailyReportWorkflowValidator {
   ) {
     DailyReportStatus status = report.getReportStatus();
     
+    if (status == DailyReportStatus.SUBMITTED) {
+      throw new BusinessDailyReportWorkflowException("Report already submitted.");
+    }
+    
+    if (status == DailyReportStatus.APPROVED) {
+      throw new BusinessDailyReportWorkflowException("Approved report cannot be submitted again.");
+    }
+    
+    if (status == DailyReportStatus.REJECTED) {
+      throw new BusinessDailyReportWorkflowException("Rejected report cannot be submitted again.");
+    }
+    
+    if (status == DailyReportStatus.VOIDED) {
+      throw new BusinessDailyReportWorkflowException("Voided report cannot be submitted.");
+    }
+    
     if (status != DailyReportStatus.DRAFT
         && status != DailyReportStatus.REVISION_REQUESTED) {
       throw new BusinessDailyReportWorkflowException(

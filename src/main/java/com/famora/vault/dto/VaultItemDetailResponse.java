@@ -12,6 +12,11 @@ public record VaultItemDetailResponse(
     String url,
     String notes,
     Visibility visibility,
+    UUID createdByUserId,
+    String createdByName,
+    boolean canViewSecret,
+    boolean canUpdate,
+    boolean canDelete,
     OffsetDateTime createdAt,
     OffsetDateTime updatedAt
 ) {

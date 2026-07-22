@@ -24,6 +24,8 @@ public interface BusinessMemberRepository extends JpaRepository<BusinessMember, 
   
   List<BusinessMember> findByBusinessIdAndStatus(UUID businessId, Status status);
   
+  List<BusinessMember> findByUserIdAndStatus(UUID userId, Status status);
+  
   boolean existsByBusinessIdAndUserIdAndStatus(UUID businessId, UUID userId, Status status);
   
   boolean existsByUserIdAndDefaultBusinessTrueAndStatus(UUID userId, Status status);

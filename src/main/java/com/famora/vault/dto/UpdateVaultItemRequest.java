@@ -13,10 +13,13 @@ public record UpdateVaultItemRequest(
     @Size(max = 180)
     String username,
     
+    @Size(max = 5000)
     String secret,
     
+    @Size(max = 500)
     String url,
     
+    @Size(max = 2000)
     String notes,
     @NotNull
     Visibility visibility

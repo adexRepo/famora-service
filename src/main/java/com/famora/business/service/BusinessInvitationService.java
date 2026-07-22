@@ -5,6 +5,7 @@ import static com.famora.business.constant.BusinessAuditConstants.INVITATION_STA
 import static com.famora.business.constant.BusinessAuditConstants.ROLE;
 
 import com.famora.audit.entity.AuditAction;
+import com.famora.business.constant.BusinessDefaults;
 import com.famora.business.dto.request.CreateInvitationRequest;
 import com.famora.business.dto.request.JoinBusinessRequest;
 import com.famora.business.dto.response.BusinessInvitationResponse;
@@ -61,7 +62,9 @@ public class BusinessInvitationService {
     i.setRole(req.role());
     i.setInvitationCode(uniqueCode());
     i.setInvitationStatus(InvitationStatus.PENDING);
-    i.setExpiresAt(req.expiresAt());
+    i.setExpiresAt(req.expiresAt() == null
+        ? LocalDateTime.now().plusDays(BusinessDefaults.INVITATION_EXPIRY_DAYS)
+        : req.expiresAt());
     i.setInvitedByUserId(userId);
     i.setCreatedBy(user);
     i = invitationRepository.save(i);
@@ -107,6 +110,10 @@ public class BusinessInvitationService {
       i.setUpdatedBy(user);
       invitationRepository.save(i);
       throw BusinessException.validation("Invitation is expired");
+    }
+    if (i.getInvitedEmail() != null && !i.getInvitedEmail().isBlank()
+        && !i.getInvitedEmail().trim().equalsIgnoreCase(user.getEmail())) {
+      throw BusinessException.forbidden("Invitation is restricted to another email");
     }
     if (memberRepository.existsByBusinessIdAndUserIdAndStatus(i.getBusiness().getId(), userId,
         Status.ACTIVE)) {

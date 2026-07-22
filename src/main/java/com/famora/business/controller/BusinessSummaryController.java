@@ -48,6 +48,7 @@ public class BusinessSummaryController {
   public ApiResponse<BusinessSummaryResponse> custom(@PathVariable UUID businessId,
       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate) {
+    validateDateRange(fromDate, toDate);
     return ApiResponse.ok(summaryService.summarize(businessId, fromDate, toDate));
   }
   
@@ -61,6 +62,7 @@ public class BusinessSummaryController {
   public ApiResponse<CashFlowResponse> cashFlow(@PathVariable UUID businessId,
       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate) {
+    validateDateRange(fromDate, toDate);
     return ApiResponse.ok(summaryService.cashFlow(businessId, fromDate, toDate));
   }
   
@@ -69,6 +71,7 @@ public class BusinessSummaryController {
       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
       @RequestParam(defaultValue = "" + BusinessDefaults.TOP_SALES_ITEM_LIMIT) int limit) {
+    validateDateRange(fromDate, toDate);
     return ApiResponse.ok(summaryService.topSalesItems(businessId, fromDate, toDate, limit));
   }
   
@@ -77,6 +80,7 @@ public class BusinessSummaryController {
       @PathVariable UUID businessId,
       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate) {
+    validateDateRange(fromDate, toDate);
     return ApiResponse.ok(summaryService.expenseByCategory(businessId, fromDate, toDate));
   }
   
@@ -84,6 +88,13 @@ public class BusinessSummaryController {
   public ApiResponse<List<LossSummaryResponse>> lossSummary(@PathVariable UUID businessId,
       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate) {
+    validateDateRange(fromDate, toDate);
     return ApiResponse.ok(summaryService.lossSummary(businessId, fromDate, toDate));
+  }
+  
+  private void validateDateRange(LocalDate fromDate, LocalDate toDate) {
+    if (fromDate.isAfter(toDate)) {
+      throw new IllegalArgumentException("fromDate cannot be after toDate");
+    }
   }
 }

@@ -1,5 +1,6 @@
 package com.famora.business.service;
 
+import com.famora.business.constant.BusinessDefaults;
 import com.famora.business.dto.response.LookupItemResponse;
 import com.famora.business.enums.BusinessRole;
 import com.famora.business.enums.ExpenseCategory;
@@ -32,6 +33,12 @@ public class BusinessLookupService {
   
   public List<LookupItemResponse> units() {
     return fromEnum(UnitType.values());
+  }
+  
+  public List<LookupItemResponse> productCategories() {
+    return BusinessDefaults.PRODUCT_CATEGORIES.stream()
+        .map(value -> new LookupItemResponse(value, toLabel(value)))
+        .toList();
   }
   
   private List<LookupItemResponse> fromEnum(Enum<?>[] values) {

@@ -14,6 +14,11 @@ public record NoteDetailResponse(
     Visibility visibility,
     NoteType noteType,
     Map<String, Object> contentJson,
+    UUID createdByUserId,
+    String createdByName,
+    boolean canUpdate,
+    boolean canDelete,
+    boolean canToggleChecklist,
     OffsetDateTime createdAt,
     OffsetDateTime updatedAt
 ) {

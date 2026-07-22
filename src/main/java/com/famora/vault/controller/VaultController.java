@@ -9,6 +9,8 @@ import com.famora.vault.dto.CreateVaultItemRequest;
 import com.famora.vault.dto.UpdateVaultItemRequest;
 import com.famora.vault.dto.VaultItemDetailResponse;
 import com.famora.vault.dto.VaultItemResponse;
+import com.famora.vault.dto.VaultRevealSecretRequest;
+import com.famora.vault.dto.VaultSecretResponse;
 import com.famora.vault.service.VaultService;
 import jakarta.validation.Valid;
 import java.util.UUID;
@@ -36,8 +38,10 @@ public class VaultController {
   
   @PostMapping
   public ApiResponse<VaultItemDetailResponse> create(
+      @RequestHeader("X-Family-Id") String familyId,
       @Valid @RequestBody CreateVaultItemRequest request) {
-    return ApiResponse.ok(vaultService.create(request));
+    FamilyContext ctx = families.require(familyId);
+    return ApiResponse.ok(vaultService.create(ctx, request));
   }
   
   @GetMapping
@@ -55,19 +59,37 @@ public class VaultController {
   }
   
   @GetMapping("/{id}")
-  public ApiResponse<VaultItemDetailResponse> getDetail(@PathVariable UUID id) {
-    return ApiResponse.ok(vaultService.getDetail(id));
+  public ApiResponse<VaultItemDetailResponse> getDetail(
+      @RequestHeader("X-Family-Id") String familyId,
+      @PathVariable UUID id) {
+    FamilyContext ctx = families.require(familyId);
+    return ApiResponse.ok(vaultService.getDetail(ctx, id));
+  }
+  
+  @PostMapping("/{id}/reveal")
+  public ApiResponse<VaultSecretResponse> revealSecret(
+      @RequestHeader("X-Family-Id") String familyId,
+      @PathVariable UUID id,
+      @RequestBody(required = false) VaultRevealSecretRequest request) {
+    FamilyContext ctx = families.require(familyId);
+    return ApiResponse.ok(vaultService.revealSecret(ctx, id, request));
   }
   
   @PutMapping("/{id}")
-  public ApiResponse<VaultItemDetailResponse> update(@PathVariable UUID id,
+  public ApiResponse<VaultItemDetailResponse> update(
+      @RequestHeader("X-Family-Id") String familyId,
+      @PathVariable UUID id,
       @Valid @RequestBody UpdateVaultItemRequest request) {
-    return ApiResponse.ok(vaultService.update(id, request));
+    FamilyContext ctx = families.require(familyId);
+    return ApiResponse.ok(vaultService.update(ctx, id, request));
   }
   
   @DeleteMapping("/{id}")
-  public ApiResponse<Boolean> delete(@PathVariable UUID id) {
-    vaultService.delete(id);
+  public ApiResponse<Boolean> delete(
+      @RequestHeader("X-Family-Id") String familyId,
+      @PathVariable UUID id) {
+    FamilyContext ctx = families.require(familyId);
+    vaultService.delete(ctx, id);
     return ApiResponse.ok("Success", true);
   }
 }

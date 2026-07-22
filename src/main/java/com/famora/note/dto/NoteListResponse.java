@@ -11,8 +11,12 @@ public record NoteListResponse(
     String category,
     Visibility visibility,
     NoteType noteType,
-    String content,
     String contentPreview,
+    UUID createdByUserId,
+    String createdByName,
+    boolean canUpdate,
+    boolean canDelete,
+    boolean canToggleChecklist,
     OffsetDateTime updatedAt
 ) {
 }

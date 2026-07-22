@@ -36,8 +36,11 @@ public class NoteController {
   private final NoteService noteService;
   
   @PostMapping
-  public ApiResponse<NoteDetailResponse> create(@Valid @RequestBody CreateNoteRequest request) {
-    return ApiResponse.ok(noteService.create(request));
+  public ApiResponse<NoteDetailResponse> create(
+      @RequestHeader("X-Family-Id") String familyId,
+      @Valid @RequestBody CreateNoteRequest request) {
+    FamilyContext ctx = familyContextService.require(familyId);
+    return ApiResponse.ok(noteService.create(ctx, request));
   }
   
   @GetMapping
@@ -53,8 +56,8 @@ public class NoteController {
     
     FamilyContext ctx = familyContextService.require(familyId);
     
-    PageRequest pageRequest = PagingHelper.buildPageRequest(page, size, "createdAt", "title",
-        "category"
+    PageRequest pageRequest = PagingHelper.buildPageRequest(page, size, "updatedAt", "createdAt",
+        "title"
     );
     
     return ApiResponse.ok(PageResponse.from(
@@ -62,21 +65,29 @@ public class NoteController {
   }
   
   @GetMapping("/{id}")
-  public ApiResponse<NoteDetailResponse> getDetail(@PathVariable UUID id) {
-    return ApiResponse.ok(noteService.getDetail(id));
+  public ApiResponse<NoteDetailResponse> getDetail(
+      @RequestHeader("X-Family-Id") String familyId,
+      @PathVariable UUID id) {
+    FamilyContext ctx = familyContextService.require(familyId);
+    return ApiResponse.ok(noteService.getDetail(ctx, id));
   }
   
   @PutMapping("/{id}")
   public ApiResponse<NoteDetailResponse> update(
+      @RequestHeader("X-Family-Id") String familyId,
       @PathVariable UUID id,
       @Valid @RequestBody UpdateNoteRequest request
   ) {
-    return ApiResponse.ok(noteService.update(id, request));
+    FamilyContext ctx = familyContextService.require(familyId);
+    return ApiResponse.ok(noteService.update(ctx, id, request));
   }
   
   @DeleteMapping("/{id}")
-  public ApiResponse<Boolean> delete(@PathVariable UUID id) {
-    noteService.delete(id);
+  public ApiResponse<Boolean> delete(
+      @RequestHeader("X-Family-Id") String familyId,
+      @PathVariable UUID id) {
+    FamilyContext ctx = familyContextService.require(familyId);
+    noteService.delete(ctx, id);
     return ApiResponse.ok("Success", true);
   }
 }

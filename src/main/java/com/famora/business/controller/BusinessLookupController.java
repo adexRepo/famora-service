@@ -40,4 +40,9 @@ public class BusinessLookupController {
   public ApiResponse<List<LookupItemResponse>> units() {
     return ApiResponse.ok(lookupService.units());
   }
+  
+  @GetMapping("/product-categories")
+  public ApiResponse<List<LookupItemResponse>> productCategories() {
+    return ApiResponse.ok(lookupService.productCategories());
+  }
 }

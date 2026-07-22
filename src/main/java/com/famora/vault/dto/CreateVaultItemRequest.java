@@ -7,10 +7,9 @@ import jakarta.validation.constraints.Size;
 
 public record CreateVaultItemRequest(@NotBlank @Size(max = 180) String title,
                                      @Size(max = 180) String username,
-                                     @NotBlank String secret,
-                                     String url,
-                                     String notes,
-                                     @NotNull
+                                     @NotBlank @Size(max = 5000) String secret,
+                                     @Size(max = 500) String url,
+                                     @Size(max = 2000) String notes,
                                      Visibility visibility) {
   
 }
