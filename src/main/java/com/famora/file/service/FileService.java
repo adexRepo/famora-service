@@ -15,7 +15,14 @@ import com.famora.file.helper.FileType;
 import com.famora.file.helper.StorageType;
 import com.famora.file.repository.FileRepository;
 import com.famora.file.spec.FileAssetSpecifications;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.util.UUID;
+import javax.imageio.ImageIO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -177,6 +184,37 @@ public class FileService {
     return new Download(f, resource);
   }
   
+  public Download preview(UUID id, FamilyContext ctx) {
+    FileAsset f = get(id, ctx);
+    return new Download(f, loadResource(f));
+  }
+  
+  public Thumbnail thumbnail(UUID id, FamilyContext ctx) {
+    FileAsset f = get(id, ctx);
+    if (f.getFileType() != FileType.IMAGE) {
+      throw new AppException(HttpStatus.UNSUPPORTED_MEDIA_TYPE,
+          "Thumbnail is only available for image files");
+    }
+    
+    try (InputStream inputStream = loadResource(f).getInputStream();
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+      BufferedImage source = ImageIO.read(inputStream);
+      if (source == null) {
+        throw new AppException(HttpStatus.UNSUPPORTED_MEDIA_TYPE,
+            "Thumbnail is not available for this image format");
+      }
+      
+      BufferedImage resized = resize(source, 320);
+      ImageIO.write(resized, "jpg", outputStream);
+      return new Thumbnail(f, outputStream.toByteArray(), "image/jpeg");
+    } catch (AppException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new AppException(HttpStatus.INTERNAL_SERVER_ERROR,
+          "Failed to generate thumbnail");
+    }
+  }
+  
   private Resource loadResource(FileAsset f) {
     StorageType storageType = f.getStorageType();
     
@@ -256,5 +294,41 @@ public class FileService {
   
   public record Download(FileAsset file, Resource resource) {
   
+  }
+  
+  public record Thumbnail(FileAsset file, byte[] bytes, String mimeType) {
+  
+  }
+  
+  private BufferedImage resize(BufferedImage source, int maxSize) {
+    int width = source.getWidth();
+    int height = source.getHeight();
+    if (width <= maxSize && height <= maxSize) {
+      return toRgb(source, width, height);
+    }
+    
+    double ratio = Math.min(maxSize / (double) width, maxSize / (double) height);
+    int targetWidth = Math.max(1, (int) Math.round(width * ratio));
+    int targetHeight = Math.max(1, (int) Math.round(height * ratio));
+    return toRgb(source, targetWidth, targetHeight);
+  }
+  
+  private BufferedImage toRgb(BufferedImage source, int width, int height) {
+    BufferedImage target = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+    Graphics2D graphics = target.createGraphics();
+    try {
+      graphics.setColor(Color.WHITE);
+      graphics.fillRect(0, 0, width, height);
+      graphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+          RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+      graphics.setRenderingHint(RenderingHints.KEY_RENDERING,
+          RenderingHints.VALUE_RENDER_QUALITY);
+      graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+          RenderingHints.VALUE_ANTIALIAS_ON);
+      graphics.drawImage(source, 0, 0, width, height, null);
+      return target;
+    } finally {
+      graphics.dispose();
+    }
   }
 }

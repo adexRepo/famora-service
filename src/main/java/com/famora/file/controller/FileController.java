@@ -81,6 +81,31 @@ public class FileController {
         .body(d.resource());
   }
   
+  @GetMapping("/{id}/preview")
+  public ResponseEntity<Resource> preview(@RequestHeader("X-Family-Id") String familyId,
+      @PathVariable UUID id) {
+    var ctx = families.require(familyId);
+    var d = service.preview(id, ctx);
+    return ResponseEntity.ok().contentType(MediaType.parseMediaType(d.file().getMimeType()))
+        .header(HttpHeaders.CONTENT_DISPOSITION,
+            ContentDisposition.inline().filename(d.file().getOriginalName()).build().toString())
+        .body(d.resource());
+  }
+  
+  @GetMapping("/{id}/thumbnail")
+  public ResponseEntity<byte[]> thumbnail(@RequestHeader("X-Family-Id") String familyId,
+      @PathVariable UUID id) {
+    var ctx = families.require(familyId);
+    var thumbnail = service.thumbnail(id, ctx);
+    return ResponseEntity.ok().contentType(MediaType.parseMediaType(thumbnail.mimeType()))
+        .header(HttpHeaders.CONTENT_DISPOSITION,
+            ContentDisposition.inline()
+                .filename("thumbnail-" + thumbnail.file().getOriginalName() + ".jpg")
+                .build()
+                .toString())
+        .body(thumbnail.bytes());
+  }
+  
   @PutMapping("/{id}")
   public ApiResponse<FileDtos.FileResponse> update(@RequestHeader("X-Family-Id") String familyId,
       @PathVariable UUID id, @RequestBody FileDtos.UpdateFileRequest req) {

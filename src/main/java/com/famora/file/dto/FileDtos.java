@@ -13,14 +13,18 @@ public class FileDtos {
                              String originalExtension, String originalMimeType,
                              long fileSize, String fileHash, Map<String, Object> metadataJson,
                              String category, String notes,
-                             Visibility visibility, OffsetDateTime createdAt,
+                             Visibility visibility, String downloadUrl, String previewUrl,
+                             String thumbnailUrl, OffsetDateTime createdAt,
                              OffsetDateTime updatedAt) {
     
     public static FileResponse from(FileAsset f) {
+      String basePath = "api/v1/files/%s".formatted(f.getId());
+      String previewUrl = basePath + "/preview";
+      String thumbnailUrl = f.getFileType() == FileType.IMAGE ? basePath + "/thumbnail" : null;
       return new FileResponse(f.getId(), f.getOriginalName(), f.getMimeType(), f.getFileType(),
           f.getOriginalExtension(), f.getOriginalMimeType(), f.getFileSize(), f.getFileHash(),
-          f.getMetadataJson(), f.getCategory(), f.getNotes(), f.getVisibility(), f.getCreatedAt(),
-          f.getUpdatedAt());
+          f.getMetadataJson(), f.getCategory(), f.getNotes(), f.getVisibility(),
+          basePath + "/download", previewUrl, thumbnailUrl, f.getCreatedAt(), f.getUpdatedAt());
     }
   }
   
