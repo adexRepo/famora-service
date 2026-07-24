@@ -13,8 +13,10 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 @Service
@@ -24,8 +26,8 @@ public class EmergencyContactService {
   private final EmergencyContactRepository repo;
   private final AuditLogService audit;
   
+  @Transactional
   public EmergencyContact create(Request req, FamilyContext ctx) {
-    validate(req);
     EmergencyContact e = new EmergencyContact();
     e.setFamily(ctx.family());
     e.setCreatedBy(ctx.user());
@@ -37,29 +39,26 @@ public class EmergencyContactService {
     return e;
   }
   
+  @Transactional(readOnly = true)
   public Page<EmergencyContact> list(FamilyContext ctx, String keyword, EmergencyCategory category,
       Pageable pageable) {
-    if (StringUtils.hasText(keyword)) {
-      return repo.findAllByFamilyIdAndStatusAndNameContainingIgnoreCase(ctx.family().getId(),
-          Status.ACTIVE, keyword, pageable);
-    }
-    if (category != null) {
-      return repo.findAllByFamilyIdAndStatusAndCategory(ctx.family().getId(), Status.ACTIVE,
-          category,
-          pageable);
-    }
-    return repo.findAllByFamilyIdAndStatus(ctx.family().getId(), Status.ACTIVE, pageable);
+    Specification<EmergencyContact> spec = familyActive(ctx)
+        .and(category(category))
+        .and(nameKeyword(keyword));
+    return repo.findAll(spec, pageable);
   }
   
+  @Transactional(readOnly = true)
   public EmergencyContact get(UUID id, FamilyContext ctx) {
     return repo.findByIdAndFamilyIdAndStatus(id, ctx.family().getId(), Status.ACTIVE)
         .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Emergency contact not found"));
   }
   
+  @Transactional
   public EmergencyContact update(UUID id, Request req, FamilyContext ctx) {
-    validate(req);
     EmergencyContact e = get(id, ctx);
     apply(e, req);
+    e.setUpdatedBy(ctx.user());
     repo.save(e);
     
     audit.log(ctx.family(), ctx.user(), AuditAction.EMERGENCY_CONTACT_UPDATED,
@@ -68,9 +67,11 @@ public class EmergencyContactService {
     return e;
   }
   
+  @Transactional
   public void delete(UUID id, FamilyContext ctx) {
     EmergencyContact e = get(id, ctx);
     e.setStatus(Status.DELETED);
+    e.setUpdatedBy(ctx.user());
     repo.save(e);
     
     audit.log(ctx.family(), ctx.user(), AuditAction.EMERGENCY_CONTACT_DELETED,
@@ -78,22 +79,36 @@ public class EmergencyContactService {
   }
   
   private void apply(EmergencyContact e, Request req) {
-    e.setName(req.name());
-    e.setPhone(req.phone());
+    e.setName(clean(req.name()));
+    e.setPhone(clean(req.phone()));
     e.setCategory(req.category());
-    e.setLocation(req.location());
-    e.setNotes(req.notes());
+    e.setLocation(clean(req.location()));
+    e.setNotes(clean(req.notes()));
   }
   
-  private void validate(Request req) {
-    if (req == null || !StringUtils.hasText(req.name())) {
-      throw new AppException(HttpStatus.BAD_REQUEST, "name is required");
-    }
-    if (!StringUtils.hasText(req.phone())) {
-      throw new AppException(HttpStatus.BAD_REQUEST, "phone is required");
-    }
-    if (req.category() == null) {
-      throw new AppException(HttpStatus.BAD_REQUEST, "category is required");
-    }
+  private Specification<EmergencyContact> familyActive(FamilyContext ctx) {
+    return (root, query, cb) -> cb.and(
+        cb.equal(root.get("family").get("id"), ctx.family().getId()),
+        cb.equal(root.get("status"), Status.ACTIVE)
+    );
+  }
+  
+  private Specification<EmergencyContact> category(EmergencyCategory category) {
+    return (root, query, cb) -> category == null
+        ? cb.conjunction()
+        : cb.equal(root.get("category"), category);
+  }
+  
+  private Specification<EmergencyContact> nameKeyword(String keyword) {
+    return (root, query, cb) -> {
+      if (!StringUtils.hasText(keyword)) {
+        return cb.conjunction();
+      }
+      return cb.like(cb.lower(root.get("name")), "%" + keyword.trim().toLowerCase() + "%");
+    };
+  }
+  
+  private String clean(String value) {
+    return value == null || value.isBlank() ? null : value.trim();
   }
 }

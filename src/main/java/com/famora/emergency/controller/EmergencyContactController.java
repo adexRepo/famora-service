@@ -8,9 +8,9 @@ import com.famora.emergency.dto.EmergencyDtos.Response;
 import com.famora.emergency.helper.EmergencyCategory;
 import com.famora.emergency.service.EmergencyContactService;
 import com.famora.security.FamilyContextService;
+import jakarta.validation.Valid;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -34,7 +34,7 @@ public class EmergencyContactController {
   
   @PostMapping
   public ApiResponse<Response> create(@RequestHeader("X-Family-Id") String familyId,
-      @RequestBody Request req) {
+      @Valid @RequestBody Request req) {
     var ctx = families.require(familyId);
     return ApiResponse.ok(EmergencyDtos.Response.from(service.create(req, ctx)));
   }
@@ -59,7 +59,7 @@ public class EmergencyContactController {
   
   @PutMapping("/{id}")
   public ApiResponse<EmergencyDtos.Response> update(@RequestHeader("X-Family-Id") String familyId,
-      @PathVariable UUID id, @RequestBody EmergencyDtos.Request req) {
+      @PathVariable UUID id, @Valid @RequestBody EmergencyDtos.Request req) {
     var ctx = families.require(familyId);
     return ApiResponse.ok(EmergencyDtos.Response.from(service.update(id, req, ctx)));
   }
