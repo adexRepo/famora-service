@@ -36,9 +36,11 @@ public class FinanceController {
   
   @PostMapping("/transactions")
   public ApiResponse<FinanceTransactionResponse> create(
+      @RequestHeader("X-Family-Id") String familyId,
       @Valid @RequestBody CreateFinanceTransactionRequest request
   ) {
-    return ApiResponse.ok(financeService.create(request));
+    FamilyContext ctx = families.require(familyId);
+    return ApiResponse.ok(financeService.create(ctx, request));
   }
   
   @GetMapping("/transactions")
@@ -60,29 +62,39 @@ public class FinanceController {
   }
   
   @GetMapping("/transactions/{id}")
-  public ApiResponse<FinanceTransactionResponse> getDetail(@PathVariable UUID id) {
-    return ApiResponse.ok(financeService.getDetail(id));
+  public ApiResponse<FinanceTransactionResponse> getDetail(
+      @RequestHeader("X-Family-Id") String familyId,
+      @PathVariable UUID id) {
+    FamilyContext ctx = families.require(familyId);
+    return ApiResponse.ok(financeService.getDetail(ctx, id));
   }
   
   @PutMapping("/transactions/{id}")
   public ApiResponse<FinanceTransactionResponse> update(
+      @RequestHeader("X-Family-Id") String familyId,
       @PathVariable UUID id,
       @Valid @RequestBody UpdateFinanceTransactionRequest request
   ) {
-    return ApiResponse.ok(financeService.update(id, request));
+    FamilyContext ctx = families.require(familyId);
+    return ApiResponse.ok(financeService.update(ctx, id, request));
   }
   
   @DeleteMapping("/transactions/{id}")
-  public ApiResponse<Boolean> delete(@PathVariable UUID id) {
-    financeService.delete(id);
+  public ApiResponse<Boolean> delete(
+      @RequestHeader("X-Family-Id") String familyId,
+      @PathVariable UUID id) {
+    FamilyContext ctx = families.require(familyId);
+    financeService.delete(ctx, id);
     return ApiResponse.ok("Success", true);
   }
   
   @GetMapping("/summary")
   public ApiResponse<FinanceSummaryResponse> getSummary(
+      @RequestHeader("X-Family-Id") String familyId,
       @RequestParam(required = false) String month,
       @RequestParam(required = false) String currency
   ) {
-    return ApiResponse.ok(financeService.getSummary(month, currency));
+    FamilyContext ctx = families.require(familyId);
+    return ApiResponse.ok(financeService.getSummary(ctx, month, currency));
   }
 }

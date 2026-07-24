@@ -21,6 +21,31 @@ public interface FinanceTransactionRepository extends JpaRepository<FinanceTrans
       Status status
   );
   
+  List<FinanceTransaction> findAllByFamilyIdAndStatusOrderByTransactionDateAscCreatedAtAsc(
+      UUID familyId,
+      Status status
+  );
+  
+  List<FinanceTransaction> findAllByFamilyIdAndStatusAndCurrencyOrderByTransactionDateAscCreatedAtAsc(
+      UUID familyId,
+      Status status,
+      String currency
+  );
+  
+  List<FinanceTransaction> findAllByFamilyIdAndStatusAndCurrencyAndTransactionDateBetweenOrderByTransactionDateAscCreatedAtAsc(
+      UUID familyId,
+      Status status,
+      String currency,
+      LocalDate startDate,
+      LocalDate endDate
+  );
+  
+  Optional<FinanceTransaction> findFirstByFamilyIdAndStatusAndCurrencyOrderByTransactionDateAsc(
+      UUID familyId,
+      Status status,
+      String currency
+  );
+  
   @Query("""
         select
           ft.currency as currency,

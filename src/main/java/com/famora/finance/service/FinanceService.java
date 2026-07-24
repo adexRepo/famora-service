@@ -14,10 +14,9 @@ import com.famora.finance.dto.FinanceTransactionResponse;
 import com.famora.finance.dto.UpdateFinanceTransactionRequest;
 import com.famora.finance.entity.FinanceTransaction;
 import com.famora.finance.entity.FinanceTransactionType;
+import com.famora.finance.helper.FinanceCategoryCode;
 import com.famora.finance.repository.FinanceTransactionRepository;
 import com.famora.finance.spec.FinanceTransactionSpecifications;
-import com.famora.security.CurrentUserProvider;
-import com.famora.security.FamilyContextService;
 import com.famora.user.entity.User;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -40,36 +39,19 @@ import org.springframework.transaction.annotation.Transactional;
 public class FinanceService {
   
   private final FinanceTransactionRepository financeTransactionRepository;
-  private final CurrentUserProvider currentUserProvider;
-  private final FamilyContextService familyContextService;
   private final AuditLogService auditLogService;
   private final CurrencyConversionService currencyConversionService;
   
   @Transactional
-  public FinanceTransactionResponse create(CreateFinanceTransactionRequest request) {
-    User user = currentUserProvider.getCurrentUser();
-    Family family = familyContextService.getCurrentFamily();
-    
-    FinanceTransaction transaction = FinanceTransaction.builder()
-        .family(family)
-        .type(request.type())
-        .amount(request.amount())
-        .currency(request.currency().trim().toUpperCase())
-        .category(request.category().trim())
-        .description(clean(request.description()))
-        .transactionDate(request.transactionDate())
-        .createdBy(user)
-        .build();
-    
-    financeTransactionRepository.save(transaction);
-    
-    auditLogService.log(
-        family,
-        user,
-        AuditAction.FINANCE_TRANSACTION_CREATED,
-        "finance_transactions",
-        transaction.getId(),
-        null
+  public FinanceTransactionResponse create(FamilyContext ctx, CreateFinanceTransactionRequest request) {
+    FinanceTransaction transaction = createTransaction(
+        ctx,
+        request.type(),
+        request.amount(),
+        request.currency(),
+        request.category(),
+        request.description(),
+        request.transactionDate()
     );
     
     return toResponse(transaction);
@@ -104,10 +86,8 @@ public class FinanceService {
   }
   
   @Transactional(readOnly = true)
-  public FinanceTransactionResponse getDetail(UUID id) {
-    Family family = familyContextService.getCurrentFamily();
-    
-    FinanceTransaction transaction = getFinanceTransaction(id, family);
+  public FinanceTransactionResponse getDetail(FamilyContext ctx, UUID id) {
+    FinanceTransaction transaction = getFinanceTransaction(id, ctx.family());
     
     return toResponse(transaction);
   }
@@ -119,16 +99,18 @@ public class FinanceService {
   }
   
   @Transactional
-  public FinanceTransactionResponse update(UUID id, UpdateFinanceTransactionRequest request) {
-    User user = currentUserProvider.getCurrentUser();
-    Family family = familyContextService.getCurrentFamily();
+  public FinanceTransactionResponse update(FamilyContext ctx, UUID id,
+      UpdateFinanceTransactionRequest request) {
+    User user = ctx.user();
+    Family family = ctx.family();
     
     FinanceTransaction transaction = getFinanceTransaction(id, family);
     
     transaction.setType(request.type());
     transaction.setAmount(request.amount());
     transaction.setCurrency(request.currency().trim().toUpperCase());
-    transaction.setCategory(request.category().trim());
+    transaction.setCategory(FinanceCategoryCode.normalizeAndValidate(request.type(),
+        request.category()));
     transaction.setDescription(clean(request.description()));
     transaction.setTransactionDate(request.transactionDate());
     transaction.setUpdatedBy(user);
@@ -148,9 +130,9 @@ public class FinanceService {
   }
   
   @Transactional
-  public void delete(UUID id) {
-    User user = currentUserProvider.getCurrentUser();
-    Family family = familyContextService.getCurrentFamily();
+  public void delete(FamilyContext ctx, UUID id) {
+    User user = ctx.user();
+    Family family = ctx.family();
     
     FinanceTransaction transaction = getFinanceTransaction(id, family);
     
@@ -170,9 +152,8 @@ public class FinanceService {
   }
   
   @Transactional(readOnly = true)
-  public FinanceSummaryResponse getSummary(String month, String currency) {
-    Family family = familyContextService.getCurrentFamily();
-    
+  public FinanceSummaryResponse getSummary(FamilyContext ctx, String month, String currency) {
+    Family family = ctx.family();
     YearMonth yearMonth = parseMonthOrCurrent(month);
     LocalDate startDate = yearMonth.atDay(1);
     LocalDate endDate = yearMonth.atEndOfMonth();
@@ -207,6 +188,66 @@ public class FinanceService {
     );
   }
   
+  @Transactional
+  public FinanceTransaction createTransaction(
+      FamilyContext ctx,
+      FinanceTransactionType type,
+      BigDecimal amount,
+      String currency,
+      String category,
+      String description,
+      LocalDate transactionDate
+  ) {
+    User user = ctx.user();
+    Family family = ctx.family();
+    String normalizedCurrency = normalizeCurrency(currency);
+    String normalizedCategory = FinanceCategoryCode.normalizeAndValidate(type, category);
+    
+    FinanceTransaction transaction = FinanceTransaction.builder()
+        .family(family)
+        .type(type)
+        .amount(amount)
+        .currency(normalizedCurrency)
+        .category(normalizedCategory)
+        .description(clean(description))
+        .transactionDate(transactionDate)
+        .createdBy(user)
+        .build();
+    
+    financeTransactionRepository.save(transaction);
+    
+    auditLogService.log(
+        family,
+        user,
+        AuditAction.FINANCE_TRANSACTION_CREATED,
+        "finance_transactions",
+        transaction.getId(),
+        null
+    );
+    
+    return transaction;
+  }
+  
+  @Transactional
+  public void deleteSystemTransaction(FamilyContext ctx, FinanceTransaction transaction) {
+    if (transaction == null || transaction.getStatus() == Status.DELETED) {
+      return;
+    }
+    
+    transaction.setStatus(Status.DELETED);
+    transaction.setUpdatedBy(ctx.user());
+    financeTransactionRepository.save(transaction);
+    
+    auditLogService.log(
+        ctx.family(),
+        ctx.user(),
+        AuditAction.FINANCE_TRANSACTION_DELETED,
+        "finance_transactions",
+        transaction.getId(),
+        null
+    );
+  }
+  
   private FinanceTransactionResponse toResponse(FinanceTransaction transaction) {
     return new FinanceTransactionResponse(
         transaction.getId(),
@@ -233,7 +274,7 @@ public class FinanceService {
     return value == null || value.isBlank() ? null : value.trim();
   }
   
-  private String normalizeCurrency(String currency) {
+  public String normalizeCurrency(String currency) {
     if (currency == null || currency.isBlank()) {
       return "MYR";
     }
