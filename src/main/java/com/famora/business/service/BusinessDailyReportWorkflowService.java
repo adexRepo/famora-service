@@ -27,6 +27,7 @@ import com.famora.business.spec.BusinessDailyReportRevisionSpecifications;
 import com.famora.business.validator.BusinessDailyReportWorkflowValidator;
 import com.famora.common.exception.BusinessDailyReportWorkflowException;
 import com.famora.common.helper.Status;
+import com.famora.notification.service.BusinessNotificationService;
 import com.famora.security.CurrentUserProvider;
 import com.famora.user.entity.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -61,6 +62,7 @@ public class BusinessDailyReportWorkflowService {
   private final BusinessDailyReportPhotoService photoService;
   private final BusinessAuditPublisher auditPublisher;
   private final ObjectMapper objectMapper;
+  private final BusinessNotificationService businessNotificationService;
   
   @Transactional
   public SubmitDailyReportResponse submitReport(UUID businessId, UUID reportId) {
@@ -132,6 +134,8 @@ public class BusinessDailyReportWorkflowService {
         revision.getRevisionNumber()
     );
     
+    businessNotificationService.dailyReportSubmitted(saved);
+    
     return new SubmitDailyReportResponse(
         saved.getId(),
         saved.getBusiness().getId(),
@@ -195,6 +199,8 @@ public class BusinessDailyReportWorkflowService {
         revision.getRevisionNumber()
     );
     
+    businessNotificationService.dailyReportRevisionRequested(saved);
+    
     return workflowResponse(
         saved,
         oldStatus,
@@ -249,6 +255,8 @@ public class BusinessDailyReportWorkflowService {
         null,
         revision.getRevisionNumber()
     );
+    
+    businessNotificationService.dailyReportApproved(saved);
     
     return workflowResponse(
         saved,
@@ -309,6 +317,8 @@ public class BusinessDailyReportWorkflowService {
         reason,
         revision.getRevisionNumber()
     );
+    
+    businessNotificationService.dailyReportRejected(saved);
     
     return workflowResponse(
         saved,

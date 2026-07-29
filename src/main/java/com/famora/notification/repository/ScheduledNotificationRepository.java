@@ -40,9 +40,11 @@ public interface ScheduledNotificationRepository
           n.readAt = :readAt
       where n.receiverUser.id = :receiverUserId
         and n.readStatus = :unreadStatus
+        and n.deliveryStatus <> :cancelledStatus
       """)
   int markAllReadByReceiverUserId(@Param("receiverUserId") UUID receiverUserId,
       @Param("unreadStatus") NotificationReadStatus unreadStatus,
       @Param("readStatus") NotificationReadStatus readStatus,
-      @Param("readAt") OffsetDateTime readAt);
+      @Param("readAt") OffsetDateTime readAt,
+      @Param("cancelledStatus") NotificationDeliveryStatus cancelledStatus);
 }

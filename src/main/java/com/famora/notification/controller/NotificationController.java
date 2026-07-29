@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -29,9 +30,11 @@ public class NotificationController {
   public ApiResponse<PageResponse<ScheduledNotificationResponse>> list(
       @RequestParam(required = false) NotificationDeliveryStatus deliveryStatus,
       @RequestParam(required = false) NotificationReadStatus readStatus,
+      @RequestParam(required = false) Boolean read,
+      @RequestParam(required = false) String scope,
       Pageable pageable) {
     return ApiResponse.ok(PageResponse.from(notificationService.list(deliveryStatus, readStatus,
-        pageable)));
+        read, scope, pageable)));
   }
   
   @GetMapping("/unread-count")
@@ -39,13 +42,24 @@ public class NotificationController {
     return ApiResponse.ok(notificationService.unreadCount());
   }
   
-  @PostMapping("/{notificationId}/mark-read")
+  @PutMapping("/{notificationId}/read")
   public ApiResponse<ScheduledNotificationResponse> markRead(@PathVariable UUID notificationId) {
     return ApiResponse.ok(notificationService.markRead(notificationId));
   }
   
-  @PostMapping("/mark-all-read")
+  @PutMapping("/read-all")
   public ApiResponse<NotificationUnreadCountResponse> markAllRead() {
+    return ApiResponse.ok(notificationService.markAllRead());
+  }
+  
+  @PostMapping("/{notificationId}/mark-read")
+  public ApiResponse<ScheduledNotificationResponse> markReadLegacy(
+      @PathVariable UUID notificationId) {
+    return ApiResponse.ok(notificationService.markRead(notificationId));
+  }
+  
+  @PostMapping("/mark-all-read")
+  public ApiResponse<NotificationUnreadCountResponse> markAllReadLegacy() {
     return ApiResponse.ok(notificationService.markAllRead());
   }
   

@@ -5,11 +5,14 @@ import com.famora.common.entity.BaseEntity;
 import com.famora.family.entity.Family;
 import com.famora.notification.enums.NotificationChannel;
 import com.famora.notification.enums.NotificationDeliveryStatus;
+import com.famora.notification.enums.NotificationEntityType;
 import com.famora.notification.enums.NotificationReadStatus;
+import com.famora.notification.enums.NotificationType;
 import com.famora.tracker.entity.Tracker;
 import com.famora.tracker.enums.TrackerScopeType;
 import com.famora.tracker.enums.TrackerSourceModule;
 import com.famora.user.entity.User;
+import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -24,6 +27,8 @@ import java.util.UUID;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Getter
 @Setter
@@ -51,6 +56,10 @@ public class ScheduledNotification extends BaseEntity {
   @ManyToOne(fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name = "receiver_user_id", nullable = false)
   private User receiverUser;
+  
+  @Enumerated(EnumType.STRING)
+  @Column(name = "notification_type", nullable = false, length = 80)
+  private NotificationType notificationType;
   
   @Column(nullable = false, length = 180)
   private String title;
@@ -80,8 +89,16 @@ public class ScheduledNotification extends BaseEntity {
   @Column(name = "source_entity_type", length = 80)
   private String sourceEntityType;
   
+  @Enumerated(EnumType.STRING)
+  @Column(name = "entity_type", length = 80)
+  private NotificationEntityType entityType;
+  
   @Column(name = "source_entity_id", columnDefinition = "uuid")
   private UUID sourceEntityId;
+  
+  @JdbcTypeCode(SqlTypes.JSON)
+  @Column(name = "payload_json", columnDefinition = "jsonb")
+  private JsonNode payloadJson;
   
   @Column(name = "sent_at")
   private OffsetDateTime sentAt;
@@ -99,6 +116,9 @@ public class ScheduledNotification extends BaseEntity {
     }
     if (readStatus == null) {
       readStatus = NotificationReadStatus.UNREAD;
+    }
+    if (notificationType == null) {
+      notificationType = NotificationType.TRACKER_DUE_SOON;
     }
   }
 }

@@ -6,6 +6,7 @@ import com.famora.auth.dto.AuthResponse;
 import com.famora.auth.dto.LoginRequest;
 import com.famora.auth.dto.RefreshTokenRequest;
 import com.famora.auth.dto.RegisterRequest;
+import com.famora.auth.exception.RefreshTokenAuthenticationException;
 import com.famora.common.helper.Status;
 import com.famora.family.repository.FamilyMemberRepository;
 import com.famora.security.TokenHashService;
@@ -89,9 +90,10 @@ public class AuthService {
   public AuthResponse refresh(RefreshTokenRequest request) {
     String refreshTokenHash = tokenHashService.sha256(request.refreshToken());
     UserSession session = userSessionRepository.findByRefreshTokenHashAndRevokedAtIsNull(
-        refreshTokenHash).orElseThrow(() -> new BadCredentialsException("Invalid refresh token"));
+        refreshTokenHash).orElseThrow(
+            () -> new RefreshTokenAuthenticationException("Invalid refresh token"));
     if (session.getExpiresAt().isBefore(OffsetDateTime.now())) {
-      throw new BadCredentialsException("Refresh token expired");
+      throw new RefreshTokenAuthenticationException("Refresh token expired");
     }
     return generateAuthResponse(session.getUser());
   }

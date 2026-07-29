@@ -1,4 +1,4 @@
 package com.famora.notification.dto;
 
-public record NotificationUnreadCountResponse(long unreadCount) {
+public record NotificationUnreadCountResponse(long count) {
 }

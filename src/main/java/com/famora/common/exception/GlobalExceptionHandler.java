@@ -1,5 +1,6 @@
 package com.famora.common.exception;
 
+import com.famora.auth.exception.RefreshTokenAuthenticationException;
 import com.famora.common.dto.ApiErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
@@ -68,6 +69,14 @@ public class GlobalExceptionHandler {
       HttpServletRequest request) {
     printStackTrace(ex);
     return buildResponse(HttpStatus.UNAUTHORIZED, "Invalid email or password", request);
+  }
+  
+  @ExceptionHandler(RefreshTokenAuthenticationException.class)
+  public ResponseEntity<ApiErrorResponse> handleRefreshTokenAuthentication(
+      RefreshTokenAuthenticationException ex,
+      HttpServletRequest request) {
+    printStackTrace(ex);
+    return buildResponse(HttpStatus.UNAUTHORIZED, ex.getMessage(), request);
   }
   
   @ExceptionHandler(AuthorizationDeniedException.class)
