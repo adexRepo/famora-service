@@ -23,6 +23,7 @@ public final class FinanceDashboardDtos {
   
   public record ChartResponse(
       int axisCount,
+      BigDecimal minAmount,
       BigDecimal maxAmount,
       @JsonProperty("yAxisLabels") List<BigDecimal> yaxisLabels,
       @JsonProperty("xAxisLabels") List<String> xaxisLabels,
@@ -43,6 +44,8 @@ public final class FinanceDashboardDtos {
       int axisCount,
       BigDecimal incomeChangePercent,
       BigDecimal expenseChangePercent,
+      BigDecimal minPercent,
+      BigDecimal maxPercent,
       @JsonProperty("yAxisLabels") List<BigDecimal> yaxisLabels,
       @JsonProperty("xAxisLabels") List<String> xaxisLabels,
       List<CumulativePointResponse> points

@@ -122,8 +122,13 @@ public class FinanceDashboardService {
     BigDecimal max = points.stream()
         .map(ChartPointResponse::amount)
         .reduce(BigDecimal.ZERO, BigDecimal::max);
+    BigDecimal min = points.stream()
+        .map(ChartPointResponse::amount)
+        .reduce(BigDecimal.ZERO, BigDecimal::min);
     int axisCount = axisCount(range);
-    return new ChartResponse(axisCount, max, amountAxis(max, axisCount),
+    ChartAxis amountAxis = axis(min, max);
+    return new ChartResponse(axisCount, amountAxis.min(), amountAxis.max(),
+        axisLabels(amountAxis.min(), amountAxis.max(), axisCount),
         xaxisLabels(pointDates, range, axisCount), points);
   }
   
@@ -153,8 +158,12 @@ public class FinanceDashboardService {
         FinanceTransactionType.EXPENSE, conversionCache);
     
     int axisCount = axisCount(range);
+    BigDecimal minPercent = minPercent(points);
+    BigDecimal maxPercent = maxPercent(points);
+    ChartAxis percentAxis = axis(minPercent, maxPercent);
     return new CumulativeChartResponse(axisCount, changePercent(totalIncome, previousIncome),
-        changePercent(totalExpense, previousExpense), percentAxis(axisCount),
+        changePercent(totalExpense, previousExpense), percentAxis.min(), percentAxis.max(),
+        axisLabels(percentAxis.min(), percentAxis.max(), axisCount),
         xaxisLabels(pointDates, range, axisCount), points);
   }
   
@@ -354,34 +363,56 @@ public class FinanceDashboardService {
     return "1W".equals(range) || "1M".equals(range) || "3M".equals(range) ? 5 : 4;
   }
   
-  private List<BigDecimal> amountAxis(BigDecimal max, int axisCount) {
-    if (max.compareTo(BigDecimal.ZERO) <= 0) {
-      return zeroAxis(axisCount);
+  private ChartAxis axis(BigDecimal min, BigDecimal max) {
+    BigDecimal cleanMin = min == null ? BigDecimal.ZERO : min;
+    BigDecimal cleanMax = max == null ? BigDecimal.ZERO : max;
+    BigDecimal axisMin = cleanMin.compareTo(BigDecimal.ZERO) < 0 ? cleanMin : BigDecimal.ZERO;
+    BigDecimal axisMax = cleanMax.compareTo(BigDecimal.ZERO) > 0 ? cleanMax : BigDecimal.ZERO;
+    if (axisMin.compareTo(BigDecimal.ZERO) == 0 && axisMax.compareTo(BigDecimal.ZERO) == 0) {
+      return new ChartAxis(
+          BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP),
+          BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP)
+      );
+    }
+    return new ChartAxis(
+        axisMin.setScale(2, RoundingMode.HALF_UP),
+        axisMax.setScale(2, RoundingMode.HALF_UP)
+    );
+  }
+  
+  private List<BigDecimal> axisLabels(BigDecimal min, BigDecimal max, int axisCount) {
+    if (axisCount <= 1) {
+      return List.of(max.setScale(2, RoundingMode.HALF_UP));
     }
     List<BigDecimal> labels = new ArrayList<>();
+    BigDecimal range = max.subtract(min);
     for (int i = 0; i < axisCount; i++) {
-      BigDecimal value = max.multiply(BigDecimal.valueOf(axisCount - 1L - i))
+      BigDecimal step = range.multiply(BigDecimal.valueOf(i))
           .divide(BigDecimal.valueOf(axisCount - 1L), 2, RoundingMode.HALF_UP);
+      BigDecimal value = max.subtract(step).setScale(2, RoundingMode.HALF_UP);
       labels.add(value);
     }
     return labels;
   }
   
-  private List<BigDecimal> percentAxis(int axisCount) {
-    List<BigDecimal> labels = new ArrayList<>();
-    for (int i = 0; i < axisCount; i++) {
-      labels.add(BigDecimal.valueOf(100L * (axisCount - 1L - i))
-          .divide(BigDecimal.valueOf(axisCount - 1L), 2, RoundingMode.HALF_UP));
-    }
-    return labels;
+  private BigDecimal minPercent(List<CumulativePointResponse> points) {
+    BigDecimal minIncome = points.stream()
+        .map(CumulativePointResponse::incomePercent)
+        .reduce(BigDecimal.ZERO, BigDecimal::min);
+    BigDecimal minExpense = points.stream()
+        .map(CumulativePointResponse::expensePercent)
+        .reduce(BigDecimal.ZERO, BigDecimal::min);
+    return minIncome.min(minExpense);
   }
   
-  private List<BigDecimal> zeroAxis(int axisCount) {
-    List<BigDecimal> labels = new ArrayList<>();
-    for (int i = 0; i < axisCount; i++) {
-      labels.add(BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP));
-    }
-    return labels;
+  private BigDecimal maxPercent(List<CumulativePointResponse> points) {
+    BigDecimal maxIncome = points.stream()
+        .map(CumulativePointResponse::incomePercent)
+        .reduce(BigDecimal.ZERO, BigDecimal::max);
+    BigDecimal maxExpense = points.stream()
+        .map(CumulativePointResponse::expensePercent)
+        .reduce(BigDecimal.ZERO, BigDecimal::max);
+    return maxIncome.max(maxExpense);
   }
   
   private BigDecimal percent(BigDecimal value, BigDecimal total) {
@@ -415,6 +446,10 @@ public class FinanceDashboardService {
   }
   
   private record RangeWindow(LocalDate start, LocalDate end) {
+  
+  }
+  
+  private record ChartAxis(BigDecimal min, BigDecimal max) {
   
   }
   
