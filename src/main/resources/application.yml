@@ -83,6 +83,11 @@ app:
       - JPY
     frankfurter-url: https://api.frankfurter.dev/v1/latest
     refresh-hours: 5
+  prayer-times:
+    aladhan-base-url: ${PRAYER_TIMES_ALADHAN_BASE_URL:https://api.aladhan.com/v1}
+    default-method: ${PRAYER_TIMES_DEFAULT_METHOD:20}
+    default-school: ${PRAYER_TIMES_DEFAULT_SCHOOL:0}
+    cache-hours: ${PRAYER_TIMES_CACHE_HOURS:24}
   storage:
     type: MINIO #MFT
     root: /app/storage

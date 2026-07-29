@@ -29,6 +29,7 @@ import java.time.YearMonth;
 import java.time.format.TextStyle;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -53,20 +54,22 @@ public class FinanceDashboardService {
   @Transactional(readOnly = true)
   public DashboardResponse dashboard(FamilyContext ctx, String currency) {
     String targetCurrency = financeService.normalizeCurrency(currency);
+    Map<ConversionKey, BigDecimal> conversionCache = new HashMap<>();
     List<FinanceTransaction> transactions = transactionRepository
         .findAllByFamilyIdAndStatusOrderByTransactionDateAscCreatedAtAsc(ctx.family().getId(),
             Status.ACTIVE);
     LocalDate today = LocalDate.now();
-    BigDecimal currentEquity = equityUntil(transactions, targetCurrency, today);
+    BigDecimal currentEquity = equityUntil(transactions, targetCurrency, today, conversionCache);
     
     Map<String, ChartResponse> cashflowChart = new LinkedHashMap<>();
     Map<String, CumulativeChartResponse> cumulativeChart = new LinkedHashMap<>();
     for (String range : DASHBOARD_RANGES) {
       RangeWindow window = window(range, today, firstTransactionDate(transactions, today));
       List<LocalDate> points = pointDates(range, window.start(), window.end());
-      cashflowChart.put(range, cashflowChart(transactions, targetCurrency, range, points));
+      cashflowChart.put(range,
+          cashflowChart(transactions, targetCurrency, range, points, conversionCache));
       cumulativeChart.put(range,
-          cumulativeChart(transactions, targetCurrency, range, window, points));
+          cumulativeChart(transactions, targetCurrency, range, window, points, conversionCache));
     }
     
     return new DashboardResponse(
@@ -74,7 +77,7 @@ public class FinanceDashboardService {
         currentEquity,
         cashflowChart,
         cumulativeChart,
-        allocation(ctx, transactions, targetCurrency, currentEquity, today)
+        allocation(ctx, transactions, targetCurrency, currentEquity, today, conversionCache)
     );
   }
   
@@ -95,10 +98,11 @@ public class FinanceDashboardService {
     List<FinanceTransaction> transactions = transactionRepository
         .findAllByFamilyIdAndStatusOrderByTransactionDateAscCreatedAtAsc(ctx.family().getId(),
             Status.ACTIVE);
+    Map<ConversionKey, BigDecimal> conversionCache = new HashMap<>();
     
     List<EquityTransactionRowResponse> allRows = cleanMode == FinanceEquityPeriodMode.MONTHLY
-        ? monthlyRows(transactions, targetCurrency, start, today)
-        : dailyRows(transactions, targetCurrency, start, today);
+        ? monthlyRows(transactions, targetCurrency, start, today, conversionCache)
+        : dailyRows(transactions, targetCurrency, start, today, conversionCache);
     
     boolean hasMore = allRows.size() > EQUITY_TABLE_LIMIT;
     List<EquityTransactionRowResponse> rows = hasMore
@@ -110,10 +114,10 @@ public class FinanceDashboardService {
   }
   
   private ChartResponse cashflowChart(List<FinanceTransaction> transactions, String currency,
-      String range, List<LocalDate> pointDates) {
+      String range, List<LocalDate> pointDates, Map<ConversionKey, BigDecimal> conversionCache) {
     List<ChartPointResponse> points = pointDates.stream()
         .map(date -> new ChartPointResponse(date, dateLabel(date, range),
-            equityUntil(transactions, currency, date)))
+            equityUntil(transactions, currency, date, conversionCache)))
         .toList();
     BigDecimal max = points.stream()
         .map(ChartPointResponse::amount)
@@ -124,28 +128,29 @@ public class FinanceDashboardService {
   }
   
   private CumulativeChartResponse cumulativeChart(List<FinanceTransaction> transactions,
-      String currency, String range, RangeWindow window, List<LocalDate> pointDates) {
+      String currency, String range, RangeWindow window, List<LocalDate> pointDates,
+      Map<ConversionKey, BigDecimal> conversionCache) {
     BigDecimal totalIncome = sum(transactions, currency, window.start(), window.end(),
-        FinanceTransactionType.INCOME);
+        FinanceTransactionType.INCOME, conversionCache);
     BigDecimal totalExpense = sum(transactions, currency, window.start(), window.end(),
-        FinanceTransactionType.EXPENSE);
+        FinanceTransactionType.EXPENSE, conversionCache);
     
     List<CumulativePointResponse> points = pointDates.stream()
         .map(date -> new CumulativePointResponse(
             date,
             dateLabel(date, range),
-            percent(sum(transactions, currency, window.start(), date, FinanceTransactionType.INCOME),
-                totalIncome),
+            percent(sum(transactions, currency, window.start(), date, FinanceTransactionType.INCOME,
+                conversionCache), totalIncome),
             percent(sum(transactions, currency, window.start(), date,
-                FinanceTransactionType.EXPENSE), totalExpense)
+                FinanceTransactionType.EXPENSE, conversionCache), totalExpense)
         ))
         .toList();
     
     RangeWindow previous = previousWindow(window);
     BigDecimal previousIncome = sum(transactions, currency, previous.start(), previous.end(),
-        FinanceTransactionType.INCOME);
+        FinanceTransactionType.INCOME, conversionCache);
     BigDecimal previousExpense = sum(transactions, currency, previous.start(), previous.end(),
-        FinanceTransactionType.EXPENSE);
+        FinanceTransactionType.EXPENSE, conversionCache);
     
     int axisCount = axisCount(range);
     return new CumulativeChartResponse(axisCount, changePercent(totalIncome, previousIncome),
@@ -154,22 +159,25 @@ public class FinanceDashboardService {
   }
   
   private AllocationResponse allocation(FamilyContext ctx, List<FinanceTransaction> transactions,
-      String currency, BigDecimal currentEquity, LocalDate today) {
+      String currency, BigDecimal currentEquity, LocalDate today,
+      Map<ConversionKey, BigDecimal> conversionCache) {
     YearMonth currentMonth = YearMonth.from(today);
     BigDecimal expenseThisMonth = sum(transactions, currency, currentMonth.atDay(1),
-        currentMonth.atEndOfMonth(), FinanceTransactionType.EXPENSE);
+        currentMonth.atEndOfMonth(), FinanceTransactionType.EXPENSE, conversionCache);
     
     List<FinanceDebt> debts = debtRepository.findAllByFamilyIdAndStatus(ctx.family().getId(),
         Status.ACTIVE);
     BigDecimal payable = debts.stream()
         .filter(debt -> debt.getDebtType() == FinanceDebtType.PAYABLE)
         .filter(debt -> debt.getDebtStatus() != FinanceDebtStatus.CANCELLED)
-        .map(debt -> convert(debt.getCurrency(), currency, debt.getRemainingAmount()))
+        .map(debt -> convert(debt.getCurrency(), currency, debt.getRemainingAmount(),
+            conversionCache))
         .reduce(BigDecimal.ZERO, BigDecimal::add);
     BigDecimal receivable = debts.stream()
         .filter(debt -> debt.getDebtType() == FinanceDebtType.RECEIVABLE)
         .filter(debt -> debt.getDebtStatus() != FinanceDebtStatus.CANCELLED)
-        .map(debt -> convert(debt.getCurrency(), currency, debt.getRemainingAmount()))
+        .map(debt -> convert(debt.getCurrency(), currency, debt.getRemainingAmount(),
+            conversionCache))
         .reduce(BigDecimal.ZERO, BigDecimal::add);
     
     BigDecimal total = currentEquity.abs()
@@ -188,19 +196,22 @@ public class FinanceDashboardService {
   }
   
   private List<EquityTransactionRowResponse> dailyRows(List<FinanceTransaction> transactions,
-      String currency, LocalDate start, LocalDate end) {
+      String currency, LocalDate start, LocalDate end,
+      Map<ConversionKey, BigDecimal> conversionCache) {
     List<EquityTransactionRowResponse> rows = new ArrayList<>();
     for (LocalDate date = end; !date.isBefore(start); date = date.minusDays(1)) {
       rows.add(new EquityTransactionRowResponse(date, dateLabel(date, "1M"),
-          equityUntil(transactions, currency, date),
-          sum(transactions, currency, date, date, FinanceTransactionType.INCOME),
-          sum(transactions, currency, date, date, FinanceTransactionType.EXPENSE)));
+          equityUntil(transactions, currency, date, conversionCache),
+          sum(transactions, currency, date, date, FinanceTransactionType.INCOME, conversionCache),
+          sum(transactions, currency, date, date, FinanceTransactionType.EXPENSE,
+              conversionCache)));
     }
     return rows;
   }
   
   private List<EquityTransactionRowResponse> monthlyRows(List<FinanceTransaction> transactions,
-      String currency, LocalDate start, LocalDate end) {
+      String currency, LocalDate start, LocalDate end,
+      Map<ConversionKey, BigDecimal> conversionCache) {
     List<EquityTransactionRowResponse> rows = new ArrayList<>();
     YearMonth cursor = YearMonth.from(end);
     YearMonth first = YearMonth.from(start);
@@ -210,41 +221,54 @@ public class FinanceDashboardService {
       LocalDate effectiveStart = monthStart.isBefore(start) ? start : monthStart;
       LocalDate effectiveEnd = monthEnd.isAfter(end) ? end : monthEnd;
       rows.add(new EquityTransactionRowResponse(effectiveEnd, monthLabel(cursor),
-          equityUntil(transactions, currency, effectiveEnd),
-          sum(transactions, currency, effectiveStart, effectiveEnd, FinanceTransactionType.INCOME),
-          sum(transactions, currency, effectiveStart, effectiveEnd, FinanceTransactionType.EXPENSE)));
+          equityUntil(transactions, currency, effectiveEnd, conversionCache),
+          sum(transactions, currency, effectiveStart, effectiveEnd, FinanceTransactionType.INCOME,
+              conversionCache),
+          sum(transactions, currency, effectiveStart, effectiveEnd, FinanceTransactionType.EXPENSE,
+              conversionCache)));
       cursor = cursor.minusMonths(1);
     }
     return rows;
   }
   
   private BigDecimal equityUntil(List<FinanceTransaction> transactions, String currency,
-      LocalDate date) {
-    BigDecimal income = sum(transactions, currency, null, date, FinanceTransactionType.INCOME);
-    BigDecimal expense = sum(transactions, currency, null, date, FinanceTransactionType.EXPENSE);
+      LocalDate date, Map<ConversionKey, BigDecimal> conversionCache) {
+    BigDecimal income = sum(transactions, currency, null, date, FinanceTransactionType.INCOME,
+        conversionCache);
+    BigDecimal expense = sum(transactions, currency, null, date, FinanceTransactionType.EXPENSE,
+        conversionCache);
     return income.subtract(expense).setScale(2, RoundingMode.HALF_UP);
   }
   
   private BigDecimal sum(List<FinanceTransaction> transactions, String currency, LocalDate start,
-      LocalDate end, FinanceTransactionType type) {
+      LocalDate end, FinanceTransactionType type, Map<ConversionKey, BigDecimal> conversionCache) {
     return transactions.stream()
         .filter(transaction -> transaction.getType() == type)
         .filter(transaction -> start == null || !transaction.getTransactionDate().isBefore(start))
         .filter(transaction -> end == null || !transaction.getTransactionDate().isAfter(end))
-        .map(transaction -> convert(transaction.getCurrency(), currency, transaction.getAmount()))
+        .map(transaction -> convert(transaction.getCurrency(), currency, transaction.getAmount(),
+            conversionCache))
         .reduce(BigDecimal.ZERO, BigDecimal::add)
         .setScale(2, RoundingMode.HALF_UP);
   }
   
-  private BigDecimal convert(String sourceCurrency, String targetCurrency, BigDecimal amount) {
+  private BigDecimal convert(String sourceCurrency, String targetCurrency, BigDecimal amount,
+      Map<ConversionKey, BigDecimal> conversionCache) {
     String source = financeService.normalizeCurrency(sourceCurrency);
     String target = financeService.normalizeCurrency(targetCurrency);
     BigDecimal cleanAmount = amount == null ? BigDecimal.ZERO : amount;
     if (source.equals(target)) {
       return cleanAmount.setScale(2, RoundingMode.HALF_UP);
     }
-    return currencyConversionService.convert(source, target, cleanAmount)
+    ConversionKey key = new ConversionKey(source, target, cleanAmount);
+    BigDecimal cached = conversionCache.get(key);
+    if (cached != null) {
+      return cached;
+    }
+    BigDecimal converted = currencyConversionService.convert(source, target, cleanAmount)
         .setScale(2, RoundingMode.HALF_UP);
+    conversionCache.put(key, converted);
+    return converted;
   }
   
   private RangeWindow window(String range, LocalDate today, LocalDate firstTransactionDate) {
@@ -385,11 +409,16 @@ public class FinanceDashboardService {
     return new AllocationItemResponse(type, cleanAmount, percent(cleanAmount.abs(), total));
   }
   
-  private LocalDate firstTransactionDate(List<FinanceTransaction> transactions, LocalDate fallback) {
+  private LocalDate firstTransactionDate(List<FinanceTransaction> transactions,
+      LocalDate fallback) {
     return transactions.isEmpty() ? fallback : transactions.getFirst().getTransactionDate();
   }
   
   private record RangeWindow(LocalDate start, LocalDate end) {
+  
+  }
+  
+  private record ConversionKey(String sourceCurrency, String targetCurrency, BigDecimal amount) {
   
   }
 }
