@@ -1,6 +1,7 @@
 package com.famora.family.repository;
 
 import com.famora.family.entity.FamilyMember;
+import com.famora.family.helper.FamilyMemberRole;
 import com.famora.family.helper.FamilyMemberStatus;
 import java.util.List;
 import java.util.Optional;
@@ -20,10 +21,18 @@ public interface FamilyMemberRepository extends JpaRepository<FamilyMember, UUID
           join fetch fm.family
           where fm.user.id = :userId
             and fm.status = com.famora.family.helper.FamilyMemberStatus.ACTIVE
+          order by fm.defaultFamily desc, fm.joinedAt desc, fm.createdAt desc
       """)
   List<FamilyMember> findActiveFamiliesByUserId(@Param("userId") UUID userId);
+
+  long countByUserIdAndStatus(UUID userId, FamilyMemberStatus status);
   
   Optional<FamilyMember> findByFamilyIdAndUserIdAndStatus(UUID familyId, UUID userId,
+      FamilyMemberStatus status);
+
+  Optional<FamilyMember> findByFamilyIdAndUserId(UUID familyId, UUID userId);
+
+  Optional<FamilyMember> findByFamilyIdAndRoleAndStatus(UUID familyId, FamilyMemberRole role,
       FamilyMemberStatus status);
   
   Optional<FamilyMember> findByUserIdAndDefaultFamilyTrueAndStatus(UUID userId,
@@ -41,4 +50,15 @@ public interface FamilyMemberRepository extends JpaRepository<FamilyMember, UUID
         and fm.defaultFamily = true
       """)
   void clearDefaultByUserId(@Param("userId") UUID userId);
+
+  @Modifying
+  @Query("""
+      update FamilyMember fm
+      set fm.defaultFamily = false
+      where fm.user.id = :userId
+        and fm.family.id <> :familyId
+        and fm.defaultFamily = true
+      """)
+  void clearDefaultByUserIdExceptFamily(@Param("userId") UUID userId,
+      @Param("familyId") UUID familyId);
 }

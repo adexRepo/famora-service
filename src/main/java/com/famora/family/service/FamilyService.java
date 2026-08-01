@@ -5,6 +5,7 @@ import com.famora.audit.service.AuditLogService;
 import com.famora.common.helper.Status;
 import com.famora.family.dto.CreateFamilyRequest;
 import com.famora.family.dto.CreateInvitationRequest;
+import com.famora.family.dto.FamilyMembershipSummaryResponse;
 import com.famora.family.dto.FamilyResponse;
 import com.famora.family.dto.InvitationResponse;
 import com.famora.family.dto.JoinFamilyRequest;
@@ -36,6 +37,7 @@ public class FamilyService {
   private final AuditLogService auditLogService;
   private final FamilyMemberRepository familyMemberRepository;
   private final FamilyInvitationRepository familyInvitationRepository;
+  private final FamilyMembershipPolicyService membershipPolicyService;
   private final SecureRandom random = new SecureRandom();
   
   @Transactional(readOnly = true)
@@ -58,6 +60,7 @@ public class FamilyService {
   @Transactional
   public FamilyResponse createFamily(CreateFamilyRequest request) {
     User user = currentUserProvider.getCurrentUser();
+    membershipPolicyService.requireCanCreateOrJoin(user);
     boolean shouldBeDefault = !hasDefaultFamily(user.getId());
     
     Family family = Family.builder().name(request.name().trim()).ownerUser(user)
@@ -109,6 +112,7 @@ public class FamilyService {
   @Transactional
   public FamilyResponse joinFamily(JoinFamilyRequest request) {
     User user = currentUserProvider.getCurrentUser();
+    membershipPolicyService.requireCanCreateOrJoin(user);
     FamilyInvitation invitation = familyInvitationRepository.findByInviteCodeAndStatus(
             request.inviteCode(), InvitationStatus.ACTIVE)
         .orElseThrow(() -> new IllegalArgumentException("Invalid invite code"));
@@ -122,9 +126,13 @@ public class FamilyService {
     if (alreadyMember) {
       throw new IllegalArgumentException("User already joined this family");
     }
-    FamilyMember member = FamilyMember.builder().family(invitation.getFamily()).user(user)
-        .role(invitation.getRole()).status(FamilyMemberStatus.ACTIVE).joinedAt(OffsetDateTime.now())
-        .build();
+    FamilyMember member = familyMemberRepository.findByFamilyIdAndUserId(
+            invitation.getFamily().getId(), user.getId())
+        .orElseGet(() -> FamilyMember.builder().family(invitation.getFamily()).user(user).build());
+    member.setRole(invitation.getRole());
+    member.setStatus(FamilyMemberStatus.ACTIVE);
+    member.setRemovedAt(null);
+    member.setJoinedAt(OffsetDateTime.now());
     member.setDefaultFamily(!hasDefaultFamily(user.getId()));
     familyMemberRepository.save(member);
     invitation.setStatus(InvitationStatus.USED);
@@ -142,6 +150,11 @@ public class FamilyService {
             """.formatted(member.getFamily().getId(), user.getId(), invitation.getInviteCode()));
     
     return toFamilyResponse(member);
+  }
+
+  @Transactional(readOnly = true)
+  public FamilyMembershipSummaryResponse membershipSummary() {
+    return membershipPolicyService.summary(currentUserProvider.getCurrentUser());
   }
   
   @Transactional

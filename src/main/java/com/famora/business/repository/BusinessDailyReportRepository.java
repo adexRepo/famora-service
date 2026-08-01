@@ -47,6 +47,9 @@ public interface BusinessDailyReportRepository extends JpaRepository<BusinessDai
   Optional<BusinessDailyReport> findByIdAndBusinessIdAndReportStatusNot(UUID id, UUID businessId,
       DailyReportStatus status);
   
+  boolean existsByIdAndBusinessIdAndReportStatusNotIn(UUID id, UUID businessId,
+      List<DailyReportStatus> statuses);
+
   boolean existsByBusinessIdAndReportDateAndShiftAndReportStatusNot(UUID businessId, LocalDate date,
       String shift, DailyReportStatus status);
   

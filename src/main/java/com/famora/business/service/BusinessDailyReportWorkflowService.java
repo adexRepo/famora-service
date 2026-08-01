@@ -14,15 +14,23 @@ import com.famora.business.dto.response.DailyReportRevisionDetailResponse;
 import com.famora.business.dto.response.DailyReportRevisionListResponse;
 import com.famora.business.dto.response.DailyReportWorkflowResponse;
 import com.famora.business.dto.response.SubmitDailyReportResponse;
+import com.famora.business.entity.BusinessDailyLossItem;
+import com.famora.business.entity.BusinessDailyPaymentBreakdown;
 import com.famora.business.entity.BusinessDailyReport;
 import com.famora.business.entity.BusinessDailyReportRevision;
+import com.famora.business.entity.BusinessDailySalesItem;
+import com.famora.business.entity.BusinessExpense;
 import com.famora.business.entity.BusinessMember;
 import com.famora.business.enums.BusinessDailyReportRevisionChangeType;
 import com.famora.business.enums.BusinessRole;
 import com.famora.business.enums.DailyReportStatus;
 import com.famora.business.publisher.BusinessAuditPublisher;
+import com.famora.business.repository.BusinessDailyLossItemRepository;
+import com.famora.business.repository.BusinessDailyPaymentBreakdownRepository;
 import com.famora.business.repository.BusinessDailyReportRepository;
 import com.famora.business.repository.BusinessDailyReportRevisionRepository;
+import com.famora.business.repository.BusinessDailySalesItemRepository;
+import com.famora.business.repository.BusinessExpenseRepository;
 import com.famora.business.spec.BusinessDailyReportRevisionSpecifications;
 import com.famora.business.validator.BusinessDailyReportWorkflowValidator;
 import com.famora.common.exception.BusinessDailyReportWorkflowException;
@@ -60,6 +68,10 @@ public class BusinessDailyReportWorkflowService {
   private final BusinessDailyReportCalculationService calculationService;
   private final BusinessDailyReportRevisionService revisionService;
   private final BusinessDailyReportPhotoService photoService;
+  private final BusinessDailySalesItemRepository salesItemRepository;
+  private final BusinessDailyPaymentBreakdownRepository paymentBreakdownRepository;
+  private final BusinessDailyLossItemRepository lossItemRepository;
+  private final BusinessExpenseRepository expenseRepository;
   private final BusinessAuditPublisher auditPublisher;
   private final ObjectMapper objectMapper;
   private final BusinessNotificationService businessNotificationService;
@@ -359,6 +371,7 @@ public class BusinessDailyReportWorkflowService {
     report.setUpdatedBy(currentUser);
     
     BusinessDailyReport saved = reportRepository.save(report);
+    softDeleteReportChildren(reportId, currentUser);
     
     BusinessDailyReportRevision revision = revisionService.createRevision(
         saved,
@@ -435,6 +448,40 @@ public class BusinessDailyReportWorkflowService {
     }
   }
   
+  private void softDeleteReportChildren(UUID reportId, User user) {
+    List<BusinessDailySalesItem> sales = salesItemRepository.findByDailyReportIdAndStatus(
+        reportId, Status.ACTIVE);
+    sales.forEach(item -> {
+      item.setStatus(Status.DELETED);
+      item.setUpdatedBy(user);
+    });
+    salesItemRepository.saveAll(sales);
+
+    List<BusinessDailyPaymentBreakdown> payments = paymentBreakdownRepository
+        .findByDailyReportIdAndStatus(reportId, Status.ACTIVE);
+    payments.forEach(item -> {
+      item.setStatus(Status.DELETED);
+      item.setUpdatedBy(user);
+    });
+    paymentBreakdownRepository.saveAll(payments);
+
+    List<BusinessDailyLossItem> losses = lossItemRepository.findByDailyReportIdAndStatus(
+        reportId, Status.ACTIVE);
+    losses.forEach(item -> {
+      item.setStatus(Status.DELETED);
+      item.setUpdatedBy(user);
+    });
+    lossItemRepository.saveAll(losses);
+
+    List<BusinessExpense> expenses = expenseRepository.findByDailyReportIdAndStatus(
+        reportId, Status.ACTIVE);
+    expenses.forEach(item -> {
+      item.setStatus(Status.DELETED);
+      item.setUpdatedBy(user);
+    });
+    expenseRepository.saveAll(expenses);
+  }
+
   private BusinessDailyReport getReportForUpdate(UUID businessId, UUID reportId) {
     return reportRepository.findByIdAndBusinessIdForUpdate(businessId, reportId)
         .orElseThrow(() -> new BusinessDailyReportWorkflowException("Daily report not found."));

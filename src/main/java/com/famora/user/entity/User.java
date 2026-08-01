@@ -49,6 +49,12 @@ public class User extends BaseEntity {
   
   @Column(name = "password_changed_at")
   private OffsetDateTime passwordChangedAt;
+
+  @Column(name = "family_limit_override_enabled", nullable = false)
+  private boolean familyLimitOverrideEnabled;
+
+  @Column(name = "max_family_override")
+  private Integer maxFamilyOverride;
   
   @PrePersist
   public void prePersist() {

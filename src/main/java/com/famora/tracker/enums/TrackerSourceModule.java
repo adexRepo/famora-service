@@ -6,5 +6,6 @@ public enum TrackerSourceModule {
   FINANCE,
   HEALTH,
   EDUCATION,
+  FAMILY,
   BUSINESS
 }

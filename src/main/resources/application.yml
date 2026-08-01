@@ -88,6 +88,8 @@ app:
     default-method: ${PRAYER_TIMES_DEFAULT_METHOD:20}
     default-school: ${PRAYER_TIMES_DEFAULT_SCHOOL:0}
     cache-hours: ${PRAYER_TIMES_CACHE_HOURS:24}
+  family:
+    max-active-family-per-user: ${FAMILY_MAX_ACTIVE_PER_USER:3}
   storage:
     type: MINIO #MFT
     root: /app/storage

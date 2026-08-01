@@ -11,8 +11,10 @@ import com.famora.business.dto.request.UpdateExpenseRequest;
 import com.famora.business.dto.response.ExpenseResponse;
 import com.famora.business.entity.Business;
 import com.famora.business.entity.BusinessExpense;
+import com.famora.business.enums.DailyReportStatus;
 import com.famora.business.enums.PaymentMethod;
 import com.famora.business.publisher.BusinessAuditPublisher;
+import com.famora.business.repository.BusinessDailyReportRepository;
 import com.famora.business.repository.BusinessExpenseRepository;
 import com.famora.business.spec.BusinessExpenseSpecifications;
 import com.famora.common.exception.BusinessException;
@@ -20,6 +22,7 @@ import com.famora.common.helper.MoneyUtil;
 import com.famora.common.helper.Status;
 import com.famora.security.CurrentUserProvider;
 import com.famora.user.entity.User;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +39,7 @@ public class BusinessExpenseService {
   private final BusinessPermissionService permissionService;
   private final CurrentUserProvider currentUserProvider;
   private final BusinessExpenseRepository expenseRepository;
+  private final BusinessDailyReportRepository reportRepository;
   private final BusinessAuditPublisher auditPublisher;
   
   @Transactional
@@ -134,7 +138,7 @@ public class BusinessExpenseService {
     User user = currentUserProvider.getCurrentUser();
     permissionService.requireCanManageExpense(businessId, user.getId());
     BusinessExpense expense = requireExpense(businessId, expenseId);
-    rejectDailyReportExpenseMutation(expense);
+    rejectActiveDailyReportExpenseDeletion(expense);
     expense.setStatus(Status.DELETED);
     expense.setUpdatedBy(user);
     expenseRepository.save(expense);
@@ -166,6 +170,23 @@ public class BusinessExpenseService {
     if (expense.getDailyReportId() != null) {
       throw BusinessException.validation(
           "Expense linked to daily report cannot be modified from manual expense endpoint");
+    }
+  }
+
+  private void rejectActiveDailyReportExpenseDeletion(BusinessExpense expense) {
+    UUID dailyReportId = expense.getDailyReportId();
+    if (dailyReportId == null) {
+      return;
+    }
+
+    boolean activeReportExists = reportRepository
+        .existsByIdAndBusinessIdAndReportStatusNotIn(
+            dailyReportId,
+            expense.getBusiness().getId(),
+            List.of(DailyReportStatus.DELETED, DailyReportStatus.VOIDED));
+    if (activeReportExists) {
+      throw BusinessException.validation(
+          "Expense linked to active daily report cannot be deleted from manual expense endpoint");
     }
   }
 }

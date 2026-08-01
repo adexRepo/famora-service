@@ -2,6 +2,7 @@ package com.famora.common.exception;
 
 import com.famora.auth.exception.RefreshTokenAuthenticationException;
 import com.famora.common.dto.ApiErrorResponse;
+import com.famora.family.exception.FamilyException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import java.time.LocalDateTime;
@@ -33,6 +34,13 @@ public class GlobalExceptionHandler {
   public ResponseEntity<Map<String, Object>> handle(BusinessException ex) {
     return ResponseEntity.status(ex.getStatus()).body(
         Map.of("success", false, "code", ex.getCode(), "message", ex.getMessage(), "timestamp",
+            LocalDateTime.now()));
+  }
+
+  @ExceptionHandler(FamilyException.class)
+  public ResponseEntity<Map<String, Object>> handleFamily(FamilyException ex) {
+    return ResponseEntity.status(ex.status()).body(
+        Map.of("success", false, "code", ex.code(), "message", ex.getMessage(), "timestamp",
             LocalDateTime.now()));
   }
   
