@@ -144,7 +144,7 @@ public class BusinessInvitationService {
     invitationRepository.save(i);
     publishInvitationAudit(user, i.getBusiness().getId(),
         AuditAction.BUSINESS_INVITATION_ACCEPTED, i);
-    return BusinessMapper.member(m);
+    return BusinessMapper.member(m, user.getFullName(), i.getInvitedPhone());
   }
   
   private void publishInvitationAudit(User user, UUID businessId, AuditAction action,

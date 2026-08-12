@@ -8,6 +8,8 @@ import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface BusinessInvitationRepository extends JpaRepository<BusinessInvitation, UUID>,
     JpaSpecificationExecutor<BusinessInvitation> {
@@ -18,5 +20,20 @@ public interface BusinessInvitationRepository extends JpaRepository<BusinessInvi
   
   List<BusinessInvitation> findByBusinessIdAndInvitationStatusAndStatus(UUID businessId,
       InvitationStatus invitationStatus, Status status);
+
+  @Query("""
+      select invitation
+      from BusinessInvitation invitation
+      where invitation.business.id = :businessId
+        and invitation.acceptedByUserId in :acceptedByUserIds
+        and invitation.invitationStatus = :invitationStatus
+        and invitation.status = :status
+      order by invitation.updatedAt desc
+      """)
+  List<BusinessInvitation> findAcceptedByUsers(
+      @Param("businessId") UUID businessId,
+      @Param("acceptedByUserIds") List<UUID> acceptedByUserIds,
+      @Param("invitationStatus") InvitationStatus invitationStatus,
+      @Param("status") Status status);
   
 }

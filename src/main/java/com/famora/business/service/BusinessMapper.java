@@ -44,9 +44,17 @@ public final class BusinessMapper {
   }
   
   public static BusinessMemberResponse member(BusinessMember m) {
+    return member(m, null, null);
+  }
+
+  public static BusinessMemberResponse member(BusinessMember m, String name) {
+    return member(m, name, null);
+  }
+
+  public static BusinessMemberResponse member(BusinessMember m, String name, String phone) {
     return new BusinessMemberResponse(m.getId(), m.getBusiness().getId(), m.getUserId(),
         m.getRole(),
-        m.getStatus(), m.isDefaultBusiness(), m.getInvitedByUserId(), m.getJoinedAt());
+        m.getStatus(), m.isDefaultBusiness(), m.getInvitedByUserId(), m.getJoinedAt(), name, phone);
   }
   
   public static BusinessInvitationResponse invitation(BusinessInvitation i) {

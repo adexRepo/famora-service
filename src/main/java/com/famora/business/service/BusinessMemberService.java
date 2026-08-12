@@ -8,17 +8,25 @@ import static com.famora.business.constant.BusinessAuditConstants.STATUS;
 import com.famora.audit.entity.AuditAction;
 import com.famora.business.dto.request.UpdateMemberRoleRequest;
 import com.famora.business.dto.response.BusinessMemberResponse;
+import com.famora.business.entity.BusinessInvitation;
 import com.famora.business.entity.BusinessMember;
 import com.famora.business.enums.BusinessRole;
+import com.famora.business.enums.InvitationStatus;
 import com.famora.business.publisher.BusinessAuditPublisher;
+import com.famora.business.repository.BusinessInvitationRepository;
 import com.famora.business.repository.BusinessMemberRepository;
 import com.famora.business.spec.BusinessMemberSpecifications;
 import com.famora.common.exception.BusinessException;
 import com.famora.common.helper.Status;
 import com.famora.security.CurrentUserProvider;
 import com.famora.user.entity.User;
+import com.famora.user.repository.UserRepository;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -33,14 +41,41 @@ public class BusinessMemberService {
   private final BusinessPermissionService permissionService;
   private final CurrentUserProvider currentUserProvider;
   private final BusinessAuditPublisher auditPublisher;
+  private final UserRepository userRepository;
+  private final BusinessInvitationRepository invitationRepository;
   
   @Transactional(readOnly = true)
   public Page<BusinessMemberResponse> list(UUID businessId, Pageable pageable) {
     permissionService.requireCanView(businessId, currentUserProvider.getCurrentUserId());
-    return memberRepository.findAll(
+    Page<BusinessMember> members = memberRepository.findAll(
         BusinessMemberSpecifications.belongsToBusiness(businessId)
             .and(BusinessMemberSpecifications.status(Status.ACTIVE)),
-        pageable).map(BusinessMapper::member);
+        pageable);
+    Map<UUID, User> usersById = userRepository.findAllById(
+            members.getContent().stream().map(BusinessMember::getUserId).toList())
+        .stream()
+        .collect(Collectors.toMap(User::getId, Function.identity()));
+    List<UUID> memberUserIds = members.getContent().stream()
+        .map(BusinessMember::getUserId)
+        .toList();
+    Map<UUID, String> phonesByUserId = new HashMap<>();
+    if (!memberUserIds.isEmpty()) {
+      invitationRepository
+          .findAcceptedByUsers(
+              businessId, memberUserIds, InvitationStatus.ACCEPTED, Status.ACTIVE)
+          .stream()
+          .filter(invitation -> invitation.getInvitedPhone() != null
+              && !invitation.getInvitedPhone().isBlank())
+          .forEach(invitation -> phonesByUserId.putIfAbsent(
+              invitation.getAcceptedByUserId(), invitation.getInvitedPhone().trim()));
+    }
+    return members.map(member -> {
+      User memberUser = usersById.get(member.getUserId());
+      return BusinessMapper.member(
+          member,
+          memberUser == null ? null : memberUser.getFullName(),
+          phonesByUserId.get(member.getUserId()));
+    });
   }
   
   @Transactional
@@ -61,7 +96,10 @@ public class BusinessMemberService {
     m.setUpdatedBy(user);
     m = memberRepository.save(m);
     publishMemberAudit(user, businessId, AuditAction.BUSINESS_MEMBER_ROLE_UPDATED, m);
-    return BusinessMapper.member(m);
+    String memberName = userRepository.findById(m.getUserId())
+        .map(User::getFullName)
+        .orElse(null);
+    return BusinessMapper.member(m, memberName);
   }
   
   @Transactional

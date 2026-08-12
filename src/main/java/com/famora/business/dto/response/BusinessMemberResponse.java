@@ -7,4 +7,4 @@ import java.util.UUID;
 
 public record BusinessMemberResponse(UUID id, UUID businessId, UUID userId, BusinessRole role,
                                      Status status, boolean isDefault, UUID invitedByUserId,
-                                     LocalDateTime joinedAt) {}
+                                     LocalDateTime joinedAt, String name, String phone) {}
