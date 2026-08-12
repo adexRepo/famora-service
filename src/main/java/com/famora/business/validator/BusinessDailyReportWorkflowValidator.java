@@ -65,15 +65,15 @@ public class BusinessDailyReportWorkflowValidator {
       throw new BusinessDailyReportWorkflowException("Rejected report cannot be edited.");
     }
     
-    if (role == BusinessRole.STAFF) {
-      ensureStaffOwnsReport(report, currentUserId);
+    if (role == BusinessRole.MANAGER || role == BusinessRole.STAFF) {
+      ensureReporterOwnsReport(report, currentUserId);
       
       boolean editableStatus = status == DailyReportStatus.DRAFT
           || status == DailyReportStatus.REVISION_REQUESTED;
       
       if (!editableStatus) {
         throw new BusinessDailyReportAccessDeniedException(
-            "Staff can edit only their own draft or revision requested report."
+            "Managers and staff can edit only their own draft or revision requested report."
         );
       }
     }
@@ -128,8 +128,8 @@ public class BusinessDailyReportWorkflowValidator {
       );
     }
     
-    if (role == BusinessRole.STAFF) {
-      ensureStaffOwnsReport(report, currentUserId);
+    if (role == BusinessRole.MANAGER || role == BusinessRole.STAFF) {
+      ensureReporterOwnsReport(report, currentUserId);
     }
   }
   
@@ -186,7 +186,7 @@ public class BusinessDailyReportWorkflowValidator {
     }
     
     if (role == BusinessRole.STAFF) {
-      ensureStaffOwnsReport(report, currentUserId);
+      ensureReporterOwnsReport(report, currentUserId);
       return;
     }
     
@@ -204,10 +204,10 @@ public class BusinessDailyReportWorkflowValidator {
     }
   }
   
-  private void ensureStaffOwnsReport(BusinessDailyReport report, UUID currentUserId) {
+  private void ensureReporterOwnsReport(BusinessDailyReport report, UUID currentUserId) {
     if (!currentUserId.equals(report.getReportedByUserId())) {
       throw new BusinessDailyReportAccessDeniedException(
-          "Staff can access only reports they created."
+          "Managers and staff can access only reports they created for this action."
       );
     }
   }
