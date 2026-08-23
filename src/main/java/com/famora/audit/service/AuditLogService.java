@@ -36,10 +36,6 @@ public class AuditLogService {
     if (request == null) {
       return null;
     }
-    String forwardedFor = request.getHeader("X-Forwarded-For");
-    if (forwardedFor != null && !forwardedFor.isBlank()) {
-      return forwardedFor.split(",")[0].trim();
-    }
     return request.getRemoteAddr();
   }
 }

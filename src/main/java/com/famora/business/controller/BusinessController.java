@@ -2,6 +2,7 @@ package com.famora.business.controller;
 
 import com.famora.business.constant.BusinessApiMessages;
 import com.famora.business.dto.request.CreateBusinessRequest;
+import com.famora.business.dto.request.TransferBusinessOwnershipRequest;
 import com.famora.business.dto.request.UpdateBusinessRequest;
 import com.famora.business.dto.response.BusinessResponse;
 import com.famora.business.service.BusinessService;
@@ -60,6 +61,12 @@ public class BusinessController {
   public ApiResponse<BusinessResponse> update(@PathVariable UUID businessId,
       @Valid @RequestBody UpdateBusinessRequest request) {
     return ApiResponse.ok(businessService.update(businessId, request));
+  }
+
+  @PutMapping("/{businessId}/ownership")
+  public ApiResponse<BusinessResponse> transferOwnership(@PathVariable UUID businessId,
+      @Valid @RequestBody TransferBusinessOwnershipRequest request) {
+    return ApiResponse.ok(businessService.transferOwnership(businessId, request));
   }
   
   @DeleteMapping("/{businessId}")

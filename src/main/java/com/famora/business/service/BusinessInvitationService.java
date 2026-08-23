@@ -23,8 +23,11 @@ import com.famora.common.exception.BusinessException;
 import com.famora.common.helper.Status;
 import com.famora.security.CurrentUserProvider;
 import com.famora.user.entity.User;
+import com.famora.user.entity.UserStatus;
+import com.famora.user.repository.UserRepository;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -43,6 +46,7 @@ public class BusinessInvitationService {
   private final BusinessPermissionService permissionService;
   private final CurrentUserProvider currentUserProvider;
   private final BusinessAuditPublisher auditPublisher;
+  private final UserRepository userRepository;
   
   @Transactional
   public BusinessInvitationResponse create(UUID businessId, CreateInvitationRequest req) {
@@ -98,7 +102,11 @@ public class BusinessInvitationService {
   
   @Transactional
   public BusinessMemberResponse join(JoinBusinessRequest req) {
-    User user = currentUserProvider.getCurrentUser();
+    UUID currentUserId = currentUserProvider.getCurrentUserId();
+    User user = userRepository.findAllByIdForUpdate(List.of(currentUserId)).stream()
+        .filter(candidate -> candidate.getStatus() == UserStatus.ACTIVE)
+        .findFirst()
+        .orElseThrow(() -> BusinessException.forbidden("Current user is not active"));
     UUID userId = user.getId();
     BusinessInvitation i = invitationRepository.findByInvitationCode(req.invitationCode().trim())
         .orElseThrow(() -> BusinessException.notFound("Invitation code not found"));

@@ -22,7 +22,7 @@
                                                                  ],
                                                       "body":  {
                                                                    "mode":  "raw",
-                                                                   "raw":  "{\r\n  \"fullName\": \"Linzy Kristiyanto\",\r\n  \"email\": \"Linzy@example.com\",\r\n  \"password\": \"StrongPassword123\"\r\n}\r\n\r\n"
+                                                                   "raw":  "{\r\n  \"fullName\": \"Linzy Kristiyanto\",\r\n  \"email\": \"Linzy@example.com\",\r\n  \"password\": \"{{password}}\"\r\n}\r\n\r\n"
                                                                },
                                                       "url":  {
                                                                   "raw":  "http://localhost:8061/famora/api/v1/auth/register",
@@ -61,7 +61,7 @@
                                                                  ],
                                                       "body":  {
                                                                    "mode":  "raw",
-                                                                   "raw":  "{\n\t\"email\" : \"adek@example.com\",\n\t\"password\" :\"StrongPassword123\"\n}"
+                                                                   "raw":  "{\n\t\"email\" : \"adek@example.com\",\n\t\"password\" :\"{{password}}\"\n}"
                                                                },
                                                       "url":  {
                                                                   "raw":  "http://localhost:8061/famora/api/v1/auth/login",
@@ -91,7 +91,7 @@
                                                                    "bearer":  [
                                                                                   {
                                                                                       "key":  "token",
-                                                                                      "value":  "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODIwMTgxNzEsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MjAxOTk3MX0.6mnWVvffRTWZKL9hZG-OeMabvnzPkzCjWpxorh0PST2XEwvewtcu0s2EMf2URBIP",
+                                                                                      "value":  "{{token}}",
                                                                                       "type":  "string"
                                                                                   }
                                                                               ]
@@ -107,7 +107,7 @@
                                                                  ],
                                                       "body":  {
                                                                    "mode":  "raw",
-                                                                   "raw":  "{\n\t\"refreshToken\" : \"5Mkn7de6D43HZ5E4f92V3TgO0qdfzX8kAS71WJAzTUiaLz96xgcXqmJ1QLGBo4YDCxU5lP3jaN-RZlFd8LWE5g\"\n}"
+                                                                   "raw":  "{\n\t\"refreshToken\" : \"{{refreshToken}}\"\n}"
                                                                },
                                                       "url":  {
                                                                   "raw":  "http://localhost:8061/famora/api/v1/auth/refresh",
@@ -137,7 +137,7 @@
                                                                    "bearer":  [
                                                                                   {
                                                                                       "key":  "token",
-                                                                                      "value":  "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJhNTMxY2E0Ny1hOGJmLTRhMGUtODFiNC1lYTVjOWYzOWUyMWQiLCJlbWFpbCI6Imxpbnp5QGV4YW1wbGUuY29tIiwiaWF0IjoxNzgyMDEzMDI4LCJpc3MiOiJmYW1vcmFBcHAiLCJleHAiOjE3ODIwMTQ4Mjh9.C3WwSxWdfKVICY-ICQwvIhqdBUgt2dF25-EKhRb2Jd_3W-ZQzfYKI7Ivaxs_8cy3",
+                                                                                      "value":  "{{token}}",
                                                                                       "type":  "string"
                                                                                   }
                                                                               ]
@@ -153,7 +153,7 @@
                                                                  ],
                                                       "body":  {
                                                                    "mode":  "raw",
-                                                                   "raw":  "{\n\t\"refreshToken\" : \"y30Q7eNYYbJvg9zYnMq_A8970vfDShm9qf5i2x8PFpk36EN49JM8vn3cjrc6H2M_w8NnrWDr5QQFU-JHJWqQRQ\"\n}"
+                                                                   "raw":  "{\n\t\"refreshToken\" : \"{{refreshToken}}\"\n}"
                                                                },
                                                       "url":  {
                                                                   "raw":  "http://localhost:8061/famora/api/v1/auth/logout",
@@ -188,7 +188,7 @@
                                                                    "bearer":  [
                                                                                   {
                                                                                       "key":  "token",
-                                                                                      "value":  "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJhNTMxY2E0Ny1hOGJmLTRhMGUtODFiNC1lYTVjOWYzOWUyMWQiLCJlbWFpbCI6Imxpbnp5QGV4YW1wbGUuY29tIiwiaWF0IjoxNzgyMDEzMTI2LCJpc3MiOiJmYW1vcmFBcHAiLCJleHAiOjE3ODIwMTQ5MjZ9.3R7-oKphQGxgouTUPTOmeIuPZ1WUgL2pdZhaq9cPVaMQxh9Al53m_5M8PHI1_gO_",
+                                                                                      "value":  "{{token}}",
                                                                                       "type":  "string"
                                                                                   }
                                                                               ]
@@ -232,7 +232,7 @@
                                                                    "bearer":  [
                                                                                   {
                                                                                       "key":  "token",
-                                                                                      "value":  "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJhNTMxY2E0Ny1hOGJmLTRhMGUtODFiNC1lYTVjOWYzOWUyMWQiLCJlbWFpbCI6Imxpbnp5QGV4YW1wbGUuY29tIiwiaWF0IjoxNzgyMDEzMTI2LCJpc3MiOiJmYW1vcmFBcHAiLCJleHAiOjE3ODIwMTQ5MjZ9.3R7-oKphQGxgouTUPTOmeIuPZ1WUgL2pdZhaq9cPVaMQxh9Al53m_5M8PHI1_gO_",
+                                                                                      "value":  "{{token}}",
                                                                                       "type":  "string"
                                                                                   }
                                                                               ]
@@ -295,7 +295,7 @@
                                                                    "bearer":  [
                                                                                   {
                                                                                       "key":  "token",
-                                                                                      "value":  "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODIwMTY2MzAsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MjAxODQzMH0.XbiAbi8ET9Asu4eAnQ4EeUJQuA-7WEFdEx5y6vawZFGaZ0U_0TrPtUmpa4Rx92Fi",
+                                                                                      "value":  "{{token}}",
                                                                                       "type":  "string"
                                                                                   }
                                                                               ]
@@ -436,7 +436,7 @@
                                                                    "bearer":  [
                                                                                   {
                                                                                       "key":  "token",
-                                                                                      "value":  "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODIwMTY2MzAsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MjAxODQzMH0.XbiAbi8ET9Asu4eAnQ4EeUJQuA-7WEFdEx5y6vawZFGaZ0U_0TrPtUmpa4Rx92Fi",
+                                                                                      "value":  "{{token}}",
                                                                                       "type":  "string"
                                                                                   }
                                                                               ]
@@ -445,7 +445,7 @@
                                                       "header":  [
                                                                      {
                                                                          "key":  "Authorization",
-                                                                         "value":  "Bearer eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODIwMTY2MzAsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MjAxODQzMH0.XbiAbi8ET9Asu4eAnQ4EeUJQuA-7WEFdEx5y6vawZFGaZ0U_0TrPtUmpa4Rx92Fi",
+                                                                         "value":  "Bearer {{token}}",
                                                                          "type":  "text",
                                                                          "disabled":  true
                                                                      },
@@ -2276,7 +2276,7 @@
                                                                    "bearer":  [
                                                                                   {
                                                                                       "key":  "token",
-                                                                                      "value":  "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODIwMTY2MzAsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MjAxODQzMH0.XbiAbi8ET9Asu4eAnQ4EeUJQuA-7WEFdEx5y6vawZFGaZ0U_0TrPtUmpa4Rx92Fi",
+                                                                                      "value":  "{{token}}",
                                                                                       "type":  "string"
                                                                                   }
                                                                               ]
@@ -2331,7 +2331,7 @@
                                                                    "bearer":  [
                                                                                   {
                                                                                       "key":  "token",
-                                                                                      "value":  "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODIwMTY2MzAsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MjAxODQzMH0.XbiAbi8ET9Asu4eAnQ4EeUJQuA-7WEFdEx5y6vawZFGaZ0U_0TrPtUmpa4Rx92Fi",
+                                                                                      "value":  "{{token}}",
                                                                                       "type":  "string"
                                                                                   }
                                                                               ]
@@ -2400,7 +2400,7 @@
                                                                    "bearer":  [
                                                                                   {
                                                                                       "key":  "token",
-                                                                                      "value":  "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODIwMTgxNzEsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MjAxOTk3MX0.6mnWVvffRTWZKL9hZG-OeMabvnzPkzCjWpxorh0PST2XEwvewtcu0s2EMf2URBIP",
+                                                                                      "value":  "{{token}}",
                                                                                       "type":  "string"
                                                                                   }
                                                                               ]
@@ -2456,7 +2456,7 @@
                                                                    "bearer":  [
                                                                                   {
                                                                                       "key":  "token",
-                                                                                      "value":  "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODIwMTgxNzEsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MjAxOTk3MX0.6mnWVvffRTWZKL9hZG-OeMabvnzPkzCjWpxorh0PST2XEwvewtcu0s2EMf2URBIP",
+                                                                                      "value":  "{{token}}",
                                                                                       "type":  "string"
                                                                                   }
                                                                               ]
@@ -2521,7 +2521,7 @@
                                                                    "bearer":  [
                                                                                   {
                                                                                       "key":  "token",
-                                                                                      "value":  "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODIwMTgxNzEsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MjAxOTk3MX0.6mnWVvffRTWZKL9hZG-OeMabvnzPkzCjWpxorh0PST2XEwvewtcu0s2EMf2URBIP",
+                                                                                      "value":  "{{token}}",
                                                                                       "type":  "string"
                                                                                   }
                                                                               ]
@@ -2577,7 +2577,7 @@
                                                                    "bearer":  [
                                                                                   {
                                                                                       "key":  "token",
-                                                                                      "value":  "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODIwMTgxNzEsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MjAxOTk3MX0.6mnWVvffRTWZKL9hZG-OeMabvnzPkzCjWpxorh0PST2XEwvewtcu0s2EMf2URBIP",
+                                                                                      "value":  "{{token}}",
                                                                                       "type":  "string"
                                                                                   }
                                                                               ]
@@ -2638,7 +2638,7 @@
                                                                    "bearer":  [
                                                                                   {
                                                                                       "key":  "token",
-                                                                                      "value":  "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODIwMjAzNDEsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MjAyMjE0MX0.RMJ5XfLM_XtRV425khlNiZZRWll9WyzRYIlykZYff-T_0z806ciJ0M_EDpN6ktla",
+                                                                                      "value":  "{{token}}",
                                                                                       "type":  "string"
                                                                                   }
                                                                               ]
@@ -2663,7 +2663,7 @@
                                                                  ],
                                                       "body":  {
                                                                    "mode":  "raw",
-                                                                   "raw":  "{\r\n  \"title\": \"Netflix sss\",\r\n  \"username\": \"family@example.com\",\r\n  \"secret\": \"my-secret-password\",\r\n  \"url\": \"https://netflix.com\",\r\n  \"notes\": \"Shared family account\",\r\n  \"visibility\":\"PRIVATE\"\r\n}"
+                                                                   "raw":  "{\r\n  \"title\": \"Netflix sss\",\r\n  \"username\": \"family@example.com\",\r\n  \"secret\": \"{{vaultSecret}}\",\r\n  \"url\": \"https://netflix.com\",\r\n  \"notes\": \"Shared family account\",\r\n  \"visibility\":\"PRIVATE\"\r\n}"
                                                                },
                                                       "url":  {
                                                                   "raw":  "http://localhost:8061/famora/api/v1/vault/items",
@@ -2693,7 +2693,7 @@
                                                                    "bearer":  [
                                                                                   {
                                                                                       "key":  "token",
-                                                                                      "value":  "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODIwMjAzNDEsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MjAyMjE0MX0.RMJ5XfLM_XtRV425khlNiZZRWll9WyzRYIlykZYff-T_0z806ciJ0M_EDpN6ktla",
+                                                                                      "value":  "{{token}}",
                                                                                       "type":  "string"
                                                                                   }
                                                                               ]
@@ -2754,7 +2754,7 @@
                                                                    "bearer":  [
                                                                                   {
                                                                                       "key":  "token",
-                                                                                      "value":  "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODIwMjAzNDEsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MjAyMjE0MX0.RMJ5XfLM_XtRV425khlNiZZRWll9WyzRYIlykZYff-T_0z806ciJ0M_EDpN6ktla",
+                                                                                      "value":  "{{token}}",
                                                                                       "type":  "string"
                                                                                   }
                                                                               ]
@@ -2810,7 +2810,7 @@
                                                                    "bearer":  [
                                                                                   {
                                                                                       "key":  "token",
-                                                                                      "value":  "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODIwMjAzNDEsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MjAyMjE0MX0.RMJ5XfLM_XtRV425khlNiZZRWll9WyzRYIlykZYff-T_0z806ciJ0M_EDpN6ktla",
+                                                                                      "value":  "{{token}}",
                                                                                       "type":  "string"
                                                                                   }
                                                                               ]
@@ -2835,7 +2835,7 @@
                                                                  ],
                                                       "body":  {
                                                                    "mode":  "raw",
-                                                                   "raw":  "{\r\n  \"title\": \"Netflix\",\r\n  \"username\": \"family@example.com\",\r\n  \"secret\": \"my-secret-password\",\r\n  \"url\": \"https://netflix.com\",\r\n  \"notes\": \"Shared family account\",\r\n  \"visibility\":\"PRIVATE\"\r\n}"
+                                                                   "raw":  "{\r\n  \"title\": \"Netflix\",\r\n  \"username\": \"family@example.com\",\r\n  \"secret\": \"{{vaultSecret}}\",\r\n  \"url\": \"https://netflix.com\",\r\n  \"notes\": \"Shared family account\",\r\n  \"visibility\":\"PRIVATE\"\r\n}"
                                                                },
                                                       "url":  {
                                                                   "raw":  "http://localhost:8061/famora/api/v1/vault/items/5afab270-6718-4dc6-876c-fd0d4619a19a",
@@ -2967,7 +2967,7 @@
                                                                    "bearer":  [
                                                                                   {
                                                                                       "key":  "token",
-                                                                                      "value":  "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODIwMjAzNDEsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MjAyMjE0MX0.RMJ5XfLM_XtRV425khlNiZZRWll9WyzRYIlykZYff-T_0z806ciJ0M_EDpN6ktla",
+                                                                                      "value":  "{{token}}",
                                                                                       "type":  "string"
                                                                                   }
                                                                               ]
@@ -3027,7 +3027,7 @@
                                                                    "bearer":  [
                                                                                   {
                                                                                       "key":  "token",
-                                                                                      "value":  "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODIwMjAzNDEsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MjAyMjE0MX0.RMJ5XfLM_XtRV425khlNiZZRWll9WyzRYIlykZYff-T_0z806ciJ0M_EDpN6ktla",
+                                                                                      "value":  "{{token}}",
                                                                                       "type":  "string"
                                                                                   }
                                                                               ]
@@ -3082,7 +3082,7 @@
                                                                    "bearer":  [
                                                                                   {
                                                                                       "key":  "token",
-                                                                                      "value":  "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODA3NjE3OTUsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MDc2MzU5NX0.K7MpRg7xGQn99-QIjfuIIM21M8eyKtHJBsN2wX9pWW2hcsu0H24eG2IXDJLEc5eP",
+                                                                                      "value":  "{{token}}",
                                                                                       "type":  "string"
                                                                                   }
                                                                               ]
@@ -3137,7 +3137,7 @@
                                                                    "bearer":  [
                                                                                   {
                                                                                       "key":  "token",
-                                                                                      "value":  "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODA3NjQ5NDUsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MDc2Njc0NX0.fJmTAXi5jZXnrPvMHXgOtt4V5DRY8T1zO_pzf7X1uIvnzr0pfKNcosRuRx8qaewt",
+                                                                                      "value":  "{{token}}",
                                                                                       "type":  "string"
                                                                                   }
                                                                               ]
@@ -4380,7 +4380,7 @@
                                                                    "bearer":  [
                                                                                   {
                                                                                       "key":  "token",
-                                                                                      "value":  "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMTc4ZGFkNi05MDBiLTQ3MmYtYWU3Ni04M2U2YTdjNTJiMTMiLCJlbWFpbCI6ImFkZWtAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODIwMjAzNDEsImlzcyI6ImZhbW9yYUFwcCIsImV4cCI6MTc4MjAyMjE0MX0.RMJ5XfLM_XtRV425khlNiZZRWll9WyzRYIlykZYff-T_0z806ciJ0M_EDpN6ktla",
+                                                                                      "value":  "{{token}}",
                                                                                       "type":  "string"
                                                                                   }
                                                                               ]

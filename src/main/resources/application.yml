@@ -1,9 +1,3 @@
-server:
-  port: ${SERVER_PORT:8061}
-  servlet:
-    context-path: /famora
-  forward-headers-strategy: framework
-
 spring:
   threads:
     virtual:
@@ -24,15 +18,16 @@ spring:
   jpa:
     open-in-view: false
     generate-ddl: false
+    show-sql: ${JPA_SHOW_SQL:false}
     hibernate:
-      ddl-auto: none # or update, create, trxValidation as needed
+      ddl-auto: none
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         default_schema: famora
-        format_sql: true
-        show-sql: true
+        format_sql: ${JPA_FORMAT_SQL:false}
+        show_sql: ${JPA_SHOW_SQL:false}
   moduli:
     events:
       jdbc-schema-initialization:
@@ -43,12 +38,23 @@ spring:
     baseline-on-migrate: true
     out-of-order: true
 
+server:
+  port: ${SERVER_PORT:8061}
+  servlet:
+    context-path: /famora
+  # Enable FRAMEWORK only behind a trusted proxy that strips client-supplied forwarding headers.
+  forward-headers-strategy: ${FORWARD_HEADERS_STRATEGY:NONE}
+  error:
+    include-exception: ${SERVER_ERROR_INCLUDE_EXCEPTION:false}
+    include-message: ${SERVER_ERROR_INCLUDE_MESSAGE:never}
+    include-stacktrace: ${SERVER_ERROR_INCLUDE_STACKTRACE:never}
+
 logging:
   level:
-    root: ${LOG_LEVEL_ROOT:ERROR}
-    org.springframework.web: ${LOG_LEVEL_WEB:DEBUG}
-    com.famora: ${LOG_LEVEL_SVC:DEBUG}
-    org.flywaydb.core: ERROR
+    root: ${LOG_LEVEL_ROOT:INFO}
+    org.springframework.web: ${LOG_LEVEL_WEB:INFO}
+    com.famora: ${LOG_LEVEL_SVC:INFO}
+    org.flywaydb.core: ${LOG_LEVEL_FLYWAY:INFO}
 
 management:
   endpoints:
@@ -58,9 +64,12 @@ management:
   health:
     redis:
       enabled: false
+
 app:
+  account-deletion:
+    support-email: ${ACCOUNT_DELETION_SUPPORT_EMAIL:}
   print-stack-trace:
-    enabled: ${ENABLED_PRINT_STACKTRACE:true}
+    enabled: ${ENABLED_PRINT_STACKTRACE:false}
   async:
     thread:
       core-pool-size: ${ASYNC_THREAD_CORE_POOL_SIZE:5}
@@ -68,10 +77,25 @@ app:
       queue-capacity: ${ASYNC_THREAD_QUEUE_CAPACITY:20}
   vault:
     encryption-key: ${VAULT_ENCRYPTION_KEY:Zo7rYK1Yei9YrmpD5UoS3V1ZpWFlICL7cHqL6H8kgxE=}
+    previous-encryption-keys: ${VAULT_PREVIOUS_ENCRYPTION_KEYS:}
+    rotation-cron: ${VAULT_ROTATION_CRON:0 */5 * * * *}
   security:
+    session-cleanup-cron: ${SESSION_CLEANUP_CRON:0 17 3 * * *}
+    websocket-ticket-cleanup-cron: ${WEBSOCKET_TICKET_CLEANUP_CRON:0 */10 * * * *}
+    rate-limit-cleanup-cron: ${RATE_LIMIT_CLEANUP_CRON:0 43 3 * * *}
+    rate-limit:
+      window-seconds: ${RATE_LIMIT_WINDOW_SECONDS:60}
+      login-attempts: ${RATE_LIMIT_LOGIN_ATTEMPTS:5}
+      registration-attempts: ${RATE_LIMIT_REGISTRATION_ATTEMPTS:3}
+      refresh-attempts: ${RATE_LIMIT_REFRESH_ATTEMPTS:10}
+      invitation-join-attempts: ${RATE_LIMIT_INVITATION_JOIN_ATTEMPTS:10}
+      websocket-ticket-attempts: ${RATE_LIMIT_WEBSOCKET_TICKET_ATTEMPTS:30}
+    cors:
+      allowed-origins: ${CORS_ALLOWED_ORIGINS:}
     jwt:
       issuer: ${JWT_ISSUER:famoraApp}
-      secret: ${JWT_SECRET:9a2f8c4e6b0d71f3e8b925a45747f894a3d6bc70fa8d5e21a15a6d8c3b9a0e7c}
+      # Public development fallback for local startup only. Always set JWT_SECRET outside local development.
+      secret: ${JWT_SECRET:ZmFtb3JhLWxvY2FsLWRldmVsb3BtZW50LWp3dC1rZXktZG8tbm90LXVzZS1pbi1wcm9kdWN0aW9u}
       access-token-expiration-minutes: ${JWT_ACCESS_TOKEN_EXPIRATION_MINS:30}
       refresh-token-expiration-days: ${JWT_REFRESH_TOKEN_EXPIRATION_DAYS:30}
   currency:
@@ -91,8 +115,8 @@ app:
   family:
     max-active-family-per-user: ${FAMILY_MAX_ACTIVE_PER_USER:3}
   storage:
-    type: MINIO #MFT
-    root: /app/storage
+    type: ${STORAGE_TYPE:MINIO}
+    root: ${STORAGE_ROOT:/app/storage}
     max-upload-bytes: ${STORAGE_MAX_UPLOAD_BYTES:104857600}
     document-max-upload-bytes: ${DOCUMENT_MAX_UPLOAD_BYTES:52428800}
     daily-report-photo-max-upload-bytes: ${DAILY_REPORT_PHOTO_MAX_UPLOAD_BYTES:10485760}

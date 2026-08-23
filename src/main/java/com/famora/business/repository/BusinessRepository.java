@@ -11,4 +11,6 @@ public interface BusinessRepository extends JpaRepository<Business, UUID>,
     JpaSpecificationExecutor<Business> {
   
   Optional<Business> findByIdAndStatusNot(UUID id, Status status);
+
+  boolean existsByOwnerUserIdAndStatus(UUID ownerUserId, Status status);
 }

@@ -19,7 +19,10 @@ import com.famora.family.repository.FamilyInvitationRepository;
 import com.famora.family.repository.FamilyMemberRepository;
 import com.famora.family.repository.FamilyRepository;
 import com.famora.security.CurrentUserProvider;
+import com.famora.security.TokenHashService;
 import com.famora.user.entity.User;
+import com.famora.user.entity.UserStatus;
+import com.famora.user.repository.UserRepository;
 import java.security.SecureRandom;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -38,6 +41,8 @@ public class FamilyService {
   private final FamilyMemberRepository familyMemberRepository;
   private final FamilyInvitationRepository familyInvitationRepository;
   private final FamilyMembershipPolicyService membershipPolicyService;
+  private final TokenHashService tokenHashService;
+  private final UserRepository userRepository;
   private final SecureRandom random = new SecureRandom();
   
   @Transactional(readOnly = true)
@@ -59,7 +64,7 @@ public class FamilyService {
   
   @Transactional
   public FamilyResponse createFamily(CreateFamilyRequest request) {
-    User user = currentUserProvider.getCurrentUser();
+    User user = lockCurrentUser();
     membershipPolicyService.requireCanCreateOrJoin(user);
     boolean shouldBeDefault = !hasDefaultFamily(user.getId());
     
@@ -90,20 +95,18 @@ public class FamilyService {
         && requester.getRole() != FamilyMemberRole.ADMIN) {
       throw new SecurityException("Only OWNER or ADMIN can invite member");
     }
-    String inviteCode = generateInviteCode();
+    String inviteCode = generateUniqueInviteCode();
     FamilyInvitation invitation = FamilyInvitation.builder().family(requester.getFamily())
-        .inviteCode(inviteCode).role(request.role()).status(InvitationStatus.ACTIVE)
+        .inviteCodeHash(hashInviteCode(inviteCode)).role(request.role())
+        .status(InvitationStatus.ACTIVE)
         .expiresAt(OffsetDateTime.now().plusDays(2)).createdBy(user).build();
     familyInvitationRepository.save(invitation);
     
     auditLogService.log(requester.getFamily(), user, AuditAction.FAMILY_MEMBER_INVITED,
-        "family_invitations", invitation.getId(), """
-            {
-              "family" : "%s",
-              "userId" : "%s",
-              "invitationCode" : "%s",
-            }
-            """.formatted(requester.getFamily().getId(), user.getId(), invitation.getInviteCode()));
+        "family_invitations", invitation.getId(),
+        "{\"familyId\":\"%s\",\"invitationId\":\"%s\",\"role\":\"%s\","
+            + "\"createdBy\":\"%s\"}".formatted(requester.getFamily().getId(),
+            invitation.getId(), invitation.getRole(), user.getId()));
     
     return new InvitationResponse(inviteCode, invitation.getExpiresAt(),
         invitation.getRole().name());
@@ -111,10 +114,10 @@ public class FamilyService {
   
   @Transactional
   public FamilyResponse joinFamily(JoinFamilyRequest request) {
-    User user = currentUserProvider.getCurrentUser();
+    User user = lockCurrentUser();
     membershipPolicyService.requireCanCreateOrJoin(user);
-    FamilyInvitation invitation = familyInvitationRepository.findByInviteCodeAndStatus(
-            request.inviteCode(), InvitationStatus.ACTIVE)
+    FamilyInvitation invitation = familyInvitationRepository.findByInviteCodeHashAndStatus(
+            hashInviteCode(request.inviteCode()), InvitationStatus.ACTIVE)
         .orElseThrow(() -> new IllegalArgumentException("Invalid invite code"));
     if (invitation.getExpiresAt().isBefore(OffsetDateTime.now())) {
       invitation.setStatus(InvitationStatus.EXPIRED);
@@ -141,13 +144,10 @@ public class FamilyService {
     familyInvitationRepository.save(invitation);
     
     auditLogService.log(member.getFamily(), user, AuditAction.FAMILY_MEMBER_JOINED,
-        "family_members", invitation.getId(), """
-            {
-              "family" : "%s",
-              "userId" : "%s",
-              "invitationCode" : "%s",
-            }
-            """.formatted(member.getFamily().getId(), user.getId(), invitation.getInviteCode()));
+        "family_members", member.getId(),
+        "{\"familyId\":\"%s\",\"invitationId\":\"%s\",\"role\":\"%s\","
+            + "\"joinedBy\":\"%s\"}".formatted(member.getFamily().getId(),
+            invitation.getId(), invitation.getRole(), user.getId()));
     
     return toFamilyResponse(member);
   }
@@ -181,6 +181,28 @@ public class FamilyService {
       sb.append(alphabet.charAt(random.nextInt(alphabet.length())));
     }
     return sb.toString();
+  }
+
+  private String generateUniqueInviteCode() {
+    for (int attempt = 0; attempt < 20; attempt++) {
+      String code = generateInviteCode();
+      if (!familyInvitationRepository.existsByInviteCodeHash(hashInviteCode(code))) {
+        return code;
+      }
+    }
+    throw new IllegalStateException("Unable to generate a unique invitation code");
+  }
+
+  private String hashInviteCode(String inviteCode) {
+    return tokenHashService.sha256(inviteCode.trim().toUpperCase(java.util.Locale.ROOT));
+  }
+
+  private User lockCurrentUser() {
+    UUID userId = currentUserProvider.getCurrentUserId();
+    return userRepository.findAllByIdForUpdate(List.of(userId)).stream()
+        .filter(user -> user.getStatus() == UserStatus.ACTIVE)
+        .findFirst()
+        .orElseThrow(() -> new SecurityException("Current user is not active"));
   }
   
   private boolean hasDefaultFamily(UUID userId) {

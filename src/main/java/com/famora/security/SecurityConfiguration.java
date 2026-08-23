@@ -1,5 +1,6 @@
 package com.famora.security;
 
+import com.famora.security.config.CorsProperties;
 import com.famora.security.handler.ForbiddenHandler;
 import com.famora.security.handler.UnauthorizedHandler;
 import com.famora.security.jwt.JwtAuthenticationFilter;
@@ -43,6 +44,7 @@ public class SecurityConfiguration {
   private final ForbiddenHandler forbiddenHandler;
   private final JwtAuthenticationFilter jwtAuthenticationFilter;
   private final UserDetailsService userDetailsService;
+  private final CorsProperties corsProperties;
   
   /**
    * Security filter chain security filter chain.
@@ -66,13 +68,16 @@ public class SecurityConfiguration {
             session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(auth -> {
           auth.requestMatchers(HttpMethod.GET,
-              "/famora/actuator/health",
-              "/famora/api/v1/ping").permitAll();
+              "/actuator/health",
+              "/api/v1/ping",
+              "/api/v1/account-deletion").permitAll();
           auth.requestMatchers(HttpMethod.POST,
-              "/famora/api/v1/auth/login",
-              "/famora/api/v1/auth/refresh",
-              "/famora/api/v1/auth/register").permitAll();
-          auth.anyRequest().permitAll();
+              "/api/v1/auth/login",
+              "/api/v1/auth/refresh",
+              "/api/v1/auth/register").permitAll();
+          auth.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll();
+          auth.requestMatchers("/ws", "/ws/**").permitAll();
+          auth.anyRequest().authenticated();
         })
         .cors(crs -> crs.configurationSource(corsConfigurationSource()))
         .authenticationProvider(authenticationProvider())
@@ -96,13 +101,14 @@ public class SecurityConfiguration {
   @Bean
   public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
-    configuration.setAllowedOrigins(List.of("*"));
+    configuration.setAllowedOrigins(corsProperties.allowedOrigins());
     configuration.setAllowedMethods(
         Arrays.asList("GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS", "HEAD"));
     configuration.setAllowCredentials(true);
     configuration.setAllowedHeaders(
-        Arrays.asList("Authorization", "Channel-Type", "Content-Type", "X-Correlation-Id"));
-    configuration.setExposedHeaders(List.of("X-Get-Header", "X-Correlation-Id"));
+        Arrays.asList("Authorization", "Channel-Type", "Content-Type", "X-Correlation-Id",
+            "X-Family-Id"));
+    configuration.setExposedHeaders(List.of("X-Correlation-Id"));
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
     source.registerCorsConfiguration("/**", configuration);
     return source;

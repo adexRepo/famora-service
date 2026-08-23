@@ -21,7 +21,10 @@ import com.famora.family.helper.FamilyMemberStatus;
 import com.famora.family.service.FamilyLifecycleService;
 import com.famora.family.service.FamilyMemberService;
 import com.famora.family.service.FamilyService;
+import com.famora.security.AbuseRateLimitService;
+import com.famora.security.CurrentUserProvider;
 import com.famora.security.FamilyContextService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
@@ -48,6 +51,8 @@ public class FamilyController {
   private final FamilyMemberService familyMemberService;
   private final FamilyLifecycleService familyLifecycleService;
   private final FamilyContextService familyContextService;
+  private final AbuseRateLimitService rateLimitService;
+  private final CurrentUserProvider currentUserProvider;
   
   @GetMapping
   public ApiResponse<List<FamilyResponse>> getMyFamilies() {
@@ -76,7 +81,10 @@ public class FamilyController {
   }
   
   @PostMapping("/join")
-  public ApiResponse<FamilyResponse> joinFamily(@Valid @RequestBody JoinFamilyRequest request) {
+  public ApiResponse<FamilyResponse> joinFamily(@Valid @RequestBody JoinFamilyRequest request,
+      HttpServletRequest servletRequest) {
+    rateLimitService.checkInvitationJoin(servletRequest,
+        currentUserProvider.getCurrentUserId().toString(), request.inviteCode());
     return ApiResponse.ok(familyService.joinFamily(request));
   }
   

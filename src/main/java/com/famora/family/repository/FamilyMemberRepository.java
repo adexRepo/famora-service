@@ -61,4 +61,20 @@ public interface FamilyMemberRepository extends JpaRepository<FamilyMember, UUID
       """)
   void clearDefaultByUserIdExceptFamily(@Param("userId") UUID userId,
       @Param("familyId") UUID familyId);
+
+  @Modifying
+  @Query("""
+      update FamilyMember fm
+      set fm.status = com.famora.family.helper.FamilyMemberStatus.LEFT,
+          fm.defaultFamily = false,
+          fm.removedAt = :deletedAt
+      where fm.user.id = :userId
+        and fm.status in (
+          com.famora.family.helper.FamilyMemberStatus.ACTIVE,
+          com.famora.family.helper.FamilyMemberStatus.PENDING,
+          com.famora.family.helper.FamilyMemberStatus.LEAVE_REQUESTED,
+          com.famora.family.helper.FamilyMemberStatus.TRANSFER_PENDING)
+      """)
+  int deactivateMembershipsForDeletedUser(@Param("userId") UUID userId,
+      @Param("deletedAt") java.time.OffsetDateTime deletedAt);
 }

@@ -2,11 +2,14 @@ package com.famora.user.controller;
 
 import com.famora.common.dto.ApiResponse;
 import com.famora.user.dto.ChangePasswordRequest;
+import com.famora.user.dto.DeleteAccountRequest;
 import com.famora.user.dto.UpdateUserProfileRequest;
 import com.famora.user.dto.UserProfileResponse;
 import com.famora.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -35,5 +38,11 @@ public class UserController {
   public ApiResponse<Boolean> changePassword(@Valid @RequestBody ChangePasswordRequest request) {
     userService.changePassword(request);
     return ApiResponse.ok(true);
+  }
+
+  @DeleteMapping
+  public ResponseEntity<Void> deleteAccount(@Valid @RequestBody DeleteAccountRequest request) {
+    userService.deleteAccount(request);
+    return ResponseEntity.noContent().build();
   }
 }

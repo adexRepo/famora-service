@@ -38,4 +38,16 @@ public interface BusinessMemberRepository extends JpaRepository<BusinessMember, 
         and m.defaultBusiness = true
       """)
   void clearDefaultByUserId(@Param("userId") UUID userId);
+
+  @Modifying
+  @Query("""
+      update BusinessMember m
+      set m.status = com.famora.common.helper.Status.DELETED,
+          m.defaultBusiness = false,
+          m.updatedAt = :deletedAt
+      where m.userId = :userId
+        and m.status = com.famora.common.helper.Status.ACTIVE
+      """)
+  int deactivateMembershipsForDeletedUser(@Param("userId") UUID userId,
+      @Param("deletedAt") java.time.OffsetDateTime deletedAt);
 }

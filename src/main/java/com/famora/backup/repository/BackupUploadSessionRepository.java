@@ -2,6 +2,7 @@ package com.famora.backup.repository;
 
 import com.famora.backup.entity.BackupUploadSession;
 import com.famora.common.helper.Status;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
@@ -15,4 +16,6 @@ public interface BackupUploadSessionRepository extends JpaRepository<BackupUploa
   
   Page<BackupUploadSession> findByFamilyIdAndStatus(UUID familyId, Status status,
       Pageable pageable);
+
+  List<BackupUploadSession> findByCreatedBy_Id(UUID userId);
 }

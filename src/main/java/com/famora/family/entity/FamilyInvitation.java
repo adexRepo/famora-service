@@ -37,8 +37,8 @@ public class FamilyInvitation extends BaseEntity {
   @ManyToOne(fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name = "family_id", nullable = false)
   private Family family;
-  @Column(name = "invite_code", nullable = false, length = 50)
-  private String inviteCode;
+  @Column(name = "invite_code", nullable = false, length = 64)
+  private String inviteCodeHash;
   @Enumerated(EnumType.STRING)
   @Column(name = "role", nullable = false)
   private FamilyMemberRole role;

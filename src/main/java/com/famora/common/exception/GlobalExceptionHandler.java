@@ -3,6 +3,7 @@ package com.famora.common.exception;
 import com.famora.auth.exception.RefreshTokenAuthenticationException;
 import com.famora.common.dto.ApiErrorResponse;
 import com.famora.family.exception.FamilyException;
+import com.famora.security.exception.RateLimitExceededException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import java.time.LocalDateTime;
@@ -86,6 +87,14 @@ public class GlobalExceptionHandler {
     printStackTrace(ex);
     return buildResponse(HttpStatus.UNAUTHORIZED, ex.getMessage(), request);
   }
+
+  @ExceptionHandler(RateLimitExceededException.class)
+  public ResponseEntity<ApiErrorResponse> handleRateLimitExceeded(RateLimitExceededException ex,
+      HttpServletRequest request) {
+    return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+        .header("Retry-After", Long.toString(ex.retryAfterSeconds()))
+        .body(buildError(HttpStatus.TOO_MANY_REQUESTS, ex.getMessage(), request));
+  }
   
   @ExceptionHandler(AuthorizationDeniedException.class)
   public ResponseEntity<ApiErrorResponse> handleAuthorizationDenied(AuthorizationDeniedException ex,
@@ -162,10 +171,13 @@ public class GlobalExceptionHandler {
   
   private ResponseEntity<ApiErrorResponse> buildResponse(HttpStatus status, String message,
       HttpServletRequest request) {
-    ApiErrorResponse response = ApiErrorResponse.builder().timestamp(OffsetDateTime.now())
+    return ResponseEntity.status(status).body(buildError(status, message, request));
+  }
+
+  private ApiErrorResponse buildError(HttpStatus status, String message,
+      HttpServletRequest request) {
+    return ApiErrorResponse.builder().timestamp(OffsetDateTime.now())
         .status(status.value()).error(status.getReasonPhrase()).message(message)
         .path(request.getRequestURI()).build();
-    
-    return ResponseEntity.status(status).body(response);
   }
 }

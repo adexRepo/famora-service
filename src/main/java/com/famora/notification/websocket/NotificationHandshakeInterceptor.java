@@ -12,21 +12,15 @@ import org.springframework.web.socket.server.HandshakeInterceptor;
 @Component
 public class NotificationHandshakeInterceptor implements HandshakeInterceptor {
   
-  static final String ACCESS_TOKEN_ATTRIBUTE = "accessToken";
+  static final String WEBSOCKET_TICKET_ATTRIBUTE = "webSocketTicket";
   
   @Override
   public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response,
       WebSocketHandler wsHandler, Map<String, Object> attributes) {
-    String authHeader = request.getHeaders().getFirst("Authorization");
-    if (authHeader != null && authHeader.startsWith("Bearer ")) {
-      attributes.put(ACCESS_TOKEN_ATTRIBUTE, authHeader.substring(7));
-      return true;
-    }
-    
     String query = request.getURI().getRawQuery();
-    String token = accessTokenFromQuery(query);
-    if (token != null) {
-      attributes.put(ACCESS_TOKEN_ATTRIBUTE, token);
+    String ticket = ticketFromQuery(query);
+    if (ticket != null) {
+      attributes.put(WEBSOCKET_TICKET_ATTRIBUTE, ticket);
     }
     return true;
   }
@@ -36,7 +30,7 @@ public class NotificationHandshakeInterceptor implements HandshakeInterceptor {
       WebSocketHandler wsHandler, Exception exception) {
   }
   
-  private String accessTokenFromQuery(String query) {
+  private String ticketFromQuery(String query) {
     if (query == null || query.isBlank()) {
       return null;
     }
@@ -46,7 +40,7 @@ public class NotificationHandshakeInterceptor implements HandshakeInterceptor {
         continue;
       }
       String key = decode(pair.substring(0, separator));
-      if ("access_token".equals(key)) {
+      if ("ticket".equals(key)) {
         return decode(pair.substring(separator + 1));
       }
     }

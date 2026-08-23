@@ -32,6 +32,8 @@ import com.famora.family.repository.FamilyRepository;
 import com.famora.notification.service.FamilyNotificationService;
 import com.famora.security.CurrentUserProvider;
 import com.famora.user.entity.User;
+import com.famora.user.entity.UserStatus;
+import com.famora.user.repository.UserRepository;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
@@ -53,6 +55,7 @@ public class FamilyLifecycleService {
   private final FamilyMembershipPolicyService membershipPolicyService;
   private final FamilyNotificationService notificationService;
   private final AuditLogService auditLogService;
+  private final UserRepository userRepository;
 
   @Transactional
   public FamilyLeaveRequestResponse requestLeave(UUID familyId, LeaveFamilyRequest request) {
@@ -160,7 +163,21 @@ public class FamilyLifecycleService {
   @Transactional
   public OwnershipTransferResponse transferOwnership(UUID familyId,
       OwnershipTransferRequest request) {
-    User currentOwner = currentUserProvider.getCurrentUser();
+    UUID currentOwnerId = currentUserProvider.getCurrentUserId();
+    List<User> lockedUsers = userRepository.findAllByIdForUpdate(
+        List.of(currentOwnerId, request.newOwnerUserId()));
+    User currentOwner = lockedUsers.stream()
+        .filter(user -> user.getId().equals(currentOwnerId)
+            && user.getStatus() == UserStatus.ACTIVE)
+        .findFirst()
+        .orElseThrow(() -> FamilyException.forbidden(
+            FORBIDDEN_FAMILY_ACTION, "Current owner is not active."));
+    User lockedNewOwner = lockedUsers.stream()
+        .filter(user -> user.getId().equals(request.newOwnerUserId())
+            && user.getStatus() == UserStatus.ACTIVE)
+        .findFirst()
+        .orElseThrow(() -> FamilyException.badRequest(
+            NOT_ELIGIBLE_NEW_OWNER, "New owner must be an active user."));
     FamilyMember oldOwnerMember = requireOwner(familyId, currentOwner.getId());
     if (currentOwner.getId().equals(request.newOwnerUserId())) {
       throw FamilyException.badRequest(
@@ -169,7 +186,7 @@ public class FamilyLifecycleService {
     }
 
     FamilyMember newOwnerMember = familyMemberRepository.findByFamilyIdAndUserIdAndStatus(
-            familyId, request.newOwnerUserId(), FamilyMemberStatus.ACTIVE)
+            familyId, lockedNewOwner.getId(), FamilyMemberStatus.ACTIVE)
         .orElseThrow(() -> FamilyException.badRequest(
             NOT_ELIGIBLE_NEW_OWNER,
             "New owner must be an active family member."));

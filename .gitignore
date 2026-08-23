@@ -5,3 +5,7 @@
 .idea
 target
 lombok.iml
+
+# Local environment and secret files
+.env
+.env.*

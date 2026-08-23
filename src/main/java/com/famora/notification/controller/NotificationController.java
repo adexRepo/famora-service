@@ -4,9 +4,11 @@ import com.famora.common.dto.ApiResponse;
 import com.famora.common.dto.PageResponse;
 import com.famora.notification.dto.NotificationUnreadCountResponse;
 import com.famora.notification.dto.ScheduledNotificationResponse;
+import com.famora.notification.dto.WebSocketTicketResponse;
 import com.famora.notification.enums.NotificationDeliveryStatus;
 import com.famora.notification.enums.NotificationReadStatus;
 import com.famora.notification.service.NotificationService;
+import com.famora.notification.service.WebSocketTicketService;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -25,6 +27,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class NotificationController {
   
   private final NotificationService notificationService;
+  private final WebSocketTicketService webSocketTicketService;
+
+  @PostMapping("/websocket-ticket")
+  public ApiResponse<WebSocketTicketResponse> issueWebSocketTicket() {
+    return ApiResponse.ok(webSocketTicketService.issue());
+  }
   
   @GetMapping
   public ApiResponse<PageResponse<ScheduledNotificationResponse>> list(

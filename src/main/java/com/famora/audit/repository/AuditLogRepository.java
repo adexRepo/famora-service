@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 public interface AuditLogRepository extends JpaRepository<AuditLog, UUID> {
@@ -28,4 +29,14 @@ public interface AuditLogRepository extends JpaRepository<AuditLog, UUID> {
       """)
   List<AuditLog> findRecentBusinessActivities(UUID businessId, Collection<AuditAction> actions,
       Pageable pageable);
+
+  @Modifying
+  @Query("""
+      update AuditLog a
+      set a.metadata = '{"identityAnonymized":true,"retainedForAudit":true}',
+          a.ipAddress = null,
+          a.userAgent = null
+      where a.user.id = :userId
+      """)
+  int anonymizePersonalDataByUserId(UUID userId);
 }

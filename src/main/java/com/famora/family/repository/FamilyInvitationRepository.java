@@ -8,5 +8,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface FamilyInvitationRepository extends JpaRepository<FamilyInvitation, UUID> {
   
-  Optional<FamilyInvitation> findByInviteCodeAndStatus(String inviteCode, InvitationStatus status);
+  Optional<FamilyInvitation> findByInviteCodeHashAndStatus(String inviteCodeHash,
+      InvitationStatus status);
+
+  boolean existsByInviteCodeHash(String inviteCodeHash);
 }

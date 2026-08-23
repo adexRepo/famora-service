@@ -19,6 +19,9 @@ public interface ScheduledNotificationRepository
   
   long countByReceiverUser_IdAndReadStatusAndDeliveryStatusNot(UUID receiverUserId,
       NotificationReadStatus readStatus, NotificationDeliveryStatus deliveryStatus);
+
+  @Modifying
+  void deleteByReceiverUser_Id(UUID receiverUserId);
   
   @Modifying
   @Query("""

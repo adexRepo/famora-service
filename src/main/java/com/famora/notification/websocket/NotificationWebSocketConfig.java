@@ -1,5 +1,6 @@
 package com.famora.notification.websocket;
 
+import com.famora.security.config.CorsProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.ChannelRegistration;
@@ -15,11 +16,12 @@ public class NotificationWebSocketConfig implements WebSocketMessageBrokerConfig
   
   private final NotificationHandshakeInterceptor handshakeInterceptor;
   private final NotificationStompAuthInterceptor stompAuthInterceptor;
+  private final CorsProperties corsProperties;
   
   @Override
   public void registerStompEndpoints(StompEndpointRegistry registry) {
     registry.addEndpoint("/ws")
-        .setAllowedOriginPatterns("*")
+        .setAllowedOrigins(corsProperties.allowedOrigins().toArray(String[]::new))
         .addInterceptors(handshakeInterceptor);
   }
   

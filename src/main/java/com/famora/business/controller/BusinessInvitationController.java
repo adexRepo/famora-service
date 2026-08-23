@@ -8,6 +8,9 @@ import com.famora.business.dto.response.BusinessMemberResponse;
 import com.famora.business.service.BusinessInvitationService;
 import com.famora.common.dto.ApiResponse;
 import com.famora.common.dto.PageResponse;
+import com.famora.security.AbuseRateLimitService;
+import com.famora.security.CurrentUserProvider;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +31,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class BusinessInvitationController {
   
   private final BusinessInvitationService invitationService;
+  private final AbuseRateLimitService rateLimitService;
+  private final CurrentUserProvider currentUserProvider;
   
   @PostMapping("/{businessId}/invitations")
   public ResponseEntity<ApiResponse<BusinessInvitationResponse>> create(
@@ -51,7 +56,10 @@ public class BusinessInvitationController {
   }
   
   @PostMapping("/join")
-  public ApiResponse<BusinessMemberResponse> join(@Valid @RequestBody JoinBusinessRequest request) {
+  public ApiResponse<BusinessMemberResponse> join(@Valid @RequestBody JoinBusinessRequest request,
+      HttpServletRequest servletRequest) {
+    rateLimitService.checkInvitationJoin(servletRequest,
+        currentUserProvider.getCurrentUserId().toString(), request.invitationCode());
     return ApiResponse.ok(invitationService.join(request));
   }
 }

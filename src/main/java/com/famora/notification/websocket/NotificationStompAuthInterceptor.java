@@ -1,5 +1,6 @@
 package com.famora.notification.websocket;
 
+import com.famora.notification.service.WebSocketTicketService;
 import com.famora.security.jwt.JwtService;
 import com.famora.user.entity.User;
 import com.famora.user.entity.UserStatus;
@@ -21,6 +22,7 @@ public class NotificationStompAuthInterceptor implements ChannelInterceptor {
   
   private final JwtService jwtService;
   private final UserRepository userRepository;
+  private final WebSocketTicketService webSocketTicketService;
   
   @Override
   public Message<?> preSend(Message<?> message, MessageChannel channel) {
@@ -29,19 +31,9 @@ public class NotificationStompAuthInterceptor implements ChannelInterceptor {
       return message;
     }
     
-    String token = resolveToken(accessor);
-    if (token == null || !jwtService.isTokenValid(token)) {
-      throw new AuthenticationCredentialsNotFoundException("AUTH_INVALID");
-    }
+    User user = authenticate(accessor);
     
-    UUID userId = jwtService.extractUserId(token);
-    User user = userRepository.findByIdAndStatus(userId, UserStatus.ACTIVE)
-        .orElseThrow(() -> new AuthenticationCredentialsNotFoundException("AUTH_INVALID"));
-    if (jwtService.isTokenIssuedBefore(token, user.getPasswordChangedAt())) {
-      throw new AuthenticationCredentialsNotFoundException("AUTH_INVALID");
-    }
-    
-    accessor.setUser(new NotificationWebSocketPrincipal(userId));
+    accessor.setUser(new NotificationWebSocketPrincipal(user.getId()));
     return message;
   }
   
@@ -56,9 +48,27 @@ public class NotificationStompAuthInterceptor implements ChannelInterceptor {
       return tokenHeader;
     }
     
+    return null;
+  }
+
+  private User authenticate(StompHeaderAccessor accessor) {
+    String token = resolveToken(accessor);
+    if (token != null && jwtService.isTokenValid(token)) {
+      UUID userId = jwtService.extractUserId(token);
+      User user = userRepository.findByIdAndStatus(userId, UserStatus.ACTIVE)
+          .orElseThrow(() -> new AuthenticationCredentialsNotFoundException("AUTH_INVALID"));
+      if (jwtService.isTokenIssuedBefore(token, user.getPasswordChangedAt())) {
+        throw new AuthenticationCredentialsNotFoundException("AUTH_INVALID");
+      }
+      return user;
+    }
+
     Map<String, Object> attributes = accessor.getSessionAttributes();
-    Object token = attributes == null ? null
-        : attributes.get(NotificationHandshakeInterceptor.ACCESS_TOKEN_ATTRIBUTE);
-    return token instanceof String value && !value.isBlank() ? value : null;
+    Object ticket = attributes == null ? null
+        : attributes.get(NotificationHandshakeInterceptor.WEBSOCKET_TICKET_ATTRIBUTE);
+    if (ticket instanceof String value && !value.isBlank()) {
+      return webSocketTicketService.consume(value);
+    }
+    throw new AuthenticationCredentialsNotFoundException("AUTH_INVALID");
   }
 }

@@ -33,11 +33,11 @@ import java.nio.file.StandardOpenOption;
 import java.security.MessageDigest;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HexFormat;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -47,6 +47,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -70,6 +72,43 @@ public class BackupUploadService {
   
   @Value("${app.backup.max-file-bytes:104857600}")
   private long maxFileBytes;
+
+  @Transactional
+  public void cancelIncompleteSessionsForDeletedUser(UUID userId, OffsetDateTime deletedAt) {
+    List<BackupUploadSession> sessions = sessionRepository.findByCreatedBy_Id(userId);
+    List<Path> cleanupPaths = new ArrayList<>();
+    for (BackupUploadSession session : sessions) {
+      boolean incomplete = session.getUploadStatus() != BackupUploadSessionStatus.COMPLETED
+          && session.getUploadStatus() != BackupUploadSessionStatus.CANCELLED;
+      if (incomplete) {
+        session.setUploadStatus(BackupUploadSessionStatus.CANCELLED);
+        session.setCancelledAt(deletedAt);
+      }
+      session.setNotes(null);
+      session.setMetadataJson(null);
+      List<BackupUploadItem> items = activeItems(session);
+      for (BackupUploadItem item : items) {
+        if (item.getItemStatus() != BackupUploadItemStatus.COMPLETED) {
+          item.setItemStatus(BackupUploadItemStatus.CANCELLED);
+        }
+        item.setNotes(null);
+        item.setMetadataJson(null);
+      }
+      itemRepository.saveAll(items);
+      if (session.getUploadStatus() != BackupUploadSessionStatus.COMPLETED) {
+        cleanupPaths.add(sessionTempDir(session));
+      }
+    }
+    sessionRepository.saveAll(sessions);
+    if (!cleanupPaths.isEmpty()) {
+      TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+        @Override
+        public void afterCommit() {
+          cleanupPaths.forEach(BackupUploadService.this::cleanupPath);
+        }
+      });
+    }
+  }
   
   @Transactional
   public BackupSessionDetailResponse createSession(CreateBackupSessionRequest request,
@@ -544,7 +583,10 @@ public class BackupUploadService {
   }
   
   private void cleanupSessionTemp(BackupUploadSession session) {
-    Path dir = sessionTempDir(session);
+    cleanupPath(sessionTempDir(session));
+  }
+
+  private void cleanupPath(Path dir) {
     if (!Files.exists(dir)) {
       return;
     }

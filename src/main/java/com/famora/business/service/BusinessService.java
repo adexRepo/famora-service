@@ -9,6 +9,7 @@ import static com.famora.business.constant.BusinessAuditConstants.STATUS;
 import com.famora.audit.entity.AuditAction;
 import com.famora.business.constant.BusinessDefaults;
 import com.famora.business.dto.request.CreateBusinessRequest;
+import com.famora.business.dto.request.TransferBusinessOwnershipRequest;
 import com.famora.business.dto.request.UpdateBusinessRequest;
 import com.famora.business.dto.response.BusinessResponse;
 import com.famora.business.entity.Business;
@@ -24,8 +25,11 @@ import com.famora.common.exception.BusinessException;
 import com.famora.common.helper.Status;
 import com.famora.security.CurrentUserProvider;
 import com.famora.user.entity.User;
+import com.famora.user.entity.UserStatus;
+import com.famora.user.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -46,10 +50,15 @@ public class BusinessService {
   private final BusinessPermissionService permissionService;
   private final CurrentUserProvider currentUserProvider;
   private final BusinessAuditPublisher auditPublisher;
+  private final UserRepository userRepository;
   
   @Transactional
   public BusinessResponse create(CreateBusinessRequest request) {
-    User userId = currentUserProvider.getCurrentUser();
+    UUID currentUserId = currentUserProvider.getCurrentUserId();
+    User userId = userRepository.findAllByIdForUpdate(List.of(currentUserId)).stream()
+        .filter(user -> user.getStatus() == UserStatus.ACTIVE)
+        .findFirst()
+        .orElseThrow(() -> BusinessException.forbidden("Current user is not active"));
     boolean shouldBeDefault = !hasDefaultBusiness(userId.getId());
     Business b = new Business();
     b.setName(request.name().trim());
@@ -170,6 +179,48 @@ public class BusinessService {
     publishBusinessAudit(user, businessId, AuditAction.BUSINESS_DEFAULT_SET, member.getBusiness(),
         Map.of(IS_DEFAULT, true));
     return BusinessMapper.business(member.getBusiness(), true, member.getRole());
+  }
+
+  @Transactional
+  public BusinessResponse transferOwnership(UUID businessId,
+      TransferBusinessOwnershipRequest request) {
+    UUID currentOwnerId = currentUserProvider.getCurrentUserId();
+    if (currentOwnerId.equals(request.newOwnerUserId())) {
+      throw BusinessException.validation("Cannot transfer ownership to yourself");
+    }
+    List<User> lockedUsers = userRepository.findAllByIdForUpdate(
+        List.of(currentOwnerId, request.newOwnerUserId()));
+    User currentOwner = lockedUsers.stream()
+        .filter(user -> user.getId().equals(currentOwnerId)
+            && user.getStatus() == UserStatus.ACTIVE)
+        .findFirst()
+        .orElseThrow(() -> BusinessException.forbidden("Current owner is not active"));
+    User newOwner = lockedUsers.stream()
+        .filter(user -> user.getId().equals(request.newOwnerUserId())
+            && user.getStatus() == UserStatus.ACTIVE)
+        .findFirst()
+        .orElseThrow(() -> BusinessException.validation("New owner must be an active user"));
+
+    BusinessMember oldOwnerMember = permissionService.requireAnyRole(businessId, currentOwnerId,
+        BusinessRole.OWNER);
+    BusinessMember newOwnerMember = memberRepository.findByBusinessIdAndUserIdAndStatus(
+            businessId, newOwner.getId(), Status.ACTIVE)
+        .orElseThrow(() -> BusinessException.validation(
+            "New owner must be an active business member"));
+    Business business = permissionService.requireActiveBusiness(businessId);
+    business.setOwnerUserId(newOwner.getId());
+    business.setUpdatedBy(currentOwner);
+    oldOwnerMember.setRole(BusinessRole.PARTNER);
+    oldOwnerMember.setUpdatedBy(currentOwner);
+    newOwnerMember.setRole(BusinessRole.OWNER);
+    newOwnerMember.setUpdatedBy(currentOwner);
+    businessRepository.save(business);
+    memberRepository.saveAll(List.of(oldOwnerMember, newOwnerMember));
+    publishBusinessAudit(currentOwner, businessId, AuditAction.BUSINESS_OWNERSHIP_TRANSFERRED,
+        business, Map.of("previousOwnerUserId", currentOwnerId,
+            "newOwnerUserId", newOwner.getId()));
+    return BusinessMapper.business(business, isDefaultBusiness(currentOwnerId, businessId),
+        oldOwnerMember.getRole());
   }
   
   @Transactional

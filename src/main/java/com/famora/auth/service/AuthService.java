@@ -7,8 +7,9 @@ import com.famora.auth.dto.LoginRequest;
 import com.famora.auth.dto.RefreshTokenRequest;
 import com.famora.auth.dto.RegisterRequest;
 import com.famora.auth.exception.RefreshTokenAuthenticationException;
-import com.famora.common.helper.Status;
 import com.famora.family.repository.FamilyMemberRepository;
+import com.famora.security.AbuseRateLimitService;
+import com.famora.security.CurrentUserProvider;
 import com.famora.security.TokenHashService;
 import com.famora.security.jwt.JwtService;
 import com.famora.user.entity.User;
@@ -40,6 +41,8 @@ public class AuthService {
   private final JwtService jwtService;
   private final TokenHashService tokenHashService;
   private final AuditLogService auditLogService;
+  private final AbuseRateLimitService rateLimitService;
+  private final CurrentUserProvider currentUserProvider;
   @Value("${app.security.jwt.refresh-token-expiration-days}")
   private long refreshTokenExpirationDays;
   private final SecureRandom secureRandom = new SecureRandom();
@@ -89,25 +92,32 @@ public class AuthService {
   @Transactional
   public AuthResponse refresh(RefreshTokenRequest request) {
     String refreshTokenHash = tokenHashService.sha256(request.refreshToken());
-    UserSession session = userSessionRepository.findByRefreshTokenHashAndRevokedAtIsNull(
-        refreshTokenHash).orElseThrow(
+    UserSession session = userSessionRepository.findByRefreshTokenHashForUpdate(refreshTokenHash)
+        .orElseThrow(
             () -> new RefreshTokenAuthenticationException("Invalid refresh token"));
-    if (session.getExpiresAt().isBefore(OffsetDateTime.now())) {
+    OffsetDateTime now = OffsetDateTime.now();
+    if (session.getRevokedAt() != null) {
+      throw new RefreshTokenAuthenticationException("Refresh token has already been used");
+    }
+    if (!session.getExpiresAt().isAfter(now)) {
       throw new RefreshTokenAuthenticationException("Refresh token expired");
     }
+    if (session.getUser().getStatus() != UserStatus.ACTIVE) {
+      throw new RefreshTokenAuthenticationException("User is not active");
+    }
+    rateLimitService.checkRefreshAccount(session.getUser().getId());
+    session.setRevokedAt(now);
+    userSessionRepository.save(session);
     return generateAuthResponse(session.getUser());
   }
   
   @Transactional
-  public void logout(String refreshToken) {
-    String refreshTokenHash = tokenHashService.sha256(refreshToken);
-    userSessionRepository.findByRefreshTokenHashAndRevokedAtIsNull(refreshTokenHash)
-        .ifPresent(session -> {
-          session.setRevokedAt(OffsetDateTime.now());
-          userSessionRepository.save(session);
-          auditLogService.log(null, session.getUser(), AuditAction.USER_LOGGED_OUT, "user_sessions",
-              session.getId(), "{\"userId\":\"" + session.getUser().getId() + "\"}");
-        });
+  public void logout() {
+    User user = currentUserProvider.getCurrentUser();
+    OffsetDateTime revokedAt = OffsetDateTime.now();
+    userSessionRepository.revokeActiveSessionsByUserId(user.getId(), revokedAt);
+    auditLogService.log(null, user, AuditAction.USER_LOGGED_OUT, "user_sessions",
+        user.getId(), "{\"allSessionsRevoked\":true}");
   }
   
   private AuthResponse generateAuthResponse(User user) {
