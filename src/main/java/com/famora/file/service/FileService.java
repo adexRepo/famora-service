@@ -59,6 +59,9 @@ public class FileService {
     if ("DOCUMENT".equalsIgnoreCase(category) || "documents".equalsIgnoreCase(bucket)) {
       storage.validateMaxUploadSize(file, documentMaxUploadBytes, "Document file");
     }
+    if (file != null && !file.isEmpty()) {
+      validateOriginalNameAvailable(file.getOriginalFilename(), ctx.user().getId());
+    }
     
     StoredFile stored = storage.store(
         defaultStorageType,
@@ -114,6 +117,16 @@ public class FileService {
     );
     
     return fa;
+  }
+
+  public void validateOriginalNameAvailable(String originalName, UUID userId) {
+    String cleanName = StringUtils.cleanPath(
+        StringUtils.hasText(originalName) ? originalName.trim() : "file");
+    if (repo.existsByCreatedBy_IdAndOriginalNameIgnoreCaseAndStatus(userId, cleanName,
+        Status.ACTIVE)) {
+      throw new AppException(HttpStatus.CONFLICT,
+          "A file with the same original filename already exists");
+    }
   }
   
   @Transactional(readOnly = true)

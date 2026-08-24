@@ -13,6 +13,9 @@ public interface FileRepository extends JpaRepository<FileAsset, UUID>,
     JpaSpecificationExecutor<FileAsset> {
   
   Optional<FileAsset> findByIdAndFamilyIdAndStatus(UUID id, UUID familyId, Status status);
+
+  boolean existsByCreatedBy_IdAndOriginalNameIgnoreCaseAndStatus(UUID userId, String originalName,
+      Status status);
   
   @Query("""
       select count(f)

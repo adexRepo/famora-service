@@ -123,7 +123,7 @@ app:
   backup:
     temp-root: ${BACKUP_TEMP_ROOT:}
     max-chunk-bytes: ${BACKUP_MAX_CHUNK_BYTES:5242880}
-    max-file-bytes: ${BACKUP_MAX_FILE_BYTES:104857600}
+    max-file-bytes: ${BACKUP_MAX_FILE_BYTES:52428800}
   minio:
     endpoint: ${MINIO_ENDPOINT:http://localhost:9000}
     access-key: ${MINIO_ACCESS_KEY:minioadmin}

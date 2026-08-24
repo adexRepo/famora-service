@@ -21,6 +21,7 @@ import com.famora.common.helper.Visibility;
 import com.famora.family.dto.FamilyContext;
 import com.famora.file.entity.FileAsset;
 import com.famora.file.service.FileService;
+import com.famora.user.repository.UserRepository;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,6 +37,7 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HexFormat;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
@@ -57,12 +59,14 @@ import org.springframework.web.multipart.MultipartFile;
 public class BackupUploadService {
   
   private static final String DEFAULT_CATEGORY = "BACKUP";
+  private static final int MAX_FILES_PER_SESSION = 20;
   
   private final BackupUploadSessionRepository sessionRepository;
   private final BackupUploadItemRepository itemRepository;
   private final BackupUploadChunkRepository chunkRepository;
   private final FileService fileService;
   private final AuditLogService audit;
+  private final UserRepository userRepository;
   
   @Value("${app.backup.temp-root:}")
   private String tempRoot;
@@ -70,7 +74,7 @@ public class BackupUploadService {
   @Value("${app.backup.max-chunk-bytes:5242880}")
   private long maxChunkBytes;
   
-  @Value("${app.backup.max-file-bytes:104857600}")
+  @Value("${app.backup.max-file-bytes:52428800}")
   private long maxFileBytes;
 
   @Transactional
@@ -114,6 +118,8 @@ public class BackupUploadService {
   public BackupSessionDetailResponse createSession(CreateBackupSessionRequest request,
       FamilyContext ctx) {
     validateCreateRequest(request);
+    userRepository.findAllByIdForUpdate(List.of(ctx.user().getId()));
+    validateOriginalNamesAvailable(request.files(), ctx);
     
     BackupUploadSession session = new BackupUploadSession();
     session.setFamily(ctx.family());
@@ -343,6 +349,11 @@ public class BackupUploadService {
     if (request == null || request.files() == null || request.files().isEmpty()) {
       throw new AppException(HttpStatus.BAD_REQUEST, "Backup files are required");
     }
+    if (request.files().size() > MAX_FILES_PER_SESSION) {
+      throw new AppException(HttpStatus.BAD_REQUEST,
+          "A backup session can contain at most " + MAX_FILES_PER_SESSION + " files");
+    }
+    var originalNames = new HashSet<String>();
     for (BackupUploadItemRequest file : request.files()) {
       if (file.fileSize() <= 0) {
         throw new AppException(HttpStatus.BAD_REQUEST, "File size must be greater than zero");
@@ -361,7 +372,27 @@ public class BackupUploadService {
             "Invalid totalChunks for file " + file.originalName());
       }
       normalizedSha256(file.sha256());
-      cleanFilename(file.originalName());
+      String originalName = cleanFilename(file.originalName());
+      if (!originalNames.add(originalName.toLowerCase(Locale.ROOT))) {
+        throw new AppException(HttpStatus.CONFLICT,
+            "Duplicate original filenames are not allowed in one backup session");
+      }
+    }
+  }
+
+  private void validateOriginalNamesAvailable(List<BackupUploadItemRequest> files,
+      FamilyContext ctx) {
+    for (BackupUploadItemRequest file : files) {
+      String originalName = cleanFilename(file.originalName());
+      boolean activeUploadExists = itemRepository
+          .existsByCreatedBy_IdAndOriginalNameIgnoreCaseAndStatusAndItemStatusNot(
+              ctx.user().getId(), originalName, Status.ACTIVE,
+              BackupUploadItemStatus.CANCELLED);
+      if (activeUploadExists) {
+        throw new AppException(HttpStatus.CONFLICT,
+            "A file with the same original filename already exists");
+      }
+      fileService.validateOriginalNameAvailable(originalName, ctx.user().getId());
     }
   }
   

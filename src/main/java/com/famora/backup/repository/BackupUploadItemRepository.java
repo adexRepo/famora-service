@@ -16,6 +16,9 @@ public interface BackupUploadItemRepository extends JpaRepository<BackupUploadIt
   
   Optional<BackupUploadItem> findByIdAndSessionIdAndStatus(UUID id, UUID sessionId,
       Status status);
+
+  boolean existsByCreatedBy_IdAndOriginalNameIgnoreCaseAndStatusAndItemStatusNot(
+      UUID userId, String originalName, Status status, BackupUploadItemStatus itemStatus);
   
   long countBySessionIdAndStatusAndItemStatus(UUID sessionId, Status status,
       BackupUploadItemStatus itemStatus);
