@@ -42,6 +42,10 @@ public final class FinanceDashboardDtos {
   
   public record CumulativeChartResponse(
       int axisCount,
+      BigDecimal totalIncome,
+      BigDecimal totalExpense,
+      BigDecimal netAmount,
+      BigDecimal savingsRatePercent,
       BigDecimal incomeChangePercent,
       BigDecimal expenseChangePercent,
       BigDecimal minPercent,
@@ -56,6 +60,8 @@ public final class FinanceDashboardDtos {
   public record CumulativePointResponse(
       LocalDate date,
       String label,
+      BigDecimal incomeAmount,
+      BigDecimal expenseAmount,
       BigDecimal incomePercent,
       BigDecimal expensePercent
   ) {

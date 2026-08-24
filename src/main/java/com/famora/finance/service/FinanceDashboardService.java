@@ -141,14 +141,20 @@ public class FinanceDashboardService {
         FinanceTransactionType.EXPENSE, conversionCache);
     
     List<CumulativePointResponse> points = pointDates.stream()
-        .map(date -> new CumulativePointResponse(
-            date,
-            dateLabel(date, range),
-            percent(sum(transactions, currency, window.start(), date, FinanceTransactionType.INCOME,
-                conversionCache), totalIncome),
-            percent(sum(transactions, currency, window.start(), date,
-                FinanceTransactionType.EXPENSE, conversionCache), totalExpense)
-        ))
+        .map(date -> {
+          BigDecimal incomeAmount = sum(transactions, currency, window.start(), date,
+              FinanceTransactionType.INCOME, conversionCache);
+          BigDecimal expenseAmount = sum(transactions, currency, window.start(), date,
+              FinanceTransactionType.EXPENSE, conversionCache);
+          return new CumulativePointResponse(
+              date,
+              dateLabel(date, range),
+              incomeAmount,
+              expenseAmount,
+              percent(incomeAmount, totalIncome),
+              percent(expenseAmount, totalExpense)
+          );
+        })
         .toList();
     
     RangeWindow previous = previousWindow(window);
@@ -161,7 +167,9 @@ public class FinanceDashboardService {
     BigDecimal minPercent = minPercent(points);
     BigDecimal maxPercent = maxPercent(points);
     ChartAxis percentAxis = axis(minPercent, maxPercent);
-    return new CumulativeChartResponse(axisCount, changePercent(totalIncome, previousIncome),
+    BigDecimal netAmount = totalIncome.subtract(totalExpense).setScale(2, RoundingMode.HALF_UP);
+    return new CumulativeChartResponse(axisCount, totalIncome, totalExpense, netAmount,
+        savingsRate(netAmount, totalIncome), changePercent(totalIncome, previousIncome),
         changePercent(totalExpense, previousExpense), percentAxis.min(), percentAxis.max(),
         axisLabels(percentAxis.min(), percentAxis.max(), axisCount),
         xaxisLabels(pointDates, range, axisCount), points);
@@ -432,6 +440,14 @@ public class FinanceDashboardService {
     return current.subtract(previous)
         .multiply(BigDecimal.valueOf(100))
         .divide(previous, 2, RoundingMode.HALF_UP);
+  }
+
+  private BigDecimal savingsRate(BigDecimal netAmount, BigDecimal totalIncome) {
+    if (totalIncome == null || totalIncome.compareTo(BigDecimal.ZERO) == 0) {
+      return null;
+    }
+    return netAmount.multiply(BigDecimal.valueOf(100))
+        .divide(totalIncome, 2, RoundingMode.HALF_UP);
   }
   
   private AllocationItemResponse allocationItem(String type, BigDecimal amount, BigDecimal total) {
