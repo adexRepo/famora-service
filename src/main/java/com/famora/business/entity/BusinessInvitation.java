@@ -28,8 +28,8 @@ public class BusinessInvitation extends BusinessScopedEntity {
   @Enumerated(EnumType.STRING)
   @Column(nullable = false, length = 50)
   private BusinessRole role;
-  @Column(name = "invitation_code", nullable = false, length = 100, unique = true)
-  private String invitationCode;
+  @Column(name = "invitation_code_hash", nullable = false, length = 64, unique = true)
+  private String invitationCodeHash;
   @Enumerated(EnumType.STRING)
   @Column(name = "invitation_status", nullable = false, length = 30)
   private InvitationStatus invitationStatus = InvitationStatus.PENDING;

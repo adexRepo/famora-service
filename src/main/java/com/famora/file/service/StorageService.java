@@ -9,6 +9,8 @@ import io.minio.GetObjectArgs;
 import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
+import io.minio.RemoveObjectArgs;
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
@@ -24,6 +26,7 @@ import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
+import javax.imageio.ImageIO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
@@ -225,6 +228,32 @@ public class StorageService {
     
     return clean;
   }
+
+  public void delete(StorageType storageType, String bucketName, String objectKeyOrPath) {
+    try {
+      if (storageType == StorageType.MINIO) {
+        validateObjectKey(objectKeyOrPath);
+        if (!StringUtils.hasText(bucketName)) {
+          throw new AppException(HttpStatus.BAD_REQUEST, "Invalid storage bucket");
+        }
+        minioClient.removeObject(RemoveObjectArgs.builder()
+            .bucket(bucketName)
+            .object(objectKeyOrPath)
+            .build());
+        return;
+      }
+
+      Path path = Paths.get(objectKeyOrPath).toAbsolutePath().normalize();
+      if (!path.startsWith(root)) {
+        throw new AppException(HttpStatus.FORBIDDEN, "Invalid storage path");
+      }
+      Files.deleteIfExists(path);
+    } catch (AppException ex) {
+      throw ex;
+    } catch (Exception ex) {
+      throw new AppException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to delete stored object");
+    }
+  }
   
   private String normalizeScope(String scope) {
     if ("businesses".equals(scope)) {
@@ -362,13 +391,52 @@ public class StorageService {
       throw new AppException(HttpStatus.BAD_REQUEST, label + " is required");
     }
     if (file.getSize() > maxBytes) {
-      throw new AppException(HttpStatus.PAYLOAD_TOO_LARGE,
+      throw new AppException(HttpStatus.CONTENT_TOO_LARGE,
           "%s exceeds max upload size of %d bytes".formatted(label, maxBytes));
     }
   }
   
   public boolean isSupportedImage(MultipartFile file) {
-    return inspect(file).fileType() == FileType.IMAGE;
+    validate(file);
+    try {
+      return isSupportedImageContent(file.getBytes(), mime(file));
+    } catch (Exception ex) {
+      return false;
+    }
+  }
+
+  static boolean isSupportedImageContent(byte[] content, String declaredMime) {
+    String detectedMime = detectStrictImageMime(content);
+    if (detectedMime == null || !mimeMatches(declaredMime.toLowerCase(Locale.ROOT), detectedMime)) {
+      return false;
+    }
+    try (ByteArrayInputStream input = new ByteArrayInputStream(content)) {
+      return ImageIO.read(input) != null;
+    } catch (Exception ex) {
+      return false;
+    }
+  }
+
+  private static String detectStrictImageMime(byte[] content) {
+    byte[] header = Arrays.copyOf(content, Math.min(content.length, 16));
+    if (startsWith(header, 0xFF, 0xD8, 0xFF)) {
+      return "image/jpeg";
+    }
+    if (startsWith(header, 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A)) {
+      return "image/png";
+    }
+    if (startsWithAscii(header, "RIFF") && header.length >= 12
+        && startsWithAscii(Arrays.copyOfRange(header, 8, 12), "WEBP")) {
+      return "image/webp";
+    }
+    return null;
+  }
+
+  private static boolean mimeMatches(String declaredMime, String detectedMime) {
+    if ("image/jpeg".equals(detectedMime) && "image/jpg".equals(declaredMime)) {
+      return true;
+    }
+    return detectedMime.equals(declaredMime);
   }
   
   private UploadMetadata inspect(MultipartFile file) {

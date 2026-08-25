@@ -1,4 +1,11 @@
 spring:
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      connect-timeout: ${REDIS_CONNECT_TIMEOUT:2s}
+      timeout: ${REDIS_TIMEOUT:2s}
   threads:
     virtual:
       enabled: true
@@ -63,9 +70,16 @@ management:
         include: health,info,metrics
   health:
     redis:
-      enabled: false
+      enabled: ${REDIS_HEALTH_ENABLED:false}
 
 app:
+  namespace:
+    environment: ${APP_ENV:local}
+  cache:
+    redis:
+      enabled: ${REDIS_CACHE_ENABLED:false}
+      finance-dashboard-ttl: ${REDIS_FINANCE_DASHBOARD_TTL:2m}
+      business-summary-ttl: ${REDIS_BUSINESS_SUMMARY_TTL:3m}
   account-deletion:
     support-email: ${ACCOUNT_DELETION_SUPPORT_EMAIL:}
   print-stack-trace:
@@ -128,4 +142,4 @@ app:
     endpoint: ${MINIO_ENDPOINT:http://localhost:9000}
     access-key: ${MINIO_ACCESS_KEY:minioadmin}
     secret-key: ${MINIO_SECRET_KEY:minioadmin123}
-    bucket: ${MINIO_BUCKET:famora}
+    bucket: ${MINIO_BUCKET:${APP_ENV:local}-famora}

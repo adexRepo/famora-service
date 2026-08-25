@@ -102,11 +102,15 @@ public class BusinessDailyReportController {
       @PathVariable UUID reportId,
       @PathVariable UUID photoId) {
     var download = photoService.download(businessId, reportId, photoId);
+    boolean trustedImage = isStrictlyValidatedImage(download.photo().getMimeType(),
+        download.photo().getMetadataJson());
     return ResponseEntity.ok()
-        .contentType(MediaType.parseMediaType(download.photo().getMimeType()))
+        .contentType(trustedImage ? MediaType.parseMediaType(download.photo().getMimeType())
+            : MediaType.APPLICATION_OCTET_STREAM)
+        .header("X-Content-Type-Options", "nosniff")
         .header(HttpHeaders.CONTENT_DISPOSITION,
-            ContentDisposition.inline().filename(download.photo().getOriginalName()).build()
-                .toString())
+            (trustedImage ? ContentDisposition.inline() : ContentDisposition.attachment())
+                .filename(download.photo().getOriginalName()).build().toString())
         .body(download.resource());
   }
   
@@ -167,5 +171,14 @@ public class BusinessDailyReportController {
           .forEach(result::add);
     }
     return result;
+  }
+
+  private boolean isStrictlyValidatedImage(String mimeType,
+      java.util.Map<String, Object> metadata) {
+    return metadata != null
+        && Boolean.TRUE.equals(metadata.get("strictImageValidated"))
+        && (MediaType.IMAGE_JPEG_VALUE.equals(mimeType)
+            || MediaType.IMAGE_PNG_VALUE.equals(mimeType)
+            || "image/webp".equals(mimeType));
   }
 }

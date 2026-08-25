@@ -20,6 +20,7 @@ import com.famora.business.repository.BusinessDailySalesItemRepository;
 import com.famora.business.repository.BusinessExpenseRepository;
 import com.famora.business.spec.BusinessDailyReportSpecifications;
 import com.famora.business.spec.BusinessExpenseSpecifications;
+import com.famora.common.cache.TenantRedisCache;
 import com.famora.common.helper.MoneyUtil;
 import com.famora.common.helper.Status;
 import com.famora.security.CurrentUserProvider;
@@ -47,6 +48,7 @@ public class BusinessSummaryService {
   private final BusinessExpenseRepository expenseRepository;
   private final BusinessDailySalesItemRepository salesItemRepository;
   private final BusinessDailyLossItemRepository lossItemRepository;
+  private final TenantRedisCache tenantRedisCache;
   
   @Value("${app.business.dashboard.time-zone:Asia/Makassar}")
   private String dashboardTimeZone;
@@ -95,6 +97,11 @@ public class BusinessSummaryService {
   @Transactional(readOnly = true)
   public BusinessSummaryResponse summarize(UUID businessId, LocalDate fromDate, LocalDate toDate) {
     permissionService.requireCanView(businessId, currentUserProvider.getCurrentUserId());
+    TenantRedisCache.CacheLookup<BusinessSummaryResponse> cached = tenantRedisCache
+        .findBusinessSummary(businessId, fromDate, toDate);
+    if (cached.hit()) {
+      return cached.value();
+    }
     List<BusinessDailyReport> reports = reportRepository
         .findAll(BusinessDailyReportSpecifications.belongsToBusiness(businessId)
             .and(BusinessDailyReportSpecifications.reportDateBetween(fromDate, toDate))
@@ -134,10 +141,12 @@ public class BusinessSummaryService {
     BigDecimal netOperating = totalSales.subtract(totalExpense);
     BigDecimal expectedCash = dailyCapital.add(cashSales).subtract(totalCashExpense);
     
-    return new BusinessSummaryResponse(businessId, fromDate, toDate,
+    BusinessSummaryResponse response = new BusinessSummaryResponse(businessId, fromDate, toDate,
         totalSales, cashSales, qrisSales, transferSales, otherSales,
         totalExpense, totalCashExpense, totalNonCashExpense,
         totalLoss, netOperating, expectedCash);
+    tenantRedisCache.putBusinessSummary(businessId, fromDate, toDate, cached, response);
+    return response;
   }
   
   private BusinessPeriodSummaryResponse periodSummary(UUID businessId, BusinessSummaryPeriod period,

@@ -36,8 +36,8 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HexFormat;
 import java.util.HashSet;
+import java.util.HexFormat;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
@@ -180,7 +180,7 @@ public class BackupUploadService {
     String normalizedSha256 = normalizedSha256(sha256);
     if (StringUtils.hasText(normalizedSha256) && !normalizedSha256.equals(storedChunk.sha256())) {
       removePathIfExists(storedChunk.path());
-      throw new AppException(HttpStatus.UNPROCESSABLE_ENTITY, "Chunk checksum mismatch");
+      throw new AppException(HttpStatus.UNPROCESSABLE_CONTENT, "Chunk checksum mismatch");
     }
     
     BackupUploadChunk chunk = chunkRepository
@@ -231,7 +231,7 @@ public class BackupUploadService {
     String expectedHash = normalizedSha256(item.getExpectedSha256());
     if (StringUtils.hasText(expectedHash) && !expectedHash.equals(assembledHash)) {
       removePathIfExists(assembled);
-      throw new AppException(HttpStatus.UNPROCESSABLE_ENTITY, "File checksum mismatch");
+      throw new AppException(HttpStatus.UNPROCESSABLE_CONTENT, "File checksum mismatch");
     }
     
     MultipartFile multipartFile = new PathMultipartFile(
@@ -359,7 +359,7 @@ public class BackupUploadService {
         throw new AppException(HttpStatus.BAD_REQUEST, "File size must be greater than zero");
       }
       if (file.fileSize() > maxFileBytes) {
-        throw new AppException(HttpStatus.PAYLOAD_TOO_LARGE,
+        throw new AppException(HttpStatus.CONTENT_TOO_LARGE,
             "Backup file exceeds max size of " + maxFileBytes + " bytes");
       }
       if (file.chunkSize() <= 0 || file.chunkSize() > maxChunkBytes) {
@@ -405,7 +405,7 @@ public class BackupUploadService {
       throw new AppException(HttpStatus.BAD_REQUEST, "Chunk file is required");
     }
     if (chunkFile.getSize() > maxChunkBytes) {
-      throw new AppException(HttpStatus.PAYLOAD_TOO_LARGE,
+      throw new AppException(HttpStatus.CONTENT_TOO_LARGE,
           "Chunk exceeds max size of " + maxChunkBytes + " bytes");
     }
     long expectedSize = expectedChunkSize(item, chunkNumber);

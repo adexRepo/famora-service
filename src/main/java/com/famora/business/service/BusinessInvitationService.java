@@ -10,6 +10,7 @@ import com.famora.business.dto.request.CreateInvitationRequest;
 import com.famora.business.dto.request.JoinBusinessRequest;
 import com.famora.business.dto.response.BusinessInvitationResponse;
 import com.famora.business.dto.response.BusinessMemberResponse;
+import com.famora.business.dto.response.CreatedBusinessInvitationResponse;
 import com.famora.business.entity.Business;
 import com.famora.business.entity.BusinessInvitation;
 import com.famora.business.entity.BusinessMember;
@@ -22,11 +23,13 @@ import com.famora.business.spec.BusinessInvitationSpecifications;
 import com.famora.common.exception.BusinessException;
 import com.famora.common.helper.Status;
 import com.famora.security.CurrentUserProvider;
+import com.famora.security.TokenHashService;
 import com.famora.user.entity.User;
 import com.famora.user.entity.UserStatus;
 import com.famora.user.repository.UserRepository;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -47,9 +50,10 @@ public class BusinessInvitationService {
   private final CurrentUserProvider currentUserProvider;
   private final BusinessAuditPublisher auditPublisher;
   private final UserRepository userRepository;
+  private final TokenHashService tokenHashService;
   
   @Transactional
-  public BusinessInvitationResponse create(UUID businessId, CreateInvitationRequest req) {
+  public CreatedBusinessInvitationResponse create(UUID businessId, CreateInvitationRequest req) {
     User user = currentUserProvider.getCurrentUser();
     UUID userId = user.getId();
     permissionService.requireCanInviteMember(businessId, userId);
@@ -64,7 +68,8 @@ public class BusinessInvitationService {
     i.setInvitedEmail(req.invitedEmail());
     i.setInvitedPhone(req.invitedPhone());
     i.setRole(req.role());
-    i.setInvitationCode(uniqueCode());
+    String rawToken = uniqueToken();
+    i.setInvitationCodeHash(tokenHashService.sha256(rawToken));
     i.setInvitationStatus(InvitationStatus.PENDING);
     i.setExpiresAt(req.expiresAt() == null
         ? LocalDateTime.now().plusDays(BusinessDefaults.INVITATION_EXPIRY_DAYS)
@@ -73,7 +78,7 @@ public class BusinessInvitationService {
     i.setCreatedBy(user);
     i = invitationRepository.save(i);
     publishInvitationAudit(user, businessId, AuditAction.BUSINESS_INVITATION_CREATED, i);
-    return BusinessMapper.invitation(i);
+    return new CreatedBusinessInvitationResponse(BusinessMapper.invitation(i), rawToken);
   }
   
   @Transactional(readOnly = true)
@@ -108,7 +113,8 @@ public class BusinessInvitationService {
         .findFirst()
         .orElseThrow(() -> BusinessException.forbidden("Current user is not active"));
     UUID userId = user.getId();
-    BusinessInvitation i = invitationRepository.findByInvitationCode(req.invitationCode().trim())
+    BusinessInvitation i = invitationRepository.findByInvitationCodeHash(
+            tokenHashService.sha256(req.invitationCode().trim()))
         .orElseThrow(() -> BusinessException.notFound("Invitation code not found"));
     if (i.getInvitationStatus() != InvitationStatus.PENDING) {
       throw BusinessException.validation("Invitation is not pending");
@@ -170,11 +176,13 @@ public class BusinessInvitationService {
     );
   }
   
-  private String uniqueCode() {
+  private String uniqueToken() {
     for (int i = 0; i < 20; i++) {
-      String code = "DKR-" + (100000 + RANDOM.nextInt(900000));
-      if (!invitationRepository.existsByInvitationCode(code)) {
-        return code;
+      byte[] entropy = new byte[32];
+      RANDOM.nextBytes(entropy);
+      String token = Base64.getUrlEncoder().withoutPadding().encodeToString(entropy);
+      if (!invitationRepository.existsByInvitationCodeHash(tokenHashService.sha256(token))) {
+        return token;
       }
     }
     throw BusinessException.conflict("Cannot generate invitation code");

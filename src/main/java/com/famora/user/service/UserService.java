@@ -48,6 +48,7 @@ public class UserService {
   private final NotificationPreferenceRepository notificationPreferenceRepository;
   private final ScheduledNotificationRepository scheduledNotificationRepository;
   private final BackupUploadService backupUploadService;
+  private final AccountDataErasureService accountDataErasureService;
   
   @Transactional(readOnly = true)
   public UserProfileResponse getMe() {
@@ -111,6 +112,7 @@ public class UserService {
     notificationPreferenceRepository.deleteByUserId(user.getId());
     scheduledNotificationRepository.deleteByReceiverUser_Id(user.getId());
     backupUploadService.cancelIncompleteSessionsForDeletedUser(user.getId(), deletedAt);
+    accountDataErasureService.erasePrivateData(user.getId());
     auditLogRepository.anonymizePersonalDataByUserId(user.getId());
 
     UUID userId = user.getId();

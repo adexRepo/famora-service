@@ -2,6 +2,7 @@ package com.famora.finance.service;
 
 import com.famora.audit.entity.AuditAction;
 import com.famora.audit.service.AuditLogService;
+import com.famora.common.cache.TenantRedisCache;
 import com.famora.common.exception.ResourceNotFoundException;
 import com.famora.common.helper.Status;
 import com.famora.currency.service.CurrencyConversionService;
@@ -41,6 +42,7 @@ public class FinanceService {
   private final FinanceTransactionRepository financeTransactionRepository;
   private final AuditLogService auditLogService;
   private final CurrencyConversionService currencyConversionService;
+  private final TenantRedisCache tenantRedisCache;
   
   @Transactional
   public FinanceTransactionResponse create(FamilyContext ctx, CreateFinanceTransactionRequest request) {
@@ -125,7 +127,8 @@ public class FinanceService {
         transaction.getId(),
         null
     );
-    
+    tenantRedisCache.invalidateFinanceDashboardAfterCommit(family.getId());
+
     return toResponse(transaction);
   }
   
@@ -149,6 +152,7 @@ public class FinanceService {
         transaction.getId(),
         null
     );
+    tenantRedisCache.invalidateFinanceDashboardAfterCommit(family.getId());
   }
   
   @Transactional(readOnly = true)
@@ -224,7 +228,8 @@ public class FinanceService {
         transaction.getId(),
         null
     );
-    
+    tenantRedisCache.invalidateFinanceDashboardAfterCommit(ctx.family().getId());
+
     return transaction;
   }
   
@@ -246,6 +251,7 @@ public class FinanceService {
         transaction.getId(),
         null
     );
+    tenantRedisCache.invalidateFinanceDashboardAfterCommit(ctx.family().getId());
   }
   
   private FinanceTransactionResponse toResponse(FinanceTransaction transaction) {

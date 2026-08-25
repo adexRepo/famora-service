@@ -30,6 +30,7 @@ import com.famora.business.repository.BusinessDailySalesItemRepository;
 import com.famora.business.repository.BusinessExpenseRepository;
 import com.famora.business.repository.BusinessProductRepository;
 import com.famora.business.spec.BusinessDailyReportSpecifications;
+import com.famora.common.cache.TenantRedisCache;
 import com.famora.common.exception.BusinessException;
 import com.famora.common.helper.MoneyUtil;
 import com.famora.common.helper.Status;
@@ -60,6 +61,7 @@ public class BusinessDailyReportService {
   private final BusinessExpenseRepository expenseRepo;
   private final BusinessDailyReportCalculationService calculationService;
   private final BusinessAuditPublisher auditPublisher;
+  private final TenantRedisCache tenantRedisCache;
   
   @Transactional
   public DailyReportSummaryResponse createDraft(UUID businessId, SubmitDailyReportRequest req) {
@@ -112,7 +114,8 @@ public class BusinessDailyReportService {
         saved.getId(),
         Map.of(REPORT_DATE, saved.getReportDate(), SHIFT, saved.getShift())
     );
-    
+    tenantRedisCache.invalidateBusinessSummaryAfterCommit(businessId);
+
     return BusinessMapper.reportSummary(saved);
   }
   
@@ -171,7 +174,8 @@ public class BusinessDailyReportService {
         saved.getId(),
         Map.of(REPORT_DATE, saved.getReportDate(), SHIFT, saved.getShift())
     );
-    
+    tenantRedisCache.invalidateBusinessSummaryAfterCommit(businessId);
+
     return BusinessMapper.reportSummary(saved);
   }
   

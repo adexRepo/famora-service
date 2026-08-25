@@ -59,7 +59,7 @@ public final class BusinessMapper {
   
   public static BusinessInvitationResponse invitation(BusinessInvitation i) {
     return new BusinessInvitationResponse(i.getId(), i.getBusiness().getId(), i.getInvitedEmail(),
-        i.getInvitedPhone(), i.getRole(), i.getInvitationCode(),
+        i.getInvitedPhone(), i.getRole(),
         i.getInvitationStatus(), i.getExpiresAt(), i.getInvitedByUserId(), i.getAcceptedByUserId());
   }
   

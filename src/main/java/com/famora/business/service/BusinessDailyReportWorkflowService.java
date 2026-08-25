@@ -33,6 +33,7 @@ import com.famora.business.repository.BusinessDailySalesItemRepository;
 import com.famora.business.repository.BusinessExpenseRepository;
 import com.famora.business.spec.BusinessDailyReportRevisionSpecifications;
 import com.famora.business.validator.BusinessDailyReportWorkflowValidator;
+import com.famora.common.cache.TenantRedisCache;
 import com.famora.common.exception.BusinessDailyReportWorkflowException;
 import com.famora.common.helper.Status;
 import com.famora.notification.service.BusinessNotificationService;
@@ -75,6 +76,7 @@ public class BusinessDailyReportWorkflowService {
   private final BusinessAuditPublisher auditPublisher;
   private final ObjectMapper objectMapper;
   private final BusinessNotificationService businessNotificationService;
+  private final TenantRedisCache tenantRedisCache;
   
   @Transactional
   public SubmitDailyReportResponse submitReport(UUID businessId, UUID reportId) {
@@ -552,5 +554,6 @@ public class BusinessDailyReportWorkflowService {
         reportId,
         metadata
     );
+    tenantRedisCache.invalidateBusinessSummaryAfterCommit(businessId);
   }
 }

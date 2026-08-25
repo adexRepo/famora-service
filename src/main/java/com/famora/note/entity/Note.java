@@ -31,7 +31,7 @@ public class Note extends VisibleFamilyScopedEntity {
   private String content;
   @Enumerated(EnumType.STRING)
   @Column(name = "note_type", nullable = false, length = 30)
-  private NoteType noteType = NoteType.TEXT;
+  private NoteType noteType;
   @JdbcTypeCode(SqlTypes.JSON)
   @Column(name = "content_json", columnDefinition = "jsonb")
   private Map<String, Object> contentJson;

@@ -8,12 +8,13 @@ import com.famora.business.repository.BusinessDailyReportRepository;
 import com.famora.common.exception.BusinessException;
 import com.famora.common.helper.Status;
 import com.famora.file.dto.StoredFile;
-import com.famora.file.helper.FileType;
 import com.famora.file.helper.StorageType;
 import com.famora.file.service.StorageService;
 import com.famora.security.CurrentUserProvider;
 import com.famora.user.entity.User;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -108,12 +109,14 @@ public class BusinessDailyReportPhotoService {
     entity.setMimeType(stored.mimeType());
     entity.setFileSize(photo.getSize());
     entity.setFileHash(stored.sha256());
-    entity.setMetadataJson(stored.metadataJson());
+    Map<String, Object> metadata = new LinkedHashMap<>(stored.metadataJson());
+    metadata.put("strictImageValidated", true);
+    entity.setMetadataJson(metadata);
     
     return photoRepository.save(entity);
   }
   
   public record Download(BusinessDailyReportPhoto photo, Resource resource) {
-    
+  
   }
 }

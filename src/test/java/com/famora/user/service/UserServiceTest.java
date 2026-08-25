@@ -51,6 +51,7 @@ class UserServiceTest {
   @Mock private NotificationPreferenceRepository notificationPreferenceRepository;
   @Mock private ScheduledNotificationRepository scheduledNotificationRepository;
   @Mock private BackupUploadService backupUploadService;
+  @Mock private AccountDataErasureService accountDataErasureService;
 
   private UserService userService;
   private User user;
@@ -60,7 +61,8 @@ class UserServiceTest {
     userService = new UserService(currentUserProvider, userRepository, userSessionRepository,
         auditLogService, passwordEncoder, familyRepository, familyMemberRepository,
         businessRepository, businessMemberRepository, auditLogRepository,
-        notificationPreferenceRepository, scheduledNotificationRepository, backupUploadService);
+        notificationPreferenceRepository, scheduledNotificationRepository, backupUploadService,
+        accountDataErasureService);
     user = User.builder().fullName("Original Name").email("user@example.com")
         .passwordHash("existing-hash").status(UserStatus.ACTIVE).build();
     ReflectionTestUtils.setField(user, "id", UUID.randomUUID());
@@ -90,6 +92,7 @@ class UserServiceTest {
     verify(scheduledNotificationRepository).deleteByReceiverUser_Id(user.getId());
     verify(backupUploadService).cancelIncompleteSessionsForDeletedUser(
         org.mockito.ArgumentMatchers.eq(user.getId()), any(OffsetDateTime.class));
+    verify(accountDataErasureService).erasePrivateData(user.getId());
     verify(userRepository).save(user);
   }
 

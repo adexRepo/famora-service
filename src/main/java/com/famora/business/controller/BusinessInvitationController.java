@@ -5,6 +5,7 @@ import com.famora.business.dto.request.CreateInvitationRequest;
 import com.famora.business.dto.request.JoinBusinessRequest;
 import com.famora.business.dto.response.BusinessInvitationResponse;
 import com.famora.business.dto.response.BusinessMemberResponse;
+import com.famora.business.dto.response.CreatedBusinessInvitationResponse;
 import com.famora.business.service.BusinessInvitationService;
 import com.famora.common.dto.ApiResponse;
 import com.famora.common.dto.PageResponse;
@@ -35,7 +36,7 @@ public class BusinessInvitationController {
   private final CurrentUserProvider currentUserProvider;
   
   @PostMapping("/{businessId}/invitations")
-  public ResponseEntity<ApiResponse<BusinessInvitationResponse>> create(
+  public ResponseEntity<ApiResponse<CreatedBusinessInvitationResponse>> create(
       @PathVariable UUID businessId,
       @Valid @RequestBody CreateInvitationRequest request) {
     return ResponseEntity.status(HttpStatus.CREATED)

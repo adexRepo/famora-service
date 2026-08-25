@@ -1,5 +1,7 @@
 package com.famora;
 
+import com.famora.common.cache.RedisCacheProperties;
+import com.famora.common.config.EnvironmentNamespaceProperties;
 import com.famora.currency.config.CurrencyProperties;
 import com.famora.family.config.FamilyProperties;
 import com.famora.prayer.config.PrayerTimesProperties;
@@ -16,6 +18,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 @EnableConfigurationProperties({
     CurrencyProperties.class,
+    EnvironmentNamespaceProperties.class,
+    RedisCacheProperties.class,
     PrayerTimesProperties.class,
     FamilyProperties.class,
     CorsProperties.class,

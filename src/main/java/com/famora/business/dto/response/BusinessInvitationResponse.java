@@ -6,5 +6,5 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 public record BusinessInvitationResponse(UUID id, UUID businessId, String invitedEmail, String invitedPhone,
-                                         BusinessRole role, String invitationCode, InvitationStatus invitationStatus,
+                                         BusinessRole role, InvitationStatus invitationStatus,
                                          LocalDateTime expiresAt, UUID invitedByUserId, UUID acceptedByUserId) {}

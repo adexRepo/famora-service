@@ -17,6 +17,7 @@ import com.famora.business.publisher.BusinessAuditPublisher;
 import com.famora.business.repository.BusinessDailyReportRepository;
 import com.famora.business.repository.BusinessExpenseRepository;
 import com.famora.business.spec.BusinessExpenseSpecifications;
+import com.famora.common.cache.TenantRedisCache;
 import com.famora.common.exception.BusinessException;
 import com.famora.common.helper.MoneyUtil;
 import com.famora.common.helper.Status;
@@ -41,6 +42,7 @@ public class BusinessExpenseService {
   private final BusinessExpenseRepository expenseRepository;
   private final BusinessDailyReportRepository reportRepository;
   private final BusinessAuditPublisher auditPublisher;
+  private final TenantRedisCache tenantRedisCache;
   
   @Transactional
   public ExpenseResponse create(UUID businessId, CreateExpenseRequest req) {
@@ -159,6 +161,7 @@ public class BusinessExpenseService {
             STATUS, expense.getStatus()
         )
     );
+    tenantRedisCache.invalidateBusinessSummaryAfterCommit(businessId);
   }
   
   private BusinessExpense requireExpense(UUID businessId, UUID expenseId) {

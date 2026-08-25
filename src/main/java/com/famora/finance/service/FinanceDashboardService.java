@@ -1,5 +1,6 @@
 package com.famora.finance.service;
 
+import com.famora.common.cache.TenantRedisCache;
 import com.famora.common.helper.Status;
 import com.famora.currency.service.CurrencyConversionService;
 import com.famora.family.dto.FamilyContext;
@@ -50,15 +51,21 @@ public class FinanceDashboardService {
   private final FinanceDebtRepository debtRepository;
   private final FinanceService financeService;
   private final CurrencyConversionService currencyConversionService;
+  private final TenantRedisCache tenantRedisCache;
   
   @Transactional(readOnly = true)
   public DashboardResponse dashboard(FamilyContext ctx, String currency) {
     String targetCurrency = financeService.normalizeCurrency(currency);
+    LocalDate today = LocalDate.now();
+    TenantRedisCache.CacheLookup<DashboardResponse> cached = tenantRedisCache
+        .findFinanceDashboard(ctx.family().getId(), targetCurrency, today);
+    if (cached.hit()) {
+      return cached.value();
+    }
     Map<ConversionKey, BigDecimal> conversionCache = new HashMap<>();
     List<FinanceTransaction> transactions = transactionRepository
         .findAllByFamilyIdAndStatusOrderByTransactionDateAscCreatedAtAsc(ctx.family().getId(),
             Status.ACTIVE);
-    LocalDate today = LocalDate.now();
     BigDecimal currentEquity = equityUntil(transactions, targetCurrency, today, conversionCache);
     
     Map<String, ChartResponse> cashflowChart = new LinkedHashMap<>();
@@ -72,13 +79,16 @@ public class FinanceDashboardService {
           cumulativeChart(transactions, targetCurrency, range, window, points, conversionCache));
     }
     
-    return new DashboardResponse(
+    DashboardResponse response = new DashboardResponse(
         targetCurrency,
         currentEquity,
         cashflowChart,
         cumulativeChart,
         allocation(ctx, transactions, targetCurrency, currentEquity, today, conversionCache)
     );
+    tenantRedisCache.putFinanceDashboard(ctx.family().getId(), targetCurrency, today, cached,
+        response);
+    return response;
   }
   
   @Transactional(readOnly = true)

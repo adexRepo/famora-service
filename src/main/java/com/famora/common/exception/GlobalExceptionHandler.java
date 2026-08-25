@@ -145,7 +145,7 @@ public class GlobalExceptionHandler {
       MaxUploadSizeExceededException ex,
       HttpServletRequest request) {
     printStackTrace(ex);
-    return buildResponse(HttpStatus.PAYLOAD_TOO_LARGE,
+    return buildResponse(HttpStatus.CONTENT_TOO_LARGE,
         "Uploaded file is too large. Please reduce the image size and try again.", request);
   }
   

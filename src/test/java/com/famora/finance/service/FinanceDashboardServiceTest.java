@@ -2,12 +2,18 @@ package com.famora.finance.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 import com.famora.common.helper.Status;
+import com.famora.common.cache.TenantRedisCache;
 import com.famora.currency.service.CurrencyConversionService;
 import com.famora.family.dto.FamilyContext;
 import com.famora.family.entity.Family;
 import com.famora.finance.dto.FinanceDashboardDtos.CumulativeChartResponse;
+import com.famora.finance.dto.FinanceDashboardDtos.AllocationResponse;
+import com.famora.finance.dto.FinanceDashboardDtos.DashboardResponse;
 import com.famora.finance.entity.FinanceTransaction;
 import com.famora.finance.entity.FinanceTransactionType;
 import com.famora.finance.repository.FinanceDebtRepository;
@@ -15,8 +21,10 @@ import com.famora.finance.repository.FinanceTransactionRepository;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -33,8 +41,16 @@ class FinanceDashboardServiceTest {
   private FinanceService financeService;
   @Mock
   private CurrencyConversionService currencyConversionService;
+  @Mock
+  private TenantRedisCache tenantRedisCache;
   @InjectMocks
   private FinanceDashboardService service;
+
+  @BeforeEach
+  void disableRedisCache() {
+    when(tenantRedisCache.findFinanceDashboard(any(), anyString(), any()))
+        .thenReturn(TenantRedisCache.CacheLookup.disabled());
+  }
 
   @Test
   void dashboardReturnsComparableCashFlowAmountsAndSavingsRate() {
@@ -86,6 +102,23 @@ class FinanceDashboardServiceTest {
 
     assertThat(cashFlow.netAmount()).isEqualByComparingTo("-100.00");
     assertThat(cashFlow.savingsRatePercent()).isNull();
+  }
+
+  @Test
+  void dashboardReturnsTenantScopedCachedResponseWithoutQueryingRepositories() {
+    UUID familyId = UUID.randomUUID();
+    FamilyContext context = familyContext(familyId);
+    DashboardResponse response = new DashboardResponse(
+        "IDR", BigDecimal.TEN, Map.of(), Map.of(),
+        new AllocationResponse(BigDecimal.TEN, List.of()));
+    when(financeService.normalizeCurrency("IDR")).thenReturn("IDR");
+    when(tenantRedisCache.findFinanceDashboard(familyId, "IDR", LocalDate.now()))
+        .thenReturn(TenantRedisCache.CacheLookup.hit(2L, response));
+
+    DashboardResponse result = service.dashboard(context, "IDR");
+
+    assertThat(result).isSameAs(response);
+    verifyNoInteractions(transactionRepository, debtRepository, currencyConversionService);
   }
 
   private FamilyContext familyContext(UUID familyId) {
