@@ -1,6 +1,7 @@
 package com.famora.user.repository;
 
 import com.famora.user.entity.User;
+import com.famora.user.entity.UserRole;
 import com.famora.user.entity.UserStatus;
 import jakarta.persistence.LockModeType;
 import java.util.Collection;
@@ -22,4 +23,9 @@ public interface UserRepository extends JpaRepository<User, UUID> {
   List<User> findAllByIdForUpdate(Collection<UUID> ids);
   
   boolean existsByEmail(String email);
+
+  boolean existsByRole(UserRole role);
+
+  @Query(value = "select pg_advisory_xact_lock(613072850743987441)", nativeQuery = true)
+  void acquireAdminBootstrapLock();
 }

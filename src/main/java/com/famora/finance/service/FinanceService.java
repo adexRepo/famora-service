@@ -63,6 +63,7 @@ public class FinanceService {
   public Page<FinanceTransactionResponse> list(
       FamilyContext familyContext,
       String month,
+      String keyword,
       FinanceTransactionType type,
       String category,
       Pageable pageable
@@ -74,11 +75,13 @@ public class FinanceService {
     LocalDate endDate = yearMonth.atEndOfMonth();
     
     String cleanCategory = clean(category);
+    String cleanKeyword = clean(keyword);
     
     Specification<FinanceTransaction> spec = Specification
         .where(FinanceTransactionSpecifications.family(familyId))
         .and(FinanceTransactionSpecifications.status(Status.ACTIVE))
         .and(FinanceTransactionSpecifications.transactionDateBetween(startDate, endDate))
+        .and(FinanceTransactionSpecifications.keyword(cleanKeyword))
         .and(FinanceTransactionSpecifications.type(type))
         .and(FinanceTransactionSpecifications.category(cleanCategory));
     

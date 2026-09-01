@@ -94,6 +94,9 @@ app:
     previous-encryption-keys: ${VAULT_PREVIOUS_ENCRYPTION_KEYS:}
     rotation-cron: ${VAULT_ROTATION_CRON:0 */5 * * * *}
   security:
+    admin-bootstrap:
+      # Empty by default: the bootstrap API remains disabled until explicitly configured.
+      token: ${ADMIN_BOOTSTRAP_TOKEN:}
     session-cleanup-cron: ${SESSION_CLEANUP_CRON:0 17 3 * * *}
     websocket-ticket-cleanup-cron: ${WEBSOCKET_TICKET_CLEANUP_CRON:0 */10 * * * *}
     rate-limit-cleanup-cron: ${RATE_LIMIT_CLEANUP_CRON:0 43 3 * * *}

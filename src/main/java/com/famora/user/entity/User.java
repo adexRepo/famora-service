@@ -43,6 +43,11 @@ public class User extends BaseEntity {
   @Enumerated(EnumType.STRING)
   @Column(name = "status", nullable = false)
   private UserStatus status;
+
+  @Builder.Default
+  @Enumerated(EnumType.STRING)
+  @Column(name = "role", nullable = false)
+  private UserRole role = UserRole.USER;
   
   @Column(name = "last_login_at")
   private OffsetDateTime lastLoginAt;
@@ -60,6 +65,9 @@ public class User extends BaseEntity {
   public void prePersist() {
     if (status == null) {
       status = UserStatus.ACTIVE;
+    }
+    if (role == null) {
+      role = UserRole.USER;
     }
   }
 }

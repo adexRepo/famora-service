@@ -47,6 +47,7 @@ public class FinanceController {
   public ApiResponse<PageResponse<FinanceTransactionResponse>> list(
       @RequestHeader("X-Family-Id") String familyId,
       @RequestParam(required = false) String month,
+      @RequestParam(required = false) String keyword,
       @RequestParam(required = false) FinanceTransactionType type,
       @RequestParam(required = false) String category,
       @RequestParam(defaultValue = "0") int page,
@@ -58,7 +59,7 @@ public class FinanceController {
     PageRequest pageRequest = PagingHelper.buildPageRequest(page, size, "transactionDate", "createdAt", "category");
     
     return ApiResponse.ok(PageResponse.from(
-        financeService.list(ctx, month, type, category, pageRequest)));
+        financeService.list(ctx, month, keyword, type, category, pageRequest)));
   }
   
   @GetMapping("/transactions/{id}")

@@ -4,6 +4,7 @@ import com.famora.common.helper.Status;
 import com.famora.finance.entity.FinanceTransaction;
 import com.famora.finance.entity.FinanceTransactionType;
 import java.time.LocalDate;
+import java.util.Locale;
 import java.util.UUID;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -39,6 +40,21 @@ public final class FinanceTransactionSpecifications {
       return cb.equal(root.get("type"), type);
     };
   }
+
+  public static Specification<FinanceTransaction> keyword(String keyword) {
+    return (root, query, cb) -> {
+      if (keyword == null || keyword.isBlank()) {
+        return cb.conjunction();
+      }
+
+      String pattern = "%" + escapeLike(keyword.trim().toLowerCase(Locale.ROOT)) + "%";
+      return cb.like(
+          cb.lower(cb.coalesce(root.get("description"), "")),
+          pattern,
+          '\\'
+      );
+    };
+  }
   
   public static Specification<FinanceTransaction> category(String category) {
     return (root, query, cb) -> {
@@ -51,5 +67,12 @@ public final class FinanceTransactionSpecifications {
           category.trim().toLowerCase()
       );
     };
+  }
+
+  private static String escapeLike(String value) {
+    return value
+        .replace("\\", "\\\\")
+        .replace("%", "\\%")
+        .replace("_", "\\_");
   }
 }
