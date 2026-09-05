@@ -4,6 +4,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.famora.common.controller.PingController;
@@ -75,6 +76,14 @@ class SecurityConfigurationTest {
   @Test
   void pingRemainsPublic() throws Exception {
     mockMvc.perform(get("/api/v1/ping")).andExpect(status().isOk());
+  }
+
+  @Test
+  void adminRoutesRequireAdministratorRole() throws Exception {
+    mockMvc.perform(get("/api/v1/admin/nonexistent").with(user("regular").roles("USER")))
+        .andExpect(status().isForbidden());
+    mockMvc.perform(get("/api/v1/admin/nonexistent").with(user("admin").roles("ADMIN")))
+        .andExpect(status().isNotFound());
   }
 
   @Test

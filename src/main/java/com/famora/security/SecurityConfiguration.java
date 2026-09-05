@@ -77,6 +77,7 @@ public class SecurityConfiguration {
               "/api/v1/auth/register").permitAll();
           auth.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll();
           auth.requestMatchers("/ws", "/ws/**").permitAll();
+          auth.requestMatchers("/api/v1/admin/**").hasRole("ADMIN");
           auth.anyRequest().authenticated();
         })
         .cors(crs -> crs.configurationSource(corsConfigurationSource()))
