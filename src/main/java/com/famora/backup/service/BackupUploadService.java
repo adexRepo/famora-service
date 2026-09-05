@@ -21,7 +21,6 @@ import com.famora.common.helper.Visibility;
 import com.famora.family.dto.FamilyContext;
 import com.famora.file.entity.FileAsset;
 import com.famora.file.service.FileService;
-import com.famora.user.repository.UserRepository;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -66,7 +65,7 @@ public class BackupUploadService {
   private final BackupUploadChunkRepository chunkRepository;
   private final FileService fileService;
   private final AuditLogService audit;
-  private final UserRepository userRepository;
+  private final BackupStorageQuotaService quotaService;
   
   @Value("${app.backup.temp-root:}")
   private String tempRoot;
@@ -81,6 +80,7 @@ public class BackupUploadService {
   public void cancelIncompleteSessionsForDeletedUser(UUID userId, OffsetDateTime deletedAt) {
     List<BackupUploadSession> sessions = sessionRepository.findByCreatedBy_Id(userId);
     List<Path> cleanupPaths = new ArrayList<>();
+    long releasedBytes = 0;
     for (BackupUploadSession session : sessions) {
       boolean incomplete = session.getUploadStatus() != BackupUploadSessionStatus.COMPLETED
           && session.getUploadStatus() != BackupUploadSessionStatus.CANCELLED;
@@ -93,6 +93,9 @@ public class BackupUploadService {
       List<BackupUploadItem> items = activeItems(session);
       for (BackupUploadItem item : items) {
         if (item.getItemStatus() != BackupUploadItemStatus.COMPLETED) {
+          if (item.getItemStatus() != BackupUploadItemStatus.CANCELLED) {
+            releasedBytes = Math.addExact(releasedBytes, item.getFileSize());
+          }
           item.setItemStatus(BackupUploadItemStatus.CANCELLED);
         }
         item.setNotes(null);
@@ -104,6 +107,7 @@ public class BackupUploadService {
       }
     }
     sessionRepository.saveAll(sessions);
+    quotaService.releaseReservation(userId, releasedBytes);
     if (!cleanupPaths.isEmpty()) {
       TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
         @Override
@@ -118,7 +122,8 @@ public class BackupUploadService {
   public BackupSessionDetailResponse createSession(CreateBackupSessionRequest request,
       FamilyContext ctx) {
     validateCreateRequest(request);
-    userRepository.findAllByIdForUpdate(List.of(ctx.user().getId()));
+    long totalBytes = request.files().stream().mapToLong(BackupUploadItemRequest::fileSize).sum();
+    quotaService.reserve(ctx.user().getId(), totalBytes);
     validateOriginalNamesAvailable(request.files(), ctx);
     
     BackupUploadSession session = new BackupUploadSession();
@@ -126,8 +131,7 @@ public class BackupUploadService {
     session.setCreatedBy(ctx.user());
     session.setUploadStatus(BackupUploadSessionStatus.PENDING);
     session.setTotalFiles(request.files().size());
-    session.setTotalBytes(request.files().stream().mapToLong(BackupUploadItemRequest::fileSize)
-        .sum());
+    session.setTotalBytes(totalBytes);
     session.setUploadedBytes(0);
     session.setCompletedFiles(0);
     session.setFailedFiles(0);
@@ -211,7 +215,7 @@ public class BackupUploadService {
   @Transactional
   public BackupItemResponse completeItem(UUID sessionId, UUID itemId, FamilyContext ctx) {
     BackupUploadSession session = requireMutableSession(sessionId, ctx);
-    BackupUploadItem item = requireItem(session, itemId);
+    BackupUploadItem item = requireItemForUpdate(session, itemId);
     
     if (item.getItemStatus() == BackupUploadItemStatus.COMPLETED) {
       return BackupItemResponse.from(item);
@@ -248,6 +252,7 @@ public class BackupUploadService {
         ctx,
         "backups"
     );
+    quotaService.completeReservation(item.getCreatedBy().getId(), item.getFileSize());
     
     item.setFileAsset(file);
     item.setAssembledSha256(assembledHash);
@@ -300,6 +305,12 @@ public class BackupUploadService {
     session.setUpdatedBy(ctx.user());
     
     List<BackupUploadItem> items = activeItems(session);
+    long releasedBytes = items.stream()
+        .filter(item -> item.getItemStatus() != BackupUploadItemStatus.COMPLETED
+            && item.getItemStatus() != BackupUploadItemStatus.CANCELLED)
+        .mapToLong(BackupUploadItem::getFileSize)
+        .sum();
+    quotaService.releaseReservation(session.getCreatedBy().getId(), releasedBytes);
     for (BackupUploadItem item : items) {
       if (item.getItemStatus() != BackupUploadItemStatus.COMPLETED) {
         item.setItemStatus(BackupUploadItemStatus.CANCELLED);
@@ -548,6 +559,12 @@ public class BackupUploadService {
   
   private BackupUploadItem requireItem(BackupUploadSession session, UUID itemId) {
     return itemRepository.findByIdAndSessionIdAndStatus(itemId, session.getId(), Status.ACTIVE)
+        .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Backup item not found"));
+  }
+
+  private BackupUploadItem requireItemForUpdate(BackupUploadSession session, UUID itemId) {
+    return itemRepository.findForUpdateByIdAndSessionIdAndStatus(itemId, session.getId(),
+            Status.ACTIVE)
         .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Backup item not found"));
   }
   

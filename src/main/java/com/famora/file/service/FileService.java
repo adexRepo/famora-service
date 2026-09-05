@@ -21,6 +21,7 @@ import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.util.List;
 import java.util.UUID;
 import javax.imageio.ImageIO;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +43,7 @@ public class FileService {
   private final FileRepository repo;
   private final StorageService storage;
   private final AuditLogService audit;
+  private final List<FileDeletionListener> deletionListeners;
   
   @Value("${app.storage.type:MINIO}")
   private StorageType defaultStorageType;
@@ -286,9 +288,11 @@ public class FileService {
     return f;
   }
   
+  @Transactional
   public void delete(UUID id, FamilyContext ctx) {
     FileAsset f = get(id, ctx);
-    
+
+    deletionListeners.forEach(listener -> listener.beforeDelete(f));
     f.setStatus(Status.DELETED);
     
     repo.save(f);

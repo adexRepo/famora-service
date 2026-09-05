@@ -6,7 +6,9 @@ import com.famora.common.helper.Status;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 
 public interface BackupUploadItemRepository extends JpaRepository<BackupUploadItem, UUID> {
@@ -17,8 +19,15 @@ public interface BackupUploadItemRepository extends JpaRepository<BackupUploadIt
   Optional<BackupUploadItem> findByIdAndSessionIdAndStatus(UUID id, UUID sessionId,
       Status status);
 
+  @Lock(LockModeType.PESSIMISTIC_WRITE)
+  Optional<BackupUploadItem> findForUpdateByIdAndSessionIdAndStatus(UUID id, UUID sessionId,
+      Status status);
+
   boolean existsByCreatedBy_IdAndOriginalNameIgnoreCaseAndStatusAndItemStatusNot(
       UUID userId, String originalName, Status status, BackupUploadItemStatus itemStatus);
+
+  Optional<BackupUploadItem> findFirstByFileAsset_IdAndItemStatusAndStatus(UUID fileAssetId,
+      BackupUploadItemStatus itemStatus, Status status);
   
   long countBySessionIdAndStatusAndItemStatus(UUID sessionId, Status status,
       BackupUploadItemStatus itemStatus);

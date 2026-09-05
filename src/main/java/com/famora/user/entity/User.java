@@ -60,6 +60,18 @@ public class User extends BaseEntity {
 
   @Column(name = "max_family_override")
   private Integer maxFamilyOverride;
+
+  @Column(name = "backup_quota_override_enabled", nullable = false)
+  private boolean backupQuotaOverrideEnabled;
+
+  @Column(name = "backup_quota_override_bytes")
+  private Long backupQuotaOverrideBytes;
+
+  @Column(name = "backup_storage_used_bytes", nullable = false)
+  private long backupStorageUsedBytes;
+
+  @Column(name = "backup_storage_reserved_bytes", nullable = false)
+  private long backupStorageReservedBytes;
   
   @PrePersist
   public void prePersist() {

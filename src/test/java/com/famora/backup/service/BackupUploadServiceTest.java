@@ -22,7 +22,6 @@ import com.famora.family.entity.Family;
 import com.famora.family.helper.FamilyMemberRole;
 import com.famora.file.service.FileService;
 import com.famora.user.entity.User;
-import com.famora.user.repository.UserRepository;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.IntStream;
@@ -44,7 +43,7 @@ class BackupUploadServiceTest {
   @Mock private BackupUploadChunkRepository chunkRepository;
   @Mock private FileService fileService;
   @Mock private AuditLogService audit;
-  @Mock private UserRepository userRepository;
+  @Mock private BackupStorageQuotaService quotaService;
 
   private BackupUploadService service;
   private FamilyContext context;
@@ -52,7 +51,7 @@ class BackupUploadServiceTest {
   @BeforeEach
   void setUp() {
     service = new BackupUploadService(sessionRepository, itemRepository, chunkRepository,
-        fileService, audit, userRepository);
+        fileService, audit, quotaService);
     ReflectionTestUtils.setField(service, "maxChunkBytes", 5 * MEBIBYTE);
     ReflectionTestUtils.setField(service, "maxFileBytes", 50 * MEBIBYTE);
 
@@ -74,6 +73,7 @@ class BackupUploadServiceTest {
         files, null, null, null, null), context);
 
     assertThat(response.totalFiles()).isEqualTo(20);
+    verify(quotaService).reserve(context.user().getId(), 20 * 50 * MEBIBYTE);
     verify(sessionRepository).save(any());
     verify(itemRepository).saveAll(any());
   }
@@ -89,7 +89,7 @@ class BackupUploadServiceTest {
         .isInstanceOf(AppException.class)
         .hasMessageContaining("at most 20 files");
 
-    verify(userRepository, never()).findAllByIdForUpdate(any());
+    verify(quotaService, never()).reserve(any(), any(Long.class));
   }
 
   @Test
@@ -112,7 +112,7 @@ class BackupUploadServiceTest {
         .isInstanceOf(AppException.class)
         .hasMessageContaining("Duplicate original filenames");
 
-    verify(userRepository, never()).findAllByIdForUpdate(any());
+    verify(quotaService, never()).reserve(any(), any(Long.class));
   }
 
   @Test
