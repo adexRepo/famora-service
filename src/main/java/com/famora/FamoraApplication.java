@@ -1,6 +1,5 @@
 package com.famora;
 
-import com.famora.admin.config.AdminBootstrapProperties;
 import com.famora.common.cache.RedisCacheProperties;
 import com.famora.common.config.EnvironmentNamespaceProperties;
 import com.famora.currency.config.CurrencyProperties;
@@ -18,7 +17,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @SpringBootApplication
 @EnableScheduling
 @EnableConfigurationProperties({
-    AdminBootstrapProperties.class,
     CurrencyProperties.class,
     EnvironmentNamespaceProperties.class,
     RedisCacheProperties.class,
