@@ -3,6 +3,7 @@ package com.famora.family.repository;
 import com.famora.family.entity.FamilyMember;
 import com.famora.family.helper.FamilyMemberRole;
 import com.famora.family.helper.FamilyMemberStatus;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -26,6 +27,15 @@ public interface FamilyMemberRepository extends JpaRepository<FamilyMember, UUID
   List<FamilyMember> findActiveFamiliesByUserId(@Param("userId") UUID userId);
 
   long countByUserIdAndStatus(UUID userId, FamilyMemberStatus status);
+
+  @Query("""
+      select fm.user.id as userId, count(fm.id) as familyCount
+      from FamilyMember fm
+      where fm.user.id in :userIds and fm.status = :status
+      group by fm.user.id
+      """)
+  List<UserFamilyCount> countFamiliesByUserIdsAndStatus(Collection<UUID> userIds,
+      FamilyMemberStatus status);
   
   Optional<FamilyMember> findByFamilyIdAndUserIdAndStatus(UUID familyId, UUID userId,
       FamilyMemberStatus status);
@@ -77,4 +87,11 @@ public interface FamilyMemberRepository extends JpaRepository<FamilyMember, UUID
       """)
   int deactivateMembershipsForDeletedUser(@Param("userId") UUID userId,
       @Param("deletedAt") java.time.OffsetDateTime deletedAt);
+
+  interface UserFamilyCount {
+
+    UUID getUserId();
+
+    long getFamilyCount();
+  }
 }
